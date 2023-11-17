@@ -34,7 +34,7 @@
  *   - All parameters can be persistent changed online using commands via MQTT, WebConsole or Serial.
 \*****************************************************************************************************/
 
-#include "user_private_data.h"               // not sharing sensible data with the global community; hawa-lc4
+// #include "user_private_data.h"               // not sharing sensible data with the global community; hawa-lc4 // not requiered in this project!
 // don't forget to check and modify the file above!
 
 // #ifdef %identifier%
@@ -45,43 +45,21 @@
 #ifdef PROJECT
 #undef PROJECT
 #endif
-#define PROJECT               "tasmotix"   // der Spielwürfel
+#define PROJECT               "tasmotix-sml"
 
 #ifdef T4M_RULE
-  #warning **** Build: RULES ****
-  #undef CODE_IMAGE_STR
-  #define CODE_IMAGE_STR "T4M_RULE"
-  #ifdef USE_SCRIPT
-  #undef USE_SCRIPT
-  #endif
-
-  #ifndef USE_RULES
-  #define USE_RULES
-  #endif
-
-  #ifndef USE_EXPRESSION
-  #define USE_EXPRESSION
-  #endif
-
-  #ifndef SUPPORT_IF_STATEMENT
-  #define SUPPORT_IF_STATEMENT
-  #endif
-
-  #define USER_RULE1            "ON Power1#Boot DO Backlog0 Hostname tasmotix;FriendlyName2 programm;AdcParam 7,0,515,0.23,0;Mem2 openWB/config/set/SmartHome/Devices/3/mode;Mem3 openWB/config/set/SmartHome/Devices/3/device_manual_control;Rule1 0;Rule1 \" ENDON"
-  #define USER_RULE2            "ON System#Init DO Backlog Ruletimer1 2;LedPower3 1 ENDON ON Power1#State DO Backlog RuleTimer1 2;LedPower3 1 ENDON ON Rules#Timer=1 DO LedPower3 0 ENDON ON Power1#State=1 DO backlog Mem1=1; adcparam 7,0,612,0.23,0 ENDON ON Power1#State=0 DO backlog Mem1=0;adcparam 7,0,0,0.23,0 ENDON ON Power2#State DO LedPower3 %value% ENDON ON Button1#State DO IF (Mem1==0) publish %Mem2% 1;Power1 1;publish %Mem3% 1 ELSE publish %Mem3% 0;Power1 0;ruletimer3 60 ENDIF ENDON ON rules#timer=3 DO publish %Mem2% 0 ENDON"
-  #define USER_RULE3            ""
-  #define USER_BACKLOG          "Rule1 1;Rule2 1;Rule3 1;PulseTime2 7"
+  #error **** Build: SCRIPT only! ****
 #endif // T4M_RULE
 
 #ifdef T4M_SCRIPT
   #warning **** Build: SCRIPT ****
   #undef CODE_IMAGE_STR
-  #define CODE_IMAGE_STR "T4M_SCRIPT"
+  #define CODE_IMAGE_STR "T4M_SCRIPT_SML"
 
-  #undef USE_RULES
   #undef USE_TIMERS
   #undef USE_TIMERS_WEB
   #undef USE_SUNRISE
+  #undef USE_RULES
 
   #define USE_SCRIPT
 
@@ -92,60 +70,106 @@
   // #define USE_SCRIPT_JSON_EXPORT
   #define USE_SCRIPT_WEB_DISPLAY
   #define USE_BUTTON_EVENT
-  #define SCRIPT_POWER_SECTION
+  // #define SCRIPT_POWER_SECTION
   #define START_SCRIPT_FROM_BOOT      // https://tasmota.github.io/docs/Scripting-Language/
-  #define USER_BACKLOG "Script 1"     // hier nur script aktivieren, sonst nichts!
+  #define USER_BACKLOG "script 1"     // activate scripting
+
+  // logging to SDCard: https://github.com/arendst/Tasmota/discussions/13938
 
   #define PRECONFIGURED_SCRIPT \
-  ">D\n\n"
-  
-/*   5 Zeichen Skript; 8187 Zeichen �brig von 8192   */
+  ">D 48\n" \
+    "fr=0\nres=0\ncnt=0\nstr=\"\"\nM:msmP=0 60\n" \
+    "smP=0\nsmI=0\nsmO=0\n" \
+    "i:tim1=0\ni:tim2=0\n" \
+  ">B\n=>SerialConfig 8N1\n=>Power ON\n=>sensor53 r\n" \
+    "; list all files in root directory\n" \
+    "fr=fo(\"/\" 0)\nfor cnt 1 20 1\nres=fr(str fr)\nif res>0\nthen\nprint %cnt% : %str%\nelse\nbreak\nendif\nnext\nfc(fr)\n" \
+  ">R\n=>Hostname tasmotix-sml\n" \
+  ">S\n->DisplayText [zs2]script\n->DisplayText [l2c1]waehlen!"
 
+  /* script core for eBZ DD3 (OBIS ASCII); script.dd3a
+  ">B\n=>SerialConfig 7E1\n=>Power ON\n=>sensor53 r\n" \
+  ">R\n=>Hostname tasmotix-sml\n=>FriendlyName1 eBz_DD3_OBIS-ASCII\n" \
+  ">M 1\n+1,3,o,0,9600,Haus,-1\n" \
+    "1,1-0:1.8.0*255(@1,Energie Import,kWh,E_In,2\n" \
+    "1,1-0:2.8.0*255(@1,Energie Export,kWh,E_Out,2\n" \
+    "1,1-0:16.7.0*255(@1,Leistung ges.,W,P_Cur,0\n" \
+    "1,1-0:36.7.0*255(@1,Leistung L1,W,P_L1,0\n" \
+    "1,1-0:56.7.0*255(@1,Leistung L2,W,P_L2,0\n" \
+    "1,1-0:76.7.0*255(@1,Leistung L3,W,P_L3,0\n" \
+  */
+
+  /* script core for EMH ED300L (SML); script.ed300l
+  ">B\n=>SerialConfig 8N1\n=>Power ON\n=>sensor53 r\n" \
+  ">R\n=>Hostname tasmotix-sml\n=>FriendlyName1 EMH_ED300L_SML\n" \
+  ">M 1\n+1,3,s,0,9600,Haus,-1\n" \
+    "1,77070100010800FF@1000,Energie Import,kWh,E_In,2\n" \
+    "1,77070100020800FF@1000,Energie Export,kWh,E_Out,2\n" \
+    "1,770701000F0700FF@1,Leistung ges.,W,P_Cur,0\n" \
+  */
+
+// 350 Zeichen Skript; 7500 Zeichen übrig von 8192
 #endif // T4M_SCRIPT
 
 #ifdef USER_TEMPLATE
 #undef USER_TEMPLATE
 #endif
-#define USER_TEMPLATE "{\"NAME\":\"tasmotix\",\"GPIO\":[32,0,544,0,0,0,0,0,0,0,0,0,0,0],\"FLAG\":0,\"BASE\":18,\"CMND\":\"Module 0\"}"  // [Template] Set JSON template
+#define USER_TEMPLATE "{\"NAME\":\"tasmotix-sml\",\"GPIO\":[32,0,544,0,640,608,0,0,672,704,736,6240,0,0],\"FLAG\":0,\"BASE\":18,\"CMND\":\"Module 0\"}"
 // https://tasmota.github.io/docs/Components/  &  https://randomnerdtutorials.com/esp8266-pinout-reference-gpios
-// D:\Users\G�nter\Documents\Elektronik\ESP32\__Dokumentation\ESP8266_D1-mini-pinout.pdf
-// GPIO0  Taster gegen GND (kann damit auch zum FlashBoot benutzt werden) -- 32     // Taster 
-// GPIO1  TX UART0                                                        -- 0      // 
+// D:\Users\Günter\Documents\Elektronik\ESP32\__Dokumentation\ESP8266_D1-mini-pinout.pdf
+// GPIO0  Taster gegen GND (kann damit auch zum FlashBoot benutzt werden) -- 32     // Taster
+// GPIO1  TX UART0                                                        -- 0      // SML data
 // GPIO2  hat die interne LED gegen VCC; Funktion LedLink (544; _i: 576)  -- 544    // LedLink
-// GPIO3  RX UART0                                                        -- 0      // 
-// GPIO4  I2C SDA (640)                                                   -- 0      // 
-// GPIO5  I2C SCL (608)                                                   -- 0      // 
+// GPIO3  RX UART0                                                        -- 0      // SML data
+// GPIO4  I2C SDA (640)                                                   -- 640    // Display
+// GPIO5  I2C SCL (608)                                                   -- 608    // Display
 // GPIO9  DO NOT USE!!                                                    -- 0      // DO NOT USE!!
 // GPIO10 DO NOT USE!!                                                    -- 0      // DO NOT USE!!
-// GPIO12 SPI MISO (672)                                                  -- 0      // 
-// GPIO13 SPI MOSI (704)                                                  -- 0      // 
-// GPIO14 SPI CLK  (736)                                                  -- 0      // 
-// GPIO15 SPI SS (768) - SDCard CS (6240)                                 -- 0      // 
+// GPIO12 SPI MISO (672)                                                  -- 672    // SDCard
+// GPIO13 SPI MOSI (704)                                                  -- 704    // SDCard
+// GPIO14 SPI CLK  (736)                                                  -- 736    // SDCard
+// GPIO15 SPI SS (768) - SDCard CS (6240)                                 -- 6240   // SDCard
 // GPIO16 (wake-up aus dem deep-sleep Modus: 4096)                        -- 0      // 
 // GPIO17 ist der AD0 (CT Power: 4896)                                    -- 0      // 
-/*  ACHTUNG:  der D1-mini hat am Eingang AD0 einen Spannungsteiler und damit eine max. Eingangsspannung von 3,3V
-              der ESP8266 hat keinen Spannungsteiler und damit eine max. Eingangsspannung von 1,0V
+/*
+  Tasmota SML verwendet den Hardware UART0; eine entsprechende Konfiguration der GPIO im template ist nicht nötig.
 */
-//
-// AdcParam:  7
-//  1. Param:   Nullpunkt f�r DC Messung; bei AC immer 0!
-//  2. Param:   Multiplikator; param = (100.000 * Irms / ADC_value); ADC_value = Upp_sensor / 5,0244 * 1023; 1 / 820 * (3300 + 820) = 5,0244   // f�r ACS712 Stromsensoren
-//              (https://github.com/arendst/Tasmota/discussions/19409#discussioncomment-6857837)
-//  3. Param:   Spannung; Wert * 1000
-//  4. Param:   NULL-Offset; Strom kleiner als der hier eingetragene wird als 0 behandelt
-// hawa-lc4: xsns_02_analog.ino Zeile 482 (12.5.0.2) bzw. 504 (13.2.0.2) aktivieren des logging der ADC Werte
-#define hawa_LOG               false
 
+#define USE_SML_M
+#define SML_REPLACE_VARS
+// #define NO_USE_SML_TCP
+#define NO_USE_SML_DECRYPT
+
+#ifdef MAX_METERS
+#undef MAX_METERS
+#endif
+#define MAX_METERS                1
+
+#ifdef TELE_PERIOD
+#undef TELE_PERIOD
+#endif
+#define TELE_PERIOD               300
+
+#define USE_SPI                              // Hardware SPI using GPIO12(MISO), GPIO13(MOSI) and GPIO14(CLK) in addition to two user selectable GPIOs(CS and DC)
+#define USE_SDCARD                           // mount SD Card, requires configured SPI pins and setting of `SDCard CS` gpio
+#undef USE_MIBLE
+#undef USE_DISPLAY_ILI9341
 
 #define USE_UFILESYS
 #define UFSYS_SIZE 8192
 #define GUI_EDIT_FILE
 #define GUI_TRASH_FILE
 
-#ifdef TELE_PERIOD
-#undef TELE_PERIOD
-#endif
-#define TELE_PERIOD             300              // [TelePeriod] Telemetry (0 = disable, 10 - 3600 seconds)
+#define USE_I2C                              // I2C using library wire (+10k code, 0k2 mem, 124 iram)
+#define USE_DISPLAY
+#define USE_DISPLAY_SSD1306                  // [DisplayModel 2] [I2cDriver4] Enable SSD1306 Oled 128x64 display (I2C addresses 0x3C and 0x3D) (+16k code)
+// #define USE_UNIVERSAL_DISPLAY
+#undef USE_DISPLAY_MODES1TO5
+#undef USE_DISPLAY_LCD
+#undef USE_DISPLAY_MATRIX
+#undef USE_DISPLAY_SEVENSEG
+#undef USE_ADE7953
+#undef SHOW_SPLASH
 
 #ifdef MODULE
 #undef MODULE
@@ -162,7 +186,40 @@
 #endif
 #define MQTT_TOPIC             PROJECT
 
-//  #define SUPPORT_MQTT_EVENT                     // Support trigger event with MQTT subscriptions (+3k5 code)
+#ifdef STA_SSID1
+#undef STA_SSID1
+#endif
+#define STA_SSID1              ""
+
+#ifdef STA_PASS1
+#undef STA_PASS1
+#endif
+#define STA_PASS1              ""
+
+#ifdef STA_SSID2
+#undef STA_SSID2
+#endif
+#define STA_SSID2              "giggerlspeed"         // failsafe to connect with mobile phone
+
+#ifdef STA_PASS2
+#undef STA_PASS2
+#endif
+#define STA_PASS2              "SuperHuhn8"          // failsafe to connect with mobile phone
+
+#ifdef WIFI_AP_PASSPHRASE
+#undef WIFI_AP_PASSPHRASE
+#endif
+#define WIFI_AP_PASSPHRASE     PROJECT
+
+#ifdef WIFI_CONFIG_TOOL
+#undef WIFI_CONFIG_TOOL
+#endif
+#define WIFI_CONFIG_TOOL      WIFI_MANAGER
+
+#ifdef MQTT_HOST
+#undef MQTT_HOST
+#endif
+#define MQTT_HOST              ""
 
 #ifdef FRIENDLY_NAME
 #undef FRIENDLY_NAME
@@ -174,15 +231,37 @@
 #endif
 #define GUI_SHOW_HOSTNAME      true
 
+#ifdef NTP_SERVER1
+#undef NTP_SERVER1
+#endif
+#define NTP_SERVER1            "de.pool.ntp.org"
+#ifdef NTP_SERVER2
+#undef NTP_SERVER2
+#endif
+#define NTP_SERVER2            ""
+#ifdef NTP_SERVER3
+#undef NTP_SERVER3
+#endif
+#define NTP_SERVER3            ""
+
 #ifdef APP_TIMEZONE
 #undef APP_TIMEZONE
 #endif
-#define APP_TIMEZONE           99
+#define APP_TIMEZONE           99     // https://tasmota-tz.netlify.app/
 
 #ifdef MY_LANGUAGE
 #undef MY_LANGUAGE
 #endif
 #define MY_LANGUAGE            de_DE
+
+#ifdef WEB_PASSWORD
+#undef WEB_PASSWORD
+#endif
+#define WEB_PASSWORD            ""
+
+#ifdef USE_DEEPSLEEP
+#undef USE_DEEPSLEEP                              
+#endif 
 
 #ifdef USE_DOMOTICZ
 #undef USE_DOMOTICZ                              
@@ -242,10 +321,6 @@
 
 #ifdef USE_SHUTTER
 #undef USE_SHUTTER
-#endif
-
-#ifdef USE_DEEPSLEEP
-#undef USE_DEEPSLEEP
 #endif
 
 #ifdef USE_EXS_DIMMER
@@ -324,16 +399,16 @@
 #undef USE_DS18x20
 #endif
 
-#ifdef USE_I2C
-#undef USE_I2C
-#endif
-
-#ifdef USE_SPI
-#undef USE_SPI
-#endif
-
 #ifdef USE_SERIAL_BRIDGE
 #undef USE_SERIAL_BRIDGE
+#endif
+
+#ifdef USE_ENERGY_SENSOR
+#undef USE_ENERGY_SENSOR
+#endif
+
+#ifdef USE_ENERGY_DUMMY
+#undef USE_ENERGY_DUMMY
 #endif
 
 #ifdef USE_HLW8012
@@ -373,4 +448,3 @@
 #endif
 
 #endif  // _USER_CONFIG_OVERRIDE_H_
-

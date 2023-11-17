@@ -45,7 +45,7 @@
 #ifdef PROJECT
 #undef PROJECT
 #endif
-#define PROJECT               "tasmotix"   // der Spielwürfel
+#define PROJECT               "onIoff"   // der Smart-Switch von onIoff; openWB device 3
 
 #ifdef T4M_RULE
   #warning **** Build: RULES ****
@@ -67,21 +67,21 @@
   #define SUPPORT_IF_STATEMENT
   #endif
 
-  #define USER_RULE1            "ON Power1#Boot DO Backlog0 Hostname tasmotix;FriendlyName2 programm;AdcParam 7,0,515,0.23,0;Mem2 openWB/config/set/SmartHome/Devices/3/mode;Mem3 openWB/config/set/SmartHome/Devices/3/device_manual_control;Rule1 0;Rule1 \" ENDON"
-  #define USER_RULE2            "ON System#Init DO Backlog Ruletimer1 2;LedPower3 1 ENDON ON Power1#State DO Backlog RuleTimer1 2;LedPower3 1 ENDON ON Rules#Timer=1 DO LedPower3 0 ENDON ON Power1#State=1 DO backlog Mem1=1; adcparam 7,0,612,0.23,0 ENDON ON Power1#State=0 DO backlog Mem1=0;adcparam 7,0,0,0.23,0 ENDON ON Power2#State DO LedPower3 %value% ENDON ON Button1#State DO IF (Mem1==0) publish %Mem2% 1;Power1 1;publish %Mem3% 1 ELSE publish %Mem3% 0;Power1 0;ruletimer3 60 ENDIF ENDON ON rules#timer=3 DO publish %Mem2% 0 ENDON"
+  #define USER_RULE1            "ON power1#boot DO backlog0 hostname onIoff;rule1 0;rule1 \" ENDON"
+  #define USER_RULE2            ""
   #define USER_RULE3            ""
-  #define USER_BACKLOG          "Rule1 1;Rule2 1;Rule3 1;PulseTime2 7"
+  #define USER_BACKLOG          "Rule1 1"
 #endif // T4M_RULE
 
 #ifdef T4M_SCRIPT
   #warning **** Build: SCRIPT ****
   #undef CODE_IMAGE_STR
-  #define CODE_IMAGE_STR "T4M_SCRIPT"
+  #define CODE_IMAGE_STR "T4M_SCRIPT_onIoff"
 
-  #undef USE_RULES
   #undef USE_TIMERS
   #undef USE_TIMERS_WEB
   #undef USE_SUNRISE
+  #undef USE_RULES
 
   #define USE_SCRIPT
 
@@ -95,74 +95,74 @@
   #define SCRIPT_POWER_SECTION
   #define START_SCRIPT_FROM_BOOT      // https://tasmota.github.io/docs/Scripting-Language/
   #define USER_BACKLOG "Script 1"     // hier nur script aktivieren, sonst nichts!
-
   #define PRECONFIGURED_SCRIPT \
-  ">D\n\n"
-  
-/*   5 Zeichen Skript; 8187 Zeichen �brig von 8192   */
+  ">D 48\np:manu=0\nbutA=\"\"\nboI=\"\"\nsuf=\"device_manual_control\"\n\n" \
+  ">B\n->SetOption73 1\n->SetOption32 30\n->SwitchMode1 5\n\n" \
+  ">R\n=>Hostname onIoff\n\n" \
+  ">E\n" \
+    "boI=Info2#Hostname\n" \
+    "if (boI==\"onIoff\" and manu==1)\nthen\n=>publish %topic%/mode 1\n=>publish %topic%/%suf% %0pwr[1]%\nboI=\"\"\nendif\n" \
+    "butA=Button1#Action\n" \
+    "if butA==\"HOLD\"\nthen\n" \
+      "if manu==0\nthen\nmanu=1\nelse\nmanu=0\nendif\n" \
+      "svars\n=>publish %topic%/mode %0manu%\n" \
+    "endif\n" \
+    "if (butA==\"DOUBLE\" and manu==1)\nthen\n=>publish %topic%/mode 1\n" \
+      "if pwr[1]==0\nthen\n" \
+        "=>publish %topic%/%suf% 1\n" \
+        "if mqtts==0\nthen\n->Power1 1\nendif\n"\
+      "else\n" \
+        "=>publish %topic%/%suf% 0\n" \
+        "if mqtts==0\nthen\n->Power1 0\nendif\n"\
+      "endif\n" \
+    "endif\n" \
+    "butA=\"\"\n\n" \
+  ">S\n->LedPower1 %pwr[1]%\n->LedPower2 %manu%\n\n" \
+  ">W\nManuelle Steuerung:&emsp;&emsp;&emsp;%0manu%\n"
+
+// 644 Zeichen Skript; 7548 Zeichen übrig von 8192
 
 #endif // T4M_SCRIPT
 
 #ifdef USER_TEMPLATE
 #undef USER_TEMPLATE
 #endif
-#define USER_TEMPLATE "{\"NAME\":\"tasmotix\",\"GPIO\":[32,0,544,0,0,0,0,0,0,0,0,0,0,0],\"FLAG\":0,\"BASE\":18,\"CMND\":\"Module 0\"}"  // [Template] Set JSON template
+#define USER_TEMPLATE "{\"NAME\":\"onIoff_MS101\",\"GPIO\":[32,0,576,0,0,0,0,0,0,320,289,224,0,4896],\"FLAG\":0,\"BASE\":18,\"CMND\":\"AdcParam 7,0,825,0.235,0.052\",\"CMND\":\"Module 0\"}"  // [Template] Set JSON template
 // https://tasmota.github.io/docs/Components/  &  https://randomnerdtutorials.com/esp8266-pinout-reference-gpios
-// D:\Users\G�nter\Documents\Elektronik\ESP32\__Dokumentation\ESP8266_D1-mini-pinout.pdf
-// GPIO0  Taster gegen GND (kann damit auch zum FlashBoot benutzt werden) -- 32     // Taster 
+// D:\Users\Günter\Documents\Elektronik\ESP32\__Dokumentation\ESP8266_D1-mini-pinout.pdf
+// GPIO0  Taster gegen GND (kann damit auch zum FlashBoot benutzt werden) -- 32     // Taster zum umschalten Manuell|Automatik
 // GPIO1  TX UART0                                                        -- 0      // 
-// GPIO2  hat die interne LED gegen VCC; Funktion LedLink (544; _i: 576)  -- 544    // LedLink
+// GPIO2  hat die interne LED gegen VCC; Funktion LedLink (544; _i: 576)  -- 576    // 
 // GPIO3  RX UART0                                                        -- 0      // 
 // GPIO4  I2C SDA (640)                                                   -- 0      // 
 // GPIO5  I2C SCL (608)                                                   -- 0      // 
 // GPIO9  DO NOT USE!!                                                    -- 0      // DO NOT USE!!
 // GPIO10 DO NOT USE!!                                                    -- 0      // DO NOT USE!!
 // GPIO12 SPI MISO (672)                                                  -- 0      // 
-// GPIO13 SPI MOSI (704)                                                  -- 0      // 
-// GPIO14 SPI CLK  (736)                                                  -- 0      // 
-// GPIO15 SPI SS (768) - SDCard CS (6240)                                 -- 0      // 
+// GPIO13 SPI MOSI (704)                                                  -- 320    // Led_i1
+// GPIO14 SPI CLK  (736)                                                  -- 289    // Led2
+// GPIO15 SPI SS (768) - SDCard CS (6240)                                 -- 224    // Relais1
 // GPIO16 (wake-up aus dem deep-sleep Modus: 4096)                        -- 0      // 
-// GPIO17 ist der AD0 (CT Power: 4896)                                    -- 0      // 
-/*  ACHTUNG:  der D1-mini hat am Eingang AD0 einen Spannungsteiler und damit eine max. Eingangsspannung von 3,3V
-              der ESP8266 hat keinen Spannungsteiler und damit eine max. Eingangsspannung von 1,0V
-*/
+// GPIO17 ist der AD0 (CT Power: 4896)                                    -- 4896   // ACS712-20 Stromsensor 100mv/A
 //
 // AdcParam:  7
-//  1. Param:   Nullpunkt f�r DC Messung; bei AC immer 0!
-//  2. Param:   Multiplikator; param = (100.000 * Irms / ADC_value); ADC_value = Upp_sensor / 5,0244 * 1023; 1 / 820 * (3300 + 820) = 5,0244   // f�r ACS712 Stromsensoren
-//              (https://github.com/arendst/Tasmota/discussions/19409#discussioncomment-6857837)
+//  1. Param:   Nullpunkt für DC Messung; bei AC immer 0!
+//  2. Param:   Multiplikator; dif * Wert / 100000 = Strom [A]
 //  3. Param:   Spannung; Wert * 1000
 //  4. Param:   NULL-Offset; Strom kleiner als der hier eingetragene wird als 0 behandelt
-// hawa-lc4: xsns_02_analog.ino Zeile 482 (12.5.0.2) bzw. 504 (13.2.0.2) aktivieren des logging der ADC Werte
+// hawa: xsns_02_analog.ino Zeile 482 aktivieren zum logging der ADC Werte
 #define hawa_LOG               false
 
-
-#define USE_UFILESYS
-#define UFSYS_SIZE 8192
-#define GUI_EDIT_FILE
-#define GUI_TRASH_FILE
-
-#ifdef TELE_PERIOD
-#undef TELE_PERIOD
-#endif
-#define TELE_PERIOD             300              // [TelePeriod] Telemetry (0 = disable, 10 - 3600 seconds)
 
 #ifdef MODULE
 #undef MODULE
 #endif
 #define MODULE                 USER_MODULE
 
-#ifdef MQTT_USE
-#undef MQTT_USE
-#endif
-#define MQTT_USE               false
-
 #ifdef MQTT_TOPIC
 #undef MQTT_TOPIC
 #endif
 #define MQTT_TOPIC             PROJECT
-
-//  #define SUPPORT_MQTT_EVENT                     // Support trigger event with MQTT subscriptions (+3k5 code)
 
 #ifdef FRIENDLY_NAME
 #undef FRIENDLY_NAME
@@ -174,15 +174,35 @@
 #endif
 #define GUI_SHOW_HOSTNAME      true
 
-#ifdef APP_TIMEZONE
-#undef APP_TIMEZONE
-#endif
-#define APP_TIMEZONE           99
-
 #ifdef MY_LANGUAGE
 #undef MY_LANGUAGE
 #endif
 #define MY_LANGUAGE            de_DE
+
+#ifdef MQTT_USE
+#undef MQTT_USE
+#endif
+#define MQTT_USE               true
+
+#ifdef MQTT_TOPIC
+#undef MQTT_TOPIC
+#endif
+#define MQTT_TOPIC             "openWB/config/set/SmartHome/Devices/3"
+
+#ifdef MQTT_FULLTOPIC
+#undef MQTT_FULLTOPIC
+#endif
+#define MQTT_FULLTOPIC         PROJECT
+
+#ifdef WEB_USERNAME
+#undef WEB_USERNAME
+#endif
+#define WEB_USERNAME            ""
+
+#ifdef WEB_PASSWORD
+#undef WEB_PASSWORD
+#endif
+#define WEB_PASSWORD            ""
 
 #ifdef USE_DOMOTICZ
 #undef USE_DOMOTICZ                              
@@ -320,10 +340,6 @@
 #undef USE_DGR_LIGHT_SEQUENCE
 #endif
 
-#ifdef USE_DS18x20
-#undef USE_DS18x20
-#endif
-
 #ifdef USE_I2C
 #undef USE_I2C
 #endif
@@ -373,4 +389,3 @@
 #endif
 
 #endif  // _USER_CONFIG_OVERRIDE_H_
-

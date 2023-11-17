@@ -45,7 +45,7 @@
 #ifdef PROJECT
 #undef PROJECT
 #endif
-#define PROJECT               "tasmotix"   // der Spielwürfel
+#define PROJECT               "Phase13"   // der Phasenumschalter für die WallBox
 
 #ifdef T4M_RULE
   #warning **** Build: RULES ****
@@ -67,46 +67,20 @@
   #define SUPPORT_IF_STATEMENT
   #endif
 
-  #define USER_RULE1            "ON Power1#Boot DO Backlog0 Hostname tasmotix;FriendlyName2 programm;AdcParam 7,0,515,0.23,0;Mem2 openWB/config/set/SmartHome/Devices/3/mode;Mem3 openWB/config/set/SmartHome/Devices/3/device_manual_control;Rule1 0;Rule1 \" ENDON"
-  #define USER_RULE2            "ON System#Init DO Backlog Ruletimer1 2;LedPower3 1 ENDON ON Power1#State DO Backlog RuleTimer1 2;LedPower3 1 ENDON ON Rules#Timer=1 DO LedPower3 0 ENDON ON Power1#State=1 DO backlog Mem1=1; adcparam 7,0,612,0.23,0 ENDON ON Power1#State=0 DO backlog Mem1=0;adcparam 7,0,0,0.23,0 ENDON ON Power2#State DO LedPower3 %value% ENDON ON Button1#State DO IF (Mem1==0) publish %Mem2% 1;Power1 1;publish %Mem3% 1 ELSE publish %Mem3% 0;Power1 0;ruletimer3 60 ENDIF ENDON ON rules#timer=3 DO publish %Mem2% 0 ENDON"
+  #define USER_RULE1            "ON power1#boot DO backlog0 hostname Phase13;rule1 0;rule1 \" ENDON"
+  #define USER_RULE2            ""
   #define USER_RULE3            ""
-  #define USER_BACKLOG          "Rule1 1;Rule2 1;Rule3 1;PulseTime2 7"
+  #define USER_BACKLOG          "Rule1 1"
 #endif // T4M_RULE
 
 #ifdef T4M_SCRIPT
-  #warning **** Build: SCRIPT ****
-  #undef CODE_IMAGE_STR
-  #define CODE_IMAGE_STR "T4M_SCRIPT"
-
-  #undef USE_RULES
-  #undef USE_TIMERS
-  #undef USE_TIMERS_WEB
-  #undef USE_SUNRISE
-
-  #define USE_SCRIPT
-
-  #define USE_SCRIPT_SERIAL
-  #define USE_SCRIPT_TIMERS
-  // #define USE_SCRIPT_SUB_COMMAND
-  #define USE_SCRIPT_GLOBVARS
-  // #define USE_SCRIPT_JSON_EXPORT
-  #define USE_SCRIPT_WEB_DISPLAY
-  #define USE_BUTTON_EVENT
-  #define SCRIPT_POWER_SECTION
-  #define START_SCRIPT_FROM_BOOT      // https://tasmota.github.io/docs/Scripting-Language/
-  #define USER_BACKLOG "Script 1"     // hier nur script aktivieren, sonst nichts!
-
-  #define PRECONFIGURED_SCRIPT \
-  ">D\n\n"
-  
-/*   5 Zeichen Skript; 8187 Zeichen �brig von 8192   */
-
+  #error **** Build: RULE only! ****
 #endif // T4M_SCRIPT
 
 #ifdef USER_TEMPLATE
 #undef USER_TEMPLATE
 #endif
-#define USER_TEMPLATE "{\"NAME\":\"tasmotix\",\"GPIO\":[32,0,544,0,0,0,0,0,0,0,0,0,0,0],\"FLAG\":0,\"BASE\":18,\"CMND\":\"Module 0\"}"  // [Template] Set JSON template
+#define USER_TEMPLATE "{\"NAME\":\"Phase13\",\"GPIO\":[32,0,320,0,0,0,0,0,0,0,0,224,0,0],\"FLAG\":0,\"BASE\":18,\"CMND\":\"Module 0\"}"  // [Template] Set JSON template
 // https://tasmota.github.io/docs/Components/  &  https://randomnerdtutorials.com/esp8266-pinout-reference-gpios
 // D:\Users\G�nter\Documents\Elektronik\ESP32\__Dokumentation\ESP8266_D1-mini-pinout.pdf
 // GPIO0  Taster gegen GND (kann damit auch zum FlashBoot benutzt werden) -- 32     // Taster 
@@ -127,42 +101,26 @@
               der ESP8266 hat keinen Spannungsteiler und damit eine max. Eingangsspannung von 1,0V
 */
 //
-// AdcParam:  7
-//  1. Param:   Nullpunkt f�r DC Messung; bei AC immer 0!
-//  2. Param:   Multiplikator; param = (100.000 * Irms / ADC_value); ADC_value = Upp_sensor / 5,0244 * 1023; 1 / 820 * (3300 + 820) = 5,0244   // f�r ACS712 Stromsensoren
-//              (https://github.com/arendst/Tasmota/discussions/19409#discussioncomment-6857837)
-//  3. Param:   Spannung; Wert * 1000
-//  4. Param:   NULL-Offset; Strom kleiner als der hier eingetragene wird als 0 behandelt
-// hawa-lc4: xsns_02_analog.ino Zeile 482 (12.5.0.2) bzw. 504 (13.2.0.2) aktivieren des logging der ADC Werte
-#define hawa_LOG               false
-
-
-#define USE_UFILESYS
-#define UFSYS_SIZE 8192
-#define GUI_EDIT_FILE
-#define GUI_TRASH_FILE
-
-#ifdef TELE_PERIOD
-#undef TELE_PERIOD
-#endif
-#define TELE_PERIOD             300              // [TelePeriod] Telemetry (0 = disable, 10 - 3600 seconds)
 
 #ifdef MODULE
 #undef MODULE
 #endif
 #define MODULE                 USER_MODULE
 
-#ifdef MQTT_USE
-#undef MQTT_USE
-#endif
-#define MQTT_USE               false
-
 #ifdef MQTT_TOPIC
 #undef MQTT_TOPIC
 #endif
 #define MQTT_TOPIC             PROJECT
 
-//  #define SUPPORT_MQTT_EVENT                     // Support trigger event with MQTT subscriptions (+3k5 code)
+#ifdef MQTT_HOST
+#undef MQTT_HOST
+#endif
+#define MQTT_HOST              ""
+
+#ifdef MQTT_USE
+#undef MQTT_USE
+#endif
+#define MQTT_USE               false
 
 #ifdef FRIENDLY_NAME
 #undef FRIENDLY_NAME
@@ -174,15 +132,15 @@
 #endif
 #define GUI_SHOW_HOSTNAME      true
 
-#ifdef APP_TIMEZONE
-#undef APP_TIMEZONE
-#endif
-#define APP_TIMEZONE           99
-
 #ifdef MY_LANGUAGE
 #undef MY_LANGUAGE
 #endif
 #define MY_LANGUAGE            de_DE
+
+#ifdef WEB_USERNAME
+#undef WEB_USERNAME
+#endif
+#define WEB_USERNAME            ""
 
 #ifdef USE_DOMOTICZ
 #undef USE_DOMOTICZ                              
@@ -373,4 +331,3 @@
 #endif
 
 #endif  // _USER_CONFIG_OVERRIDE_H_
-
