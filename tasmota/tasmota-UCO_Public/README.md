@@ -15,6 +15,7 @@ The file user_private_data.h not included in this package keeps settings about p
  - MQTT_HOST
  - WEB_USERNAME
  - WEB_PASSWORD
+
 If you need settings on any of these parameters at compilation time please create this file using the usual C++ rules and provide the information there.
 Alternatively comment on the #include line if not already done and provide in user_config_override.h file directly.
  
