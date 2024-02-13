@@ -86,7 +86,7 @@
       "if manu==0\nthen\nmanu=1\nelse\nmanu=0\nendif\n" \
       "svars\n=>publish %topic%/mode %0manu%\n" \
     "endif\n" \
-    "if (butA==\"DOUBLE\" and manu==1)\nthen\n=>publish %topic%/mode 1\n" \
+    "if (butA==\"SINGLE\" and manu==1)\nthen\n=>publish %topic%/mode 1\n" \
       "if pwr[1]==0\nthen\n" \
         "=>publish %topic%/%suf% 1\nbutP=11\n" \
         "if mqtts==0\nthen\n->Power1 1\nendif\n"\

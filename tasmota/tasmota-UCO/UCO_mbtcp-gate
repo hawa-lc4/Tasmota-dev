@@ -83,13 +83,13 @@
   ">M 1\n+1,3,o,0,9600,EVU,-1\n" \
     "1,1-0:1.8.0*255(@1,Energie Import,kWh,E_In,2\n" \
     "1,1-0:2.8.0*255(@1,Energie Export,kWh,E_Out,2\n" \
-    "1,1-0:16.7.0*255(@1,Leistung ges.,W,P_Cur,0\n" \
-    "1,1-0:36.7.0*255(@1,Leistung L1,W,P_L1,0\n" \
-    "1,1-0:56.7.0*255(@1,Leistung L2,W,P_L2,0\n" \
-    "1,1-0:76.7.0*255(@1,Leistung L3,W,P_L3,0\n" \
-    "1,1-0:32.7.0*255(@1,Spannung L1,V,U_L1,0\n" \
-    "1,1-0:52.7.0*255(@1,Spannung L2,V,U_L2,0\n" \
-    "1,1-0:72.7.0*255(@1,Spannung L3,V,U_L3,0\n\n" \
+    ";1,1-0:16.7.0*255(@1,Leistung ges.,W,P_Cur,0\n" \
+    ";1,1-0:36.7.0*255(@1,Leistung L1,W,P_L1,0\n" \
+    ";1,1-0:56.7.0*255(@1,Leistung L2,W,P_L2,0\n" \
+    ";1,1-0:76.7.0*255(@1,Leistung L3,W,P_L3,0\n" \
+    ";1,1-0:32.7.0*255(@1,Spannung L1,V,U_L1,0\n" \
+    ";1,1-0:52.7.0*255(@1,Spannung L2,V,U_L2,0\n" \
+    ";1,1-0:72.7.0*255(@1,Spannung L3,V,U_L3,0\n\n" \
   ">T\ntempS=DS18B20#Temperature\n" \
     "tE_In=EVU#E_In*1000\ntE_Out=EVU#E_Out*1000\ntP_Cur=EVU#P_Cur\n" \
     "tP_L1=EVU#P_L1\ntP_L2=EVU#P_L2\ntP_L3=EVU#P_L3\n" \
