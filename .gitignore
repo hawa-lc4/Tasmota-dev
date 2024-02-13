@@ -19,6 +19,7 @@ data
 unpacked_fs
 unpacked_boards
 tasmota/user_config_override.h
+tasmota/user_private_data.h
 variants
 variants3
 build
