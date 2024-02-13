@@ -1,0 +1,35 @@
+>D 48
+fr=0
+res=0
+cnt=0
+str=""
+M:msmP=0 60
+smP=0
+smI=0
+smO=0
+i:tim1=0
+i:tim2=0
+
+>B
+=>SerialConfig 8N1
+=>Power ON
+=>sensor53 r
+; list all files in root directory
+fr=fo("/" 0)
+for cnt 1 20 1
+res=fr(str fr)
+if res>0
+then
+print %cnt% : %str%
+else
+break
+endif
+next
+fc(fr)
+
+>R
+=>Hostname tasmotix-sml
+
+>S
+->DisplayText [zs2]script
+->DisplayText [l2c1]waehlen!

@@ -1,0 +1,83 @@
+>D 48
+fr=0
+res=0
+cnt=0
+str=""
+M:msmP=0 60
+smP=0
+smI=0
+smO=0
+i:tim1=0
+i:tim2=0
+
+>B
+=>SerialConfig 7E1
+=>Power ON
+=>sensor53 r
+; set sensor file download link
+;fl1("smlog.txt")
+; delete file in case we want to start fresh
+;fd("smlog.txt")
+; list all files in root directory
+fr=fo("/" 0)
+for cnt 1 20 1
+res=fr(str fr)
+if res>0
+then
+print %cnt% : %str%
+else
+break
+endif
+next
+fc(fr)
+
+>R
+=>Hostname tasmotix-sml
+=>FriendlyName1 eBz_DD3_OBIS-ASCII
+
+>M 1
++1,3,o,0,9600,Haus,-1
+1,1-0:1.8.0*255(@1,Energie Import,kWh,E_In,2
+1,1-0:2.8.0*255(@1,Energie Export,kWh,E_Out,2
+1,1-0:16.7.0*255(@1,Leistung ges.,W,P_Cur,0
+1,1-0:36.7.0*255(@1,Leistung L1,W,P_L1,0
+1,1-0:56.7.0*255(@1,Leistung L2,W,P_L2,0
+1,1-0:76.7.0*255(@1,Leistung L3,W,P_L3,0
+#
+
+>b
+tim2=0
+
+>T
+smP=Haus#P_Cur
+smI=Haus#E_In
+smO=Haus#E_Out
+
+>S
+msmP=smP
+; write average to sensor log every minute
+if upsecs%60==0
+then
+; open file for write (note that in the guide, the file open command has a 1 instead of 2. 
+; I want to append sensor values instead of overwriting each time)
+fr=fo("smlog.txt" 2)
+; compose string for tab delimited file entry
+str=tstamp+"\t"+s(msmP)+"\t"+s(smI)+"\t"+s(smO)+"\n"
+; write string to log file
+res=fw(str fr)
+; close file
+fc(fr)
+endif
+if tim2>=42
+then
+->Power OFF
+tim2=-1
+endif
+if tim1>=3
+then
+->DisplayText [zs2]%0smP%
+->DisplayText [l2c14s1]Watt
+->DisplayText [l4c1s1]%1smI% kWh Imp
+->DisplayText [l5c1s1]%1smO% kWh Exp
+tim1=0
+endif
