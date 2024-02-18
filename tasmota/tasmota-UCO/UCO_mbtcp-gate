@@ -78,18 +78,18 @@
   ">D 48\ntempS=0\ntempL=35.0\ntempH=45.0\nmF=0\npwmV=0\n" \
     "tE_In=0\ntE_Out=0\ntP_Cur=0\ntP_L1=0\ntP_L2=0\ntP_L3=0\ntU_L1=0\ntU_L2=0\ntU_L3=0\nI_L1=0\nI_L2=0\nI_L3=0\n\n" \
   ">B\n->ModbusBaudrate 9600\n->ModbusSerialConfig 8N1\n->SerialConfig 7E1\n=>sensor53 r\n" \
-    "->SetOption64 1\n->PWMRange 255\n=>Publish %topic%PfPhase1 0\n=>Publish %topic%PfPhase2 0\n=>Publish %topic%PfPhase3 0\n\n" \
+    "->SetOption64 1\n->PWMRange 255\n;=>Publish %topic%PfPhase1 0\n;=>Publish %topic%PfPhase2 0\n;=>Publish %topic%PfPhase3 0\n\n" \
   ">R\n=>Hostname mbtcp-gate\n\n" \
   ">M 1\n+1,3,o,0,9600,EVU,-1\n" \
     "1,1-0:1.8.0*255(@1,Energie Import,kWh,E_In,2\n" \
     "1,1-0:2.8.0*255(@1,Energie Export,kWh,E_Out,2\n" \
-    ";1,1-0:16.7.0*255(@1,Leistung ges.,W,P_Cur,0\n" \
-    ";1,1-0:36.7.0*255(@1,Leistung L1,W,P_L1,0\n" \
-    ";1,1-0:56.7.0*255(@1,Leistung L2,W,P_L2,0\n" \
-    ";1,1-0:76.7.0*255(@1,Leistung L3,W,P_L3,0\n" \
-    ";1,1-0:32.7.0*255(@1,Spannung L1,V,U_L1,0\n" \
-    ";1,1-0:52.7.0*255(@1,Spannung L2,V,U_L2,0\n" \
-    ";1,1-0:72.7.0*255(@1,Spannung L3,V,U_L3,0\n\n" \
+    "1,1-0:16.7.0*255(@1,Leistung ges.,W,P_Cur,0\n" \
+    "1,1-0:36.7.0*255(@1,Leistung L1,W,P_L1,0\n" \
+    "1,1-0:56.7.0*255(@1,Leistung L2,W,P_L2,0\n" \
+    "1,1-0:76.7.0*255(@1,Leistung L3,W,P_L3,0\n" \
+    "1,1-0:32.7.0*255(@1,Spannung L1,V,U_L1,0\n" \
+    "1,1-0:52.7.0*255(@1,Spannung L2,V,U_L2,0\n" \
+    "1,1-0:72.7.0*255(@1,Spannung L3,V,U_L3,0\n\n" \
   ">T\ntempS=DS18B20#Temperature\n" \
     "tE_In=EVU#E_In*1000\ntE_Out=EVU#E_Out*1000\ntP_Cur=EVU#P_Cur\n" \
     "tP_L1=EVU#P_L1\ntP_L2=EVU#P_L2\ntP_L3=EVU#P_L3\n" \
@@ -100,10 +100,11 @@
     "if tempS>tempH\nthen\npwmV=255\nendif\n" \
     "if (tempS>tempL and tempS<=tempH)\nthen\npwmV=(tempS-tempL)*mF\nendif\n" \
     "->PWM1 %pwmV%\n" \
-    "=>Publish %topic%W %0tP_Cur%\n=>Publish %topic%WhImported %tE_In%\n=>Publish %topic%WhExported %tE_Out%\n" \
-    "=>Publish %topic%WPhase1 %tP_L1%\n=>Publish %topic%WPhase2 %tP_L2%\n=>Publish %topic%WPhase3 %tP_L3%\n" \
-    "=>Publish %topic%VPhase1 %tU_L1%\n=>Publish %topic%VPhase2 %tU_L2%\n=>Publish %topic%VPhase3 %tU_L3%\n" \
-    "=>Publish %topic%APhase1 %I_L1%\n=>Publish %topic%APhase2 %I_L2%\n=>Publish %topic%APhase3 %I_L3%\n\n" \
+    ";=>Publish %topic%W %0tP_Cur%\n" \
+    "=>Publish %topic%WhImported %tE_In%\n=>Publish %topic%WhExported %tE_Out%\n" \
+    ";=>Publish %topic%WPhase1 %tP_L1%\n;=>Publish %topic%WPhase2 %tP_L2%\n;=>Publish %topic%WPhase3 %tP_L3%\n" \
+    ";=>Publish %topic%VPhase1 %tU_L1%\n;=>Publish %topic%VPhase2 %tU_L2%\n;=>Publish %topic%VPhase3 %tU_L3%\n" \
+    ";=>Publish %topic%APhase1 %I_L1%\n;=>Publish %topic%APhase2 %I_L2%\n;=>Publish %topic%APhase3 %I_L3%\n\n" \
   ">W\n@PWM-Wert:&emsp;&emsp;&emsp;&emsp;&emsp;%0pwmV%\n" \
     "EVU Strom L1&emsp;&emsp;&emsp;&emsp;%I_L1% A\n" \
     "EVU Strom L2&emsp;&emsp;&emsp;&emsp;%I_L2% A\n" \
@@ -115,7 +116,7 @@ SetOption64 	Switch between - or _ as sensor name separator
       1 = sensor name index separator is _ (underscore)
           Affects DS18X20, DHT, BMP and SHT3X sensor names in tele messages
 */
-// 1712 Zeichen Skript; 6514 Zeichen übrig von 8192
+// 1725 Zeichen Skript; 6501 Zeichen übrig von 8192
 #endif // MY_SCRIPT
 
 #ifdef USER_TEMPLATE
