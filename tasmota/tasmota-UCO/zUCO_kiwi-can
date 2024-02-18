@@ -48,7 +48,7 @@
 #define PROJECT               "kiwi-can"
 
 #ifdef MY_RULE
-  #warning **** Build: RULES ****
+  #error **** Build: RULES ****
   #undef CODE_IMAGE_STR
   #define CODE_IMAGE_STR "MY_RULE_kiwi-can"
   #ifdef USE_SCRIPT
@@ -74,7 +74,7 @@
 #endif // MY_RULE
 
 #ifdef MY_SCRIPT
-  #warning **** Build: SCRIPT ****
+  // #warning **** Build: SCRIPT ****
   #undef CODE_IMAGE_STR
   #define CODE_IMAGE_STR "MY_SCRIPT_kiwi-can"
 
