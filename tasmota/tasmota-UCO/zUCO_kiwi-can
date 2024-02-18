@@ -114,7 +114,7 @@
   GPIO2  hat die interne LED gegen VCC; Funktion LedLink (544; _i: 576)  -- 544    // LedLink
   GPIO3  RX UART0                                                        -- 0      // 
   GPIO4  I2C SDA (640)                                                   -- 0      // 
-  GPIO5  I2C SCL (608)                                                   -- 7360   // MCP2515 Chip Select
+  GPIO5  I2C SCL (608)                                                   -- 7360   // MCP2515 Chip Select !!! der CS Pin ist hard-coded in xsns_87_* !!!
   GPIO9  DO NOT USE!!                                                    -- 0      // DO NOT USE!!
   GPIO10 DO NOT USE!!                                                    -- 0      // DO NOT USE!!
   GPIO12 SPI MISO (672)                                                  -- 672    // 
@@ -221,7 +221,17 @@
 #define USE_SPI
 // #define USE_MCP2515         // ENTWEDER
 #define USE_CANSNIFFER      // ODER!
-  #define MCP2515_BITRATE  CAN_500KBPS
+  #define MCP2515_CLOCK  MCP_8MHZ
+  // #define MCP2515_BITRATE  CAN_500KBPS
+  // #define MCP2515_BITHLP   "CAN_500KBPS"
+  #define MCP2515_BITRATE  CAN_250KBPS
+  #define MCP2515_BITHLP   "CAN_250KBPS"
+  // #define MCP2515_BITRATE  CAN_200KBPS
+  // #define MCP2515_BITHLP   "CAN_200KBPS"
+  // #define MCP2515_BITRATE  CAN_125KBPS
+  // #define MCP2515_BITHLP   "CAN_125KBPS"
+  // #define MCP2515_BITRATE  CAN_100KBPS
+  // #define MCP2515_BITHLP   "CAN_100KBPS"
 
 #define GUI_EDIT_FILE
 #define GUI_TRASH_FILE
