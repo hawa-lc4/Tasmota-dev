@@ -94,7 +94,7 @@
   #define USE_BUTTON_EVENT
   #define SCRIPT_POWER_SECTION
   #define START_SCRIPT_FROM_BOOT      // https://tasmota.github.io/docs/Scripting-Language/
-  #define USER_BACKLOG "Script 1"     // hier nur script aktivieren, sonst nichts!
+  #define USER_BACKLOG "Script 1"     // hier nur script aktivieren, sonst nichts! Siehe https://tasmota.github.io/docs/Compile-your-build/#user_backlog
 
   #define PRECONFIGURED_SCRIPT \
   ">D\n\n" \
