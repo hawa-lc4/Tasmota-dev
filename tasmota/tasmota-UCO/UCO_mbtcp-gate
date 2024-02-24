@@ -72,7 +72,7 @@
   #define USE_BUTTON_EVENT
   #define SCRIPT_POWER_SECTION
   #define START_SCRIPT_FROM_BOOT      // https://tasmota.github.io/docs/Scripting-Language/
-  #define USER_BACKLOG "Script 1"     // hier nur script aktivieren, sonst nichts!
+  #define USER_BACKLOG "Script 1"     // hier nur script aktivieren, sonst nichts! Siehe https://tasmota.github.io/docs/Compile-your-build/#user_backlog
 
 #define PRECONFIGURED_SCRIPT \
   ">D 48\ntempS=0\ntempL=35.0\ntempH=45.0\nmF=0\npwmV=0\n" \
@@ -135,9 +135,9 @@ SetOption64 	Switch between - or _ as sensor name separator
 // GPIO5  I2C SCL (608)                                                   -- 0      // 
 // GPIO9  DO NOT USE!!                                                    -- 0      // DO NOT USE!!
 // GPIO10 DO NOT USE!!                                                    -- 0      // DO NOT USE!!
-// GPIO12 SPI MISO (672)                                                  -- 9312   // ModBr Tx Ena
-// GPIO13 SPI MOSI (704)                                                  -- 8768   // ModBr Tx (+ LED rt.)
-// GPIO14 SPI CLK  (736)                                                  -- 8800   // ModBr Rx (+ LED rt.)
+// GPIO12 SPI MISO (672)                                                  -- 9312   // RS485 Tx Ena
+// GPIO13 SPI MOSI (704)                                                  -- 8768   // RS485 Tx (+ LED rt.)
+// GPIO14 SPI CLK  (736)                                                  -- 8800   // RS485 Rx (+ LED rt.)
 // GPIO15 SPI SS (768) - SDCard CS (6240)                                 -- 416    // PWM1 (PWM_i1: 448)
 // GPIO16 (wake-up aus dem deep-sleep Modus: 4096)                        -- 0      // 
 // GPIO17 ist der AD0 (CT Power: 4896)                                    -- 0      // 
