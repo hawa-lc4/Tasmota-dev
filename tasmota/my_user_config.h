@@ -101,8 +101,23 @@
 #define MQTT_WIFI_CLIENT_TIMEOUT 200             // [MqttWifiTimeout] Number of milliseconds before Mqtt Wi-Fi timeout
 
 #define MQTT_HOST              ""                // [MqttHost]
+
+// XXX temporary - leave for a few releases so people compiling in
+// fingerprints have a chance to update their configuration files
+#if !defined(USE_MQTT_TLS_DROP_OLD_FINGERPRINT) && defined(MQTT_FINGERPRINT1) || defined(MQTT_FINGERPRINT2)
+#error "The old TLS fingerprint format is being removed.\n\
+Please ensure your TLS fingerprint(s) are using the new version, then add\n\
+\n\
+#define USE_MQTT_TLS_DROP_OLD_FINGERPRINT\n\
+\n\
+to your user_config_override.h file.\n\
+\n\
+An online tool to calculate TLS fingerprints is available here at:\n\
+https://rya.nc/tasmota-fingerprint.html"
+#endif
+
 #define MQTT_FINGERPRINT1      0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00  // [MqttFingerprint1] (auto-learn)
-#define MQTT_FINGERPRINT2      0xDA,0x39,0xA3,0xEE,0x5E,0x6B,0x4B,0x0D,0x32,0x55,0xBF,0xEF,0x95,0x60,0x18,0x90,0xAF,0xD8,0x07,0x09  // [MqttFingerprint2] (invalid)
+#define MQTT_FINGERPRINT2      0xDA,0x39,0xA3,0xEE,0x5E,0x6B,0x4B,0x0D,0x32,0x55,0xBF,0xEF,0x95,0x60,0x18,0x90,0xAF,0xD8,0x07,0x09  // [MqttFingerprint2] (invalid - value from sha1(""))
 #define MQTT_PORT              1883              // [MqttPort] MQTT port (10123 on CloudMQTT)
 #define MQTT_USER              "DVES_USER"       // [MqttUser] MQTT user
 #define MQTT_PASS              "DVES_PASS"       // [MqttPassword] MQTT password
@@ -446,7 +461,7 @@
 //  #define USE_MQTT_AWS_IOT                       // [Deprecated] Enable MQTT for AWS IoT - requires a private key (+11.9k code, +0.4k mem)
                                                  //   Note: you need to generate a private key + certificate per device and update 'tasmota/tasmota_aws_iot.cpp'
                                                  //   Full documentation here: https://github.com/arendst/Tasmota/wiki/AWS-IoT
-//  #define USE_MQTT_TLS_DROP_OLD_FINGERPRINT      // If you use fingerprint (i.e. not CA) validation, the algorithm changed to a more secure one.
+ #define USE_MQTT_TLS_DROP_OLD_FINGERPRINT          // If you use fingerprint (i.e. not CA) validation, the algorithm changed to a more secure one.
                                                    // Any valid fingerprint with the old algo will be automatically updated to the new algo.
                                                    // Enable this if you want to disable the old algo check, which should be more secure
 //  for USE_4K_RSA (support for 4096 bits certificates, instead of 2048), you need to uncommend `-DUSE_4K_RSA` in `build_flags` from `platform.ini` or `platform_override.ini`
@@ -719,6 +734,8 @@
 //    #define INA3221_ADDRESS1                     // allow to change the 1st address to search for INA3221 to 0x41..0x43
 //    #define INA3221_MAX_COUNT                    // change the number of devices to search for (default 4).
 //                                                 // Both settings together allow to limit searching for INA3221 to only a subset of addresses
+//    #define  INA3221_CALC_CHARGE_AH              // calculate charge in Ah
+//    #define  INA3221_CALC_ENERGY_WH              // calculate energy in Wh
 //  #define USE_PMSA003I                           // [I2cDriver78] Enable PMSA003I Air Quality Sensor (I2C address 0x12) (+1k8 code)
 //  #define USE_GDK101                             // [I2cDriver79] Enable GDK101 sensor (I2C addresses 0x18 - 0x1B) (+1k2 code)
 //    #define GDK101_SHOW_FW_VERSION
@@ -732,6 +749,7 @@
 //  #define USE_PCA9557                            // [I2cDriver81] Enable PCA9557 8-bit I/O Expander (I2C addresses 0x18 - 0x1F) (+2k5 code)
 //  #define USE_MAX17043                           // [I2cDriver83] Enable MAX17043 fuel-gauge systems Lipo batteries sensor (I2C address 0x36) (+0k9 code)
 //  #define MAX17043_ALERT_THRESHOLD 32            // [I2cDriver83] Define the alert threshold for low battery level percentage 1-32
+//  #define USE_AMSX915                            // [I2CDriver86] Enable AMS5915/AMS6915 pressure/temperature sensor (+1k2 code)
 
 //  #define USE_RTC_CHIPS                          // Enable RTC chip support and NTP server - Select only one
 //    #define USE_DS3231                           // [I2cDriver26] Enable DS3231 RTC (I2C address 0x68) (+1k2 code)
@@ -798,6 +816,10 @@
 //    #define USE_RC522_TYPE_INFORMATION           // Add support for showing card type (+0k4 code)
 //  #define USE_MCP2515                            // Add support for can bus using MCP2515 (+7k code)
 //  #define USE_CANSNIFFER                         // Add support for can bus sniffer using MCP2515 (+5k code)
+//  #define USE_SPI_LORA                           // Add support for LoRaSend and LoRaCommand (+4k code)
+//    #define USE_LORA_SX126X                      // Add driver support for LoRa on SX126x based devices like LiliGo T3S3 Lora32 (+16k code)
+//    #define USE_LORA_SX127X                      // Add driver support for LoRa on SX127x based devices like M5Stack LoRa868, RFM95W (+5k code)
+//    #define USE_LORAWAN_BRIDGE                   // Add support for LoRaWan bridge (+8k code)
 
 #endif  // USE_SPI
 
@@ -1179,16 +1201,11 @@
 // -- LVGL Graphics Library ---------------------------------
 //#define USE_LVGL                                 // LVGL Engine, requires Berry (+382KB)
   #define USE_LVGL_PSRAM                         // Allocate LVGL memory in PSRAM if PSRAM is connected - this might be slightly slower but leaves main memory intact
-  // #define USE_LVGL_HASPMOTA                      // Enable OpenHASP compatiblity and Robotocondensed fonts (+90KB flash)
+  #define USE_LVGL_HASPMOTA                      // Enable OpenHASP compatiblity and Robotocondensed fonts (+90KB flash)
   #define USE_LVGL_MAX_SLEEP  10                 // max sleep in ms when LVGL is enabled, more than 10ms will make display less responsive
   #define USE_LVGL_PNG_DECODER                   // include a PNG image decoder from file system (+16KB)
-  //#define USE_LVGL_TOUCHSCREEN                   // Use virtual touch screen with Berry driver
-  //#define USE_LVGL_FREETYPE                      // Use the FreeType renderer to display fonts using native TTF files in file system (+77KB flash)
-    #define LV_USE_FT_CACHE_MANAGER 1            // define whether glyphs are cached by FreeType library
+  #define USE_LVGL_FREETYPE                      // Use the FreeType renderer to display fonts using native TTF files in file system (+77KB flash)
     #define USE_LVGL_FREETYPE_MAX_FACES 64       // max number of FreeType faces in cache
-    #define USE_LVGL_FREETYPE_MAX_SIZES 4        // max number of sizes in cache
-    #define USE_LVGL_FREETYPE_MAX_BYTES 16*1024  // max bytes in cache
-    #define USE_LVGL_FREETYPE_MAX_BYTES_PSRAM 64*1024  // max bytes in cache when using PSRAM
   #define USE_LVGL_BG_DEFAULT 0x000000           // Default color for the uninitialized background screen (black)
   // Disabling select widgets that will be rarely used in Tasmota (-13KB)
   // Main widgets as defined in LVGL8
@@ -1210,11 +1227,10 @@
     #define BE_LV_WIDGET_SLIDER
     #define BE_LV_WIDGET_SWITCH
     #define BE_LV_WIDGET_TABLE
-    #define BE_LV_WIDGET_TEXTAREA
+    // #define BE_LV_WIDGET_TEXTAREA
 
     #define BE_LV_WIDGET_ANIMIMG
     #define BE_LV_WIDGET_CHART
-    #define BE_LV_WIDGET_COLORWHEEL
     #define BE_LV_WIDGET_IMGBTN       // LVGL 8
     #define BE_LV_WIDGET_IMAGEBUTTON  // LVGL 9
     // #define BE_LV_WIDGET_KEYBOARD
@@ -1224,9 +1240,11 @@
     #define BE_LV_WIDGET_MSGBOX
     #define BE_LV_WIDGET_QRCODE
     #define BE_LV_WIDGET_SCALE
-    #define BE_LV_WIDGET_SPINBOX
+    #define BE_LV_WIDGET_SCALE_SECTION
+    // #define BE_LV_WIDGET_SPINBOX
     #define BE_LV_WIDGET_SPINNER
     #define BE_LV_WIDGET_SPANGROUP
+    #define BE_LV_WIDGET_SPAN
     // #define BE_LV_WIDGET_TABVIEW
     // #define BE_LV_WIDGET_TILEVIEW
 
