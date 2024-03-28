@@ -3,7 +3,7 @@
 
   SPDX-FileCopyrightText: 2024 Theo Arends
 
-  SPDX-License-Identifier: GPL-3.0-only
+  SPDX-License-Identifier: GPL-3.0-only                                                                                 
 */
 
 #ifdef USE_SPI
@@ -14,7 +14,7 @@
  * - LilyGo T3S3 LoRa32 868MHz ESP32S3 (uses SX1262)
  * - LilyGo TTGO T-Weigh ESP32 LoRa 868MHz HX711 (uses SX1262)
  * - Heltec (CubeCell) (uses SX1262)
- * - Waveshare
+ * - Waveshare SX1262 Lora Node (HF) and (LF)
  * 
  * Used GPIO's:
  * - SPI_CLK
@@ -43,6 +43,7 @@ bool LoraSx126xBusy(void) {
 
 /*********************************************************************************************/
 
+void IRAM_ATTR LoraSx126xOnInterrupt(void);
 void LoraSx126xOnInterrupt(void) {
   // This is called after EVERY type of enabled interrupt so chk for valid receivedFlag in LoraAvailableSx126x()
   if (!Lora.sendFlag && !Lora.receivedFlag && !Lora.receive_time) {
