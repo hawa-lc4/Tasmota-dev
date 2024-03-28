@@ -75,35 +75,39 @@
   #define USER_BACKLOG "Script 1"     // hier nur script aktivieren, sonst nichts!
 
   #define PRECONFIGURED_SCRIPT \
-  ">D 48\np:manu=0\nbutA=\"\"\nbutP=0\nboI=\"\"\nsuf=\"device_manual_control\"\n\n" \
-  ">B\n->SetOption73 1\n->SetOption32 30\n->SwitchMode1 5\n\n" \
+  ">D 48\nmanu=0\ndevM=0\ndevS=0\nbutA=\"\"\nbutP=0\n" \
+    "topM=\"openWB/config/get/SmartHome/Devices/3/mode\"\n" \
+    "topS=\"openWB/SmartHome/Devices/3/Status\"\n" \
+    "suf=\"device_manual_control\"\n\n" \
+  ">B\n->SetOption73 1\n->SetOption32 30\n->SwitchMode 5\n" \
+    "if mqtts>0 {\n=#publish\n}\n\n" \
+    "#publish\n+>Subscribe devM, %topM%\n+>Subscribe devS, %topS%\n\n" \
   ">R\n=>Hostname onIoff\n\n" \
   ">E\n" \
-    "boI=Info2#Hostname\n" \
-    "if (boI==\"onIoff\" and manu==1)\nthen\n=>publish %topic%/mode 1\n=>publish %topic%/%suf% %0pwr[1]%\nboI=\"\"\nendif\n" \
     "butA=Button1#Action\n" \
-    "if butA==\"HOLD\"\nthen\n" \
-      "if manu==0\nthen\nmanu=1\nelse\nmanu=0\nendif\n" \
-      "svars\n=>publish %topic%/mode %0manu%\n" \
-    "endif\n" \
-    "if (butA==\"SINGLE\" and manu==1)\nthen\n=>publish %topic%/mode 1\n" \
-      "if pwr[1]==0\nthen\n" \
+    "if butA==\"HOLD\" {\n" \
+      "if manu==0 {\nmanu=1\n} else {\nmanu=0\n}\n" \
+      "=>publish %topic%/mode %0manu%\n" \
+    "}\n" \
+    "if (butA==\"SINGLE\" and manu==1) {\n=>publish %topic%/mode 1\n" \
+      "if pwr[1]==0 {\n" \
         "=>publish %topic%/%suf% 1\nbutP=11\n" \
-        "if mqtts==0\nthen\n->Power1 1\nendif\n"\
-      "else\n" \
+        "if (mqtts==0 or devS==0) {\n->Power1 1\n}\n"\
+      "} else {\n" \
         "=>publish %topic%/%suf% 0\nbutP=10\n" \
-        "if mqtts==0\nthen\n->Power1 0\nendif\n"\
-      "endif\n" \
-    "endif\n" \
-    "butA=\"\"\n\n" \
+        "if (mqtts==0 or devS==0) {\n->Power1 0\n}\n"\
+      "}\n" \
+    "}\nbutA=\"\"\n\n" \
   ">S\n->LedPower1 %pwr[1]%\n" \
-    "if ((butP==10 and pwr[1]==1) or (butP==11 and pwr[1]==0))\nthen\n" \
-      "->LedPower2 toggle\nelse\n" \
-      "butP=0\nendif\n" \
-    "if butP==0\nthen\n->LedPower2 %manu%\nendif\n\n" \
-  ">W\n@Manuelle Steuerung:&emsp;&emsp;&emsp;%0manu%\n"
+    "if ((butP==10 and pwr[1]==1) or (butP==11 and pwr[1]==0)) {\n" \
+      "->LedPower2 toggle\n} else {\n" \
+      "butP=0\n}\n" \
+    "if butP==0 {\n->LedPower2 %manu%\n}\n" \
+    "if mqttc>0 {\n=#publish\n}\n" \
+    "if upd[devM]>0 {\nmanu=devM\n}\n\n" \
+  ">W\nManuelle Steuerung:&emsp;&emsp;&emsp;%0manu%\n"
 
-/*    843 Zeichen Skript; 7355 Zeichen übrig von 8192   */
+/*    926 Zeichen Skript; 7272 Zeichen übrig von 8192   */
 
 #endif // MY_SCRIPT
 
@@ -196,9 +200,9 @@
 #endif
 #define MQTT_FULLTOPIC         PROJECT
 
-// #ifndef SUPPORT_MQTT_EVENT
-// #define SUPPORT_MQTT_EVENT                     // Support trigger event with MQTT subscriptions (+3k5 code)
-// #endif
+#ifndef SUPPORT_MQTT_EVENT
+#define SUPPORT_MQTT_EVENT                     // Support trigger event with MQTT subscriptions (+3k5 code)
+#endif
 
 #ifdef WEB_USERNAME
 #undef WEB_USERNAME

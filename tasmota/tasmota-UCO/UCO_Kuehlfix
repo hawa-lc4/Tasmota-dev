@@ -75,47 +75,51 @@
   #define USER_BACKLOG "Script 1"     // hier nur script aktivieren, sonst nichts!
 
   #define PRECONFIGURED_SCRIPT \
-  ">D 48\ntempS=15.0\np:manu=0\nt:dpON=600\nt:tMS=240\nbutA=\"\"\nbutP=0\nboI=\"\"\nsuf=\"device_manual_control\"\ntemp=0\n\n" \
-  ">B\nif pwr[3]==1\nthen\n=>Power3 0\nendif\n" \
+  ">D 48\ntempS=15.0\nmanu=0\ndevM=0\ndevS=0\nt:dpON=600\nt:tMS=240\nbutA=\"\"\nbutP=0\n" \
+    "topM=\"openWB/config/get/SmartHome/Devices/1/mode\"\n" \
+    "topS=\"openWB/SmartHome/Devices/1/Status\"\n" \
+    "suf=\"device_manual_control\"\n\n" \
+  ">B\nif pwr[3]==1 {\n=>Power3 0\n}\n" \
     "->SetOption73 1\n->SetOption32 30\n->SwitchMode1 5\n" \
     "->DisplayRotate 2\n->DisplayFont 0\n->Power4 on\n\n" \
+    "if mqtts>0 {\n=#publish\n}\n\n" \
+    "#publish\n+>Subscribe devM, %topM%\n+>Subscribe devS, %topS%\n\n" \
   ">R\n=>Hostname Kuehlfix\n\n" \
   ">E\n" \
-    "boI=Info2#Hostname\n" \
-    "if (boI==\"Kuehlfix\" and manu==1)\nthen\n=>publish %topic%/mode 1\n=>publish %topic%/%suf% %0pwr[1]%\nboI=\"\"\nendif\n" \
     "butA=Button1#Action\n" \
-    "if butA==\"HOLD\"\nthen\n" \
-      "if manu==0\nthen\nmanu=1\nelse\nmanu=0\nendif\n\n" \
-      "svars\n=>publish %topic%/mode %0manu%\n" \
-    "endif\n" \
-    "if (butA==\"DOUBLE\" and manu==1)\nthen\n=>publish %topic%/mode 1\n" \
-      "if pwr[1]==0\nthen\n" \
+    "if butA==\"HOLD\" {\n" \
+      "if manu==0 {\nmanu=1\n} else {\nmanu=0\n}\n" \
+      "=>publish %topic%/mode %0manu%\n" \
+    "}\n" \
+    "if (butA==\"DOUBLE\" and manu==1) {\n=>publish %topic%/mode 1\n" \
+      "if pwr[1]==0 {\n" \
         "=>publish %topic%/%suf% 1\nbutP=11\n" \
-        "if mqtts==0\nthen\n->Power1 1\nendif\n"\
-      "else\n" \
+        "if (mqtts==0 or devS==0) {\n->Power1 1\n}\n"\
+      "} else {\n" \
         "=>publish %topic%/%suf% 0\nbutP=10\n" \
-        "if mqtts==0\nthen\n->Power1 0\nendif\n"\
-      "endif\n" \
-    "endif\n" \
-    "butA=\"\"\n\n" \
+        "if (mqtts==0 or devS==0) {\n->Power1 0\n}\n"\
+      "}\n" \
+    "}\nbutA=\"\"\n\n" \
   ">b\ndpON=600\n\n" \
   ">T\ntemp=DS18B20#Temperature\n\n" \
-  ">S\nif ((butP==10 and pwr[1]==1) or (butP==11 and pwr[1]==0))\nthen\n" \
-      "->Power2 toggle\nelse\n" \
-      "butP=0\nendif\n" \
-    "if butP==0\nthen\n->Power2 %manu%\nendif\n" \
-    "if dpON==0\nthen\n->DisplayDimmer 0\n" \
-    "else\n->DisplayDimmer 10\n" \
+  ">S\nif ((butP==10 and pwr[1]==1) or (butP==11 and pwr[1]==0)) {\n" \
+      "->LedPower2 toggle\n} else {\n" \
+      "butP=0\n}\n" \
+    "if butP==0 {\n->LedPower2 %manu%\n}\n" \
+    "if mqttc>0 {\n=#publish\n}\n" \
+    "if upd[devM]>0 {\nmanu=devM\n}\n\n" \
+    "if dpON==0 {\n->DisplayDimmer 0\n" \
+    "} else {\n->DisplayDimmer 10\n" \
       "dt [zs4l1c1]%1temp%\ndt [s2l2c9] ~f8C\ndt [s2l4c1]delay %0tMS%\n" \
-    "endif\n" \
-    "if (pwr[1]==1 and temp>=tempS and tMS==0)\nthen\n->Power3 1\ntMS=-1\nendif\n" \
-    "if ((pwr[1]==0 or temp<tempS) and pwr[3]==1)\nthen\n->Power3 0\ntMS=240\nendif\n\n" \
+    "}\n" \
+    "if (pwr[1]==1 and temp>=tempS and tMS==0) {\n->Power3 1\ntMS=-1\n}\n" \
+    "if ((pwr[1]==0 or temp<tempS) and pwr[3]==1) {\n->Power3 0\ntMS=240\n}\n\n" \
   ">W\n@Manuelle Steuerung:&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;%0manu%\n" \
     "delay Motorschutz:&emsp;&emsp;&emsp;&emsp;%0tMS% sec\n" \
     "POWER1 ist die Gerätesteuerung.\nPOWER2 ist Manuell|Automatic.\n" \
     "POWER3 ist das Relais! NICHT SCHALTEN!\nPOWER4 ist das Display.\n"
 
-// 1431 Zeichen Skript; 6782 Zeichen übrig von 8192
+// 1489 Zeichen Skript; 6724 Zeichen übrig von 8192
 
 /*
 SetOption73 	Detach buttons from relays and send multi-press and hold MQTT messages instead
@@ -310,9 +314,9 @@ SetOption32 	Number of 0.1 seconds to hold button before sending HOLD action mes
 #endif
 #define MQTT_FULLTOPIC         PROJECT
 
-// #ifndef SUPPORT_MQTT_EVENT
-// #define SUPPORT_MQTT_EVENT                     // Support trigger event with MQTT subscriptions (+3k5 code)
-// #endif
+#ifndef SUPPORT_MQTT_EVENT
+#define SUPPORT_MQTT_EVENT                     // Support trigger event with MQTT subscriptions (+3k5 code)
+#endif
 
 #ifdef WEB_USERNAME
 #undef WEB_USERNAME
