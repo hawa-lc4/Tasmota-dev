@@ -107,6 +107,7 @@ void EthernetEvent(arduino_event_t *event) {
 
     case ARDUINO_EVENT_ETH_CONNECTED:
 #ifdef USE_IPV6
+#if ESP_IDF_VERSION_MAJOR < 5   // not needed anymore after Core3 esp-idf 5.1
       ETH.enableIPv6();   // enable Link-Local
       // workaround for the race condition in LWIP, see https://github.com/espressif/arduino-esp32/pull/9016#discussion_r1451774885
       {
@@ -118,8 +119,8 @@ void EthernetEvent(arduino_event_t *event) {
             break;
           }
         }
-        AddLog(LOG_LEVEL_DEBUG_MORE, PSTR(D_LOG_ETH "ESP_IF_ETH i=%i"), i);
       }
+#endif
 #endif // USE_IPV6
       
       AddLog(LOG_LEVEL_INFO, PSTR(D_LOG_ETH D_CONNECTED " at %dMbps%s, Mac %s, Hostname %s"),
@@ -145,7 +146,7 @@ void EthernetEvent(arduino_event_t *event) {
               event->event_info.got_ip.ip_info.ip.addr,
               event->event_info.got_ip.ip_info.netmask.addr,
               event->event_info.got_ip.ip_info.gw.addr);
-      WiFi.scrubDNS();    // internal calls to reconnect can zero the DNS servers, save DNS for future use
+      WiFiHelper::scrubDNS();    // internal calls to reconnect can zero the DNS servers, save DNS for future use
       break;
 
 #ifdef USE_IPV6
@@ -161,7 +162,7 @@ void EthernetEvent(arduino_event_t *event) {
         TasmotaGlobal.rules_flag.eth_connected = 1;
         TasmotaGlobal.global_state.eth_down = 0;
       }
-      WiFi.scrubDNS();    // internal calls to reconnect can zero the DNS servers, save DNS for future use
+      WiFiHelper::scrubDNS();    // internal calls to reconnect can zero the DNS servers, save DNS for future use
     }
     break;
 #endif // USE_IPV6
@@ -233,6 +234,12 @@ void EthernetInit(void) {
   int eth_mdio = Pin(GPIO_ETH_PHY_MDIO);     // Ethernet SPI IRQ
   int eth_power = Pin(GPIO_ETH_PHY_POWER);   // Ethernet SPI RST
 
+#ifdef USE_IPV6
+#if ESP_IDF_VERSION_MAJOR >= 5    // this seemed to cause a crash with Core2 when the call is made early
+  ETH.enableIPv6();   // enable Link-Local
+#endif // ESP_IDF_VERSION_MAJOR >= 5
+#endif // USE_IPV6
+
   bool init_ok = false;
 #if ESP_IDF_VERSION_MAJOR >= 5
   if (Settings->eth_type < 7) {
@@ -241,7 +248,7 @@ void EthernetInit(void) {
 #endif  // CONFIG_ETH_USE_ESP32_EMAC
   } else {
     // ETH_SPI_SUPPORTS_CUSTOM
-//    SPISettings(ETH_PHY_SPI_FREQ_MHZ * 1000 * 1000, MSBFIRST, SPI_MODE0);  // 20MHz
+    // SPISettings(ETH_PHY_SPI_FREQ_MHZ * 1000 * 1000, MSBFIRST, SPI_MODE0);  // 20MHz
     SPI.begin(Pin(GPIO_SPI_CLK), Pin(GPIO_SPI_MISO), Pin(GPIO_SPI_MOSI), -1);
     init_ok = (ETH.begin((eth_phy_type_t)eth_type, Settings->eth_address, eth_mdc, eth_mdio, eth_power, SPI, ETH_PHY_SPI_FREQ_MHZ));
   }

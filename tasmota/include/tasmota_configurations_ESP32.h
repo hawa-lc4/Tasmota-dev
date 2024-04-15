@@ -21,6 +21,7 @@
 #define _TASMOTA_CONFIGURATIONS_ESP32_H_
 
 #ifdef ESP32
+#include "sdkconfig.h"
 
 /*********************************************************************************************\
  * [tasmota32x-safeboot.bin]
@@ -185,8 +186,10 @@
 #define USE_WEBSERVER
 #define USE_WEBCLIENT
 #define USE_WEBCLIENT_HTTPS
-#define USE_SERIAL_BRIDGE                        // Add support for software Serial Bridge console Tee (+2k code)
-#define USE_ETHERNET
+#if CONFIG_IDF_TARGET_ESP32
+  #define USE_SERIAL_BRIDGE                        // Add support for software Serial Bridge console Tee (+2k code)
+  #define USE_ETHERNET
+#endif  // CONFIG_IDF_TARGET_ESP32
 
 #endif  // FIRMWARE_SAFEBOOT
 
@@ -322,15 +325,14 @@
 #define USE_MLX90614
 #define USE_UNIVERSAL_DISPLAY
 #define USE_UNIVERSAL_TOUCH
-#define USE_XPT2046
-#define USE_FT5206
-#define USE_GT911
-#define USE_CST816S
+//#define USE_XPT2046
+//#define USE_FT5206
+//#define USE_GT911
+//#define USE_CST816S
 #define USE_DISPLAY_LVGL_ONLY
 
 //#undef USE_DISPLAY_MODES1TO5
 #undef USE_DISPLAY_LCD
-#undef USE_DISPLAY_SSD1306
 #undef USE_DISPLAY_MATRIX
 #undef USE_DISPLAY_SEVENSEG
 

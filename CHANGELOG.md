@@ -10,14 +10,23 @@ All notable changes to this project will be documented in this file.
 - Berry `flash.current_ota` (#21097)
 
 ### Breaking Changed
+- Removed dedicated touch drivers in favour of Universal Touch driver (#21146)
 
 ### Changed
+- ESP32 refactored Wifi for ESP32 Core3 release (#21106)
+- ESP32 Core3 platform update from 2024.02.10 to 2024.04.10 (#21114)
+- ESP32 Core3 platform update from 2024.04.10 to 2024.04.11 (#21142)
+- SGP4x Domoticz air quality value from raw to computed (#18880)
+- ESP32 Framework (Arduino Core) from v2.0.14 to v2.0.15
 
 ### Fixed
 - NeoPool hydrolysis unit for Hidrolife, Bionet and Generic device (#21098)
+- M5Core2 LoRa868 module receive exception
+- Fade out on CCT bulb with `SO92 1` (#21159)
 
 ### Removed
 - Unused `#define MQTT_DATA_STRING` support
+- ILI9341 driver replaced with uDisplay (#21169)
 
 ## [13.4.0.3] 20240402
 ### Added
@@ -97,6 +106,7 @@ All notable changes to this project will be documented in this file.
 - ESP32 Core3 SPI ethernet support for all models
 - Berry class `int64` made immutable (#20727)
 - LVGL make lv_touch_3_buttons more responsive (#20728)
+- ESP32 Core3 platform update from 2024.01.12 to 2024.02.10 (#20730)
 - HASPmota fix and improve demo with pixel-perfect fonts (#20734)
 - NeoPool webUI pH alarms (4 & 5) completed (#20743)
 - Matter reduce memory usage when reading with wildcards (#20809)

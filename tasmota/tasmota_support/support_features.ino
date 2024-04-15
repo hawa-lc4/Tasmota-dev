@@ -145,15 +145,17 @@ constexpr uint32_t feature[] = {
 #if defined(USE_I2C) && defined(USE_DISPLAY) && defined(USE_DISPLAY_LCD)
   0x00000080 |  // xdsp_01_lcd.ino
 #endif
-#if defined(USE_I2C) && defined(USE_DISPLAY) && defined(USE_DISPLAY_SSD1306)
-  0x00000100 |  // xdsp_02_ssd1306.ino
-#endif
+// REMOVED
+// #if defined(USE_I2C) && defined(USE_DISPLAY) && defined(USE_DISPLAY_SSD1306)
+//   0x00000100 |  // xdsp_02_ssd1306.ino
+// #endif
 #if defined(USE_I2C) && defined(USE_DISPLAY) && defined(USE_DISPLAY_MATRIX)
   0x00000200 |  // xdsp_03_matrix.ino
 #endif
-#if defined(USE_SPI) && defined(USE_DISPLAY) && defined(USE_DISPLAY_ILI9341)
-  0x00000400 |  // xdsp_04_ili9341.ino
-#endif
+// REMOVED
+// #if defined(USE_SPI) && defined(USE_DISPLAY) && defined(USE_DISPLAY_ILI9341)
+//   0x00000400 |  // xdsp_04_ili9341.ino
+// #endif
 #if defined(USE_SPI) && defined(USE_DISPLAY) && defined(USE_DISPLAY_EPAPER_29)
   0x00000800 |  // xdsp_05_epaper.ino
 #endif
@@ -666,9 +668,10 @@ constexpr uint32_t feature[] = {
 #if defined(USE_SPI) && defined(USE_DISPLAY) && defined(USE_DISPLAY_ST7789)
   0x00080000 |  // xdsp_12_ST7789.ino
 #endif
-#if defined(USE_SPI) && defined(USE_DISPLAY) && defined(USE_DISPLAY_SSD1331)
-  0x00100000 |  // xdsp_14_SSD1331.ino
-#endif
+// REMOVED
+// #if defined(USE_SPI) && defined(USE_DISPLAY) && defined(USE_DISPLAY_SSD1331)
+//   0x00100000 |  // xdsp_14_SSD1331.ino
+// #endif
 #ifdef USE_UFILESYS
   0x00200000 |  // xdrv_50_filesystem.ino
 #endif

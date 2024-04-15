@@ -40,6 +40,7 @@
 #endif
 
 // Libraries
+#include <WiFiHelper.h>
 #include <ESP8266HTTPClient.h>              // Ota
 #include <ESP8266httpUpdate.h>              // Ota
 #ifdef ESP32
@@ -226,7 +227,9 @@ bool tasconsole_serial = false;
 #if ARDUINO_USB_MODE
 //#warning **** TasConsole ARDUINO_USB_MODE ****
 #if (ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5,1,3))
+#if !ARDUINO_USB_CDC_ON_BOOT
 HWCDC HWCDCSerial;
+#endif  // ARDUINO_USB_CDC_ON_BOOT
 #endif
 TASCONSOLE TasConsole{HWCDCSerial};         // ESP32C3/C6/S3 embedded USB using JTAG interface
 //#warning **** TasConsole uses HWCDC ****
@@ -527,23 +530,18 @@ void setup(void) {
 
   bool is_connected_to_USB = false;
 #if SOC_USB_SERIAL_JTAG_SUPPORTED  // Not S2
-  rtc_clk_bbpll_add_consumer();    // Maybe unneeded
-  usb_serial_jtag_ll_ena_intr_mask(USB_SERIAL_JTAG_INTR_SOF);
-  usb_serial_jtag_ll_clr_intsts_mask(USB_SERIAL_JTAG_INTR_SOF);
-  // First check if USB cable is connected - maybe add a new SetOption to prevent this
-  for (uint32_t i = 0; i < 1000; i++) {  // Allow the host to send at least one SOF packet, 1ms should be enough but let's be very conservative here - maybe unneeded
-      is_connected_to_USB = ((usb_serial_jtag_ll_get_intraw_mask() & USB_SERIAL_JTAG_INTR_SOF) != 0);
+  for (uint32_t i = 0; i < 5; i++) {  // wait up to 250 ms - maybe a shorter time is enough
+      is_connected_to_USB = usb_serial_jtag_is_connected();
       if (is_connected_to_USB) { break; }
-      delay(1);
+      delay(50);
   }
-  rtc_clk_bbpll_remove_consumer();
 #else
   is_connected_to_USB = true;      // S2
 #endif  // SOC_USB_SERIAL_JTAG_SUPPORTED
 
   if (is_connected_to_USB) {
     TasConsole.setRxBufferSize(INPUT_BUFFER_SIZE);
-  //  TasConsole.setTxBufferSize(INPUT_BUFFER_SIZE);
+//    TasConsole.setTxBufferSize(INPUT_BUFFER_SIZE);
     TasConsole.begin(115200);    // Will always be 115200 bps
 #if !ARDUINO_USB_MODE
     USB.begin();                 // This needs a serial console with DTR/DSR support
