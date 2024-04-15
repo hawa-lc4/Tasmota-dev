@@ -46,6 +46,7 @@
 #undef PROJECT
 #endif
 #define PROJECT               "il-vento"
+#define PROJECT_SPEC          1
 
 #ifdef MY_RULE
   #error **** Build: SCRIPT only! ****
