@@ -148,92 +148,9 @@ SetOption64 	Switch between - or _ as sensor name separator
 #define hawa_LOG               false
 #define USE_UFILESYS
 #define UFSYS_SIZE 8192
+#else
+  #error **** Build: ESP8266 only! ****
 #endif    // ESP8266
-
-#ifdef LUATOS_ESP32C3     // Luatos-ESP32C3 board mit AIR101-LCD Modul
-/*      https://tasmota.github.io/docs/Displays/#descriptor-file & https://github.com/arendst/Tasmota/discussions/18350      */
-#define DSP_ROM_DESC \
-  ":H,ST7735S,160,80,16,SPI,1,7,2,3,6,11,10,*,16\n" \
-  ":S,2,1,1,0,30,30\n" \
-  ":I\n" \
-  "01,80\n" \
-  "11,80\n" \
-  "B1,3,01,2C,2D\n" \
-  "B2,3,01,2C,2D\n" \
-  "B3,6,01,2C,2D,01,2C,2D\n" \
-  "B4,1,07\n" \
-  "C0,3,A2,04,84\n" \
-  "C1,1,C5\n" \
-  "C2,2,0A,00\n" \
-  "C3,2,8A,2A\n" \
-  "C4,2,8A,EE\n" \
-  "C5,1,0E\n" \
-  "20,0\n" \
-  "36,1,C8\n" \
-  "3A,1,05\n" \
-  "2A,4,00,02,00,7F\n" \
-  "2B,4,00,01,00,7F\n" \
-  "E0,10,02,1C,07,12,37,32,29,2D,29,25,2B,39,00,01,03,10\n" \
-  "E1,10,03,1D,07,06,2E,2C,29,2D,2E,2E,37,3F,00,00,02,10\n" \
-  "13,80\n" \
-  "29,80\n" \
-  ":o,28\n" \
-  ":O,29\n" \
-  ":A,2A,2B,2C,16\n" \
-  ":R,36\n" \
-  ":0,60,00,18,00\n" \
-  ":i,20,21\n" \
-  ":B,60,0\n" \
-  "#\n"
-
-#define USER_TEMPLATE "{\"NAME\":\"esp32-solar\",\"GPIO\":[4736,4737,736,704,1,1,800,768,1,1,8736,992,544,1,0,0,0,0,6210,1312,0,0],\"FLAG\":0,\"BASE\":1,\"CMND\":\"Module 0\"}"
-/* https://tasmota.github.io/docs/Components/  &  https://www.studiopieters.nl/esp32-c3-pinout/
-  GPIO0 ADC0 U1TXD                                                       -- 4736   // ADC Temp1 Analog Thermistor
-  GPIO1 ADC1 U1RXD                                                       -- 4737   // ADC Temp2 Analog Thermistor
-  GPIO2 ADC2                                             AIR101-LCD SCL  -- 736    // SPI CLK1 	Hardware SPI
-  GPIO3 ADC3                                             AIR101-LCD SCA  -- 704    // SPI MOSI1 Hardware SPI
-  GPIO4 ADC4 I2C_SDA                                     AIR101-Btn Ent. -- 1      // USER
-  GPIO5 ADC5 I2C_SCL                                     AIR101-Btn L    -- 1      // USER
-  GPIO6                                                  AIR101-LCD DC   -- 800    // SPI DC1 	Hardware SPI
-  GPIO7                                                  AIR101-LCD CS   -- 768    // SPI CS1 	Hardware SPI
-  GPIO8                                                  AIR101-Btn R    -- 1      // USER
-  GPIO9                                                  AIR101-Btn U    -- 1      // USER
-  GPIO10                                                 AIR101-LCD RES  -- 8736   // Reset 	  Generic reset
-  GPIO11                                                 AIR101-LCD BL   -- 992 	 // Backlight Display backlight control
-  GPIO12 LED-D4 LedLink (544; _i: 576)                                   -- 544    // 
-  GPIO13 LED-D5 PWM_1 (416)                              AIR101-Btn D    -- 1      // USER
-  GPIO14 NOT AVAILABLE                                                   -- 0      // is NOT AVAILABLE on this board 
-  GPIO15 NOT AVAILABLE                                                   -- 0      // is NOT AVAILABLE on this board 
-  GPIO16 NOT AVAILABLE                                                   -- 0      // is NOT AVAILABLE on this board 
-  GPIO17 NOT AVAILABLE                                                   -- 0      // is NOT AVAILABLE on this board 
-  GPIO18                                                                 -- 6210   // OptionA3 	Specific device options to be served in code
-  GPIO19                                                                 -- 1312   // DS18x20 	DS18B20 or DS18S20
-  GPIO20 U0RXD                                                           -- 0      // 
-  GPIO21 U0TXD                                                           -- 0      // 
-Ausrichtung AIR101-LCD mit Display quer und Eingabe-Stick rechts; die Button-Bezeichnung ist oben angepaßt!
-*/
-
-#ifndef USE_SPI
-#define USE_SPI
-#endif
-
-#ifndef USE_DISPLAY
-#define USE_DISPLAY
-/*    https://tasmota.github.io/docs/Displays/#universal-display-driver   */
-#define USE_UNIVERSAL_DISPLAY                   // New universal display driver for both I2C and SPI
-#endif
-
-// hawa-lc4: xsns_02_analog.ino Zeile 482 (12.5.0.2) bzw. 504 (13.2.0.2) aktivieren des logging der ADC Werte
-#define hawa_LOG               false
-#endif    // LUATOS_ESP32C3
-
-#ifdef ESP32      // Baustelle!
-// #define USER_TEMPLATE "{\"NAME\":\"Luatos CORE-ESP32\",\"GPIO\":[1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,1,1,1,1],\"FLAG\":0,\"BASE\":1,\"CMND\":\"Module 0\"}"
-/* https://tasmota.github.io/docs/Components/  &  https://randomnerdtutorials.com/esp32-pinout-reference-gpios/
-*/
-// hawa-lc4: xsns_02_analog.ino Zeile 482 (12.5.0.2) bzw. 504 (13.2.0.2) aktivieren des logging der ADC Werte
-#define hawa_LOG               false
-#endif    // ESP32
 
 #define USE_MODBUS_BRIDGE                        // Add support for software Modbus Bridge (+4.5k code)
 #define USE_MODBUS_BRIDGE_TCP                    // Add support for software Modbus TCP Bridge (also enable Modbus TCP Bridge) (+2k code)
