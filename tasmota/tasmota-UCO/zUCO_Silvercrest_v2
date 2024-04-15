@@ -44,7 +44,7 @@
 #endif
 #define PROJECT               "Silvercrest"   // der Silvercrest Raumentfeuchter; openWB device 2
 
-#ifdef T4M_RULE
+#ifdef MY_RULE
   #warning **** Build: RULES ****
   #undef CODE_IMAGE_STR
   #define CODE_IMAGE_STR "T4M_RULE"
@@ -85,9 +85,9 @@
   #ifndef SUPPORT_IF_STATEMENT
   #define SUPPORT_IF_STATEMENT
   #endif
-#endif // T4M_RULE
+#endif // MY_RULE
 
-#ifdef T4M_SCRIPT
+#ifdef MY_SCRIPT
   #warning **** Build: SCRIPT ****
   #undef CODE_IMAGE_STR
   #define CODE_IMAGE_STR "T4M_SCRIPT_Silvercrest"
@@ -166,7 +166,7 @@
 */
 // 1452 Zeichen Skript; 6746 Zeichen übrig von 8192
 
-#endif // T4M_SCRIPT
+#endif // MY_SCRIPT
 
 #ifdef USER_TEMPLATE
 #undef USER_TEMPLATE

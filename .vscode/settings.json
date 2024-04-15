@@ -70,5 +70,10 @@
         "tooltip": "PlatformIO: Rebuild IntelliSense Index",
         "commands": "platformio-ide.rebuildProjectIndex"
       }
-    ]
+    ],
+    "files.associations": {
+      "uco_onioff": "cpp",
+      "uco_badfbhz": "c",
+      "zuco_taupunkt-lüfter": "c"
+    }
   }
