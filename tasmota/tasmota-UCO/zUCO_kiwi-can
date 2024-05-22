@@ -107,20 +107,20 @@
 #undef USER_TEMPLATE
 #endif
 #ifdef ESP8266
-#define USER_TEMPLATE "{\"NAME\":\"kiwi-can\",\"GPIO\":[0,0,544,0,0,7360,0,0,672,704,736,0,0,0],\"FLAG\":0,\"BASE\":18,\"CMND\":\"Module 0\"}"  // [Template] Set JSON template
+#define USER_TEMPLATE "{\"NAME\":\"kiwi-can\",\"GPIO\":[0,0,544,0,0,0,0,0,672,704,736,7360,0,0],\"FLAG\":0,\"BASE\":18,\"CMND\":\"Module 0\"}"  // [Template] Set JSON template
 /* https://tasmota.github.io/docs/Components/  &  https://randomnerdtutorials.com/esp8266-pinout-reference-gpios
   GPIO0  Taster gegen GND (kann damit auch zum FlashBoot benutzt werden) -- 0      //  
   GPIO1  TX UART0                                                        -- 0      // 
   GPIO2  hat die interne LED gegen VCC; Funktion LedLink (544; _i: 576)  -- 544    // LedLink
   GPIO3  RX UART0                                                        -- 0      // 
   GPIO4  I2C SDA (640)                                                   -- 0      // 
-  GPIO5  I2C SCL (608)                                                   -- 7360   // MCP2515 Chip Select !!! der CS Pin ist hard-coded in xsns_87_* !!!
+  GPIO5  I2C SCL (608)                                                   -- 0      // 
   GPIO9  DO NOT USE!!                                                    -- 0      // DO NOT USE!!
   GPIO10 DO NOT USE!!                                                    -- 0      // DO NOT USE!!
   GPIO12 SPI MISO (672)                                                  -- 672    // 
   GPIO13 SPI MOSI (704)                                                  -- 704    // 
   GPIO14 SPI CLK  (736)                                                  -- 736    // 
-  GPIO15 SPI SS (768) - SDCard CS (6240)                                 -- 0      // 
+  GPIO15 SPI SS (768) - SDCard CS (6240)                                 -- 7360   // MCP2515 Chip Select 
   GPIO16 (wake-up aus dem deep-sleep Modus: 4096)                        -- 0      // 
   GPIO17 ist der AD0 (CT Power: 4896)                                    -- 0      // 
 !!  ACHTUNG:  der D1-mini hat am Eingang AD0 einen Spannungsteiler und damit eine max. Eingangsspannung von 3,3V
@@ -133,10 +133,10 @@
  * MCP2515  ESP8266         Tasmota
  * -------  --------------  ----------
  *  INT     not used
- *  SCK     GPIO14          SPI CLK
- *  SI      GPIO13          SPI MOSI
- *  SO      GPIO12          SPI MISO
- *  CS      GPIO5           MCP2515 CS; kann nur auf GPIO5 liegen da fest in xsns_87_mcp2515.ino (Zeile 133) eingetragen
+ *  SCK     GPIO14          SPI CLK (HW-SPI)
+ *  SI      GPIO13          SPI MOSI (HW-SPI)
+ *  SO      GPIO12          SPI MISO (HW-SPI)
+ *  CS      GPIO15          MCP2515 CS
  *  Gnd     Gnd
  *  VCC     Vin/5V
 */

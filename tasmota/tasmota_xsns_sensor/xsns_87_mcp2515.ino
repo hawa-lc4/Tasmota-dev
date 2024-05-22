@@ -155,8 +155,9 @@ void MCP2515_Init(void) {
       AddLog(LOG_LEVEL_INFO, PSTR("CAN: Failed to set normal mode"));
       return;
     }
-    AddLog(LOG_LEVEL_INFO, PSTR("CAN: Initialized on GPIO%d"), Pin(GPIO_MCP2515_CS, GPIO_ANY));
-    Mcp2515.init_status = 1;
+    // AddLog(LOG_LEVEL_INFO, PSTR("CAN: Initialized on GPIO%d"), Pin(GPIO_MCP2515_CS, GPIO_ANY));
+    AddLog(LOG_LEVEL_INFO, PSTR("CAN: MCP2515 Initialized on GPIO%d with %s"), Pin(GPIO_MCP2515_CS, GPIO_ANY), MCP2515_BITHLP);  // hawa-lc4: add details on can-bus speed
+    Mcp2515.init_status = 1;   // hawa-lc4: hier ist BAUSTELLE!
 
 #ifdef MCP2515_BMS_SMA
     /*
