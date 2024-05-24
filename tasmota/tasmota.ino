@@ -325,7 +325,8 @@ struct TasmotaGlobal_t {
   uint8_t busy_time;                        // Time in ms to allow executing of time critical functions
   uint8_t init_state;                       // Tasmota init state
   uint8_t heartbeat_inverted;               // Heartbeat pulse inverted flag
-  uint8_t spi_enabled;                      // SPI configured
+  uint8_t spi_enabled;                      // SPI configured (bus1)
+  uint8_t spi_enabled2;                     // SPI configured (bus2)
   uint8_t soft_spi_enabled;                 // Software SPI configured
   uint8_t blinks;                           // Number of LED blinks
   uint8_t restart_flag;                     // Tasmota restart flag
@@ -410,6 +411,10 @@ void setup(void) {
   }
 #endif  // CONFIG_IDF_TARGET_ESP32
 #endif  // ESP32
+
+#ifdef USE_ESP32_WDT
+  enableLoopWDT();          // enabled WDT Watchdog on Arduino `loop()` - must return before 5s or called `feedLoopWDT();` - included in `yield()`
+#endif // USE_ESP32_WDT
 
   RtcPreInit();
   SettingsInit();
