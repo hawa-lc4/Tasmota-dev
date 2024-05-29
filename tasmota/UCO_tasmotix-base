@@ -93,6 +93,10 @@
   // #define USE_SCRIPT_SUB_COMMAND
   #define USE_SCRIPT_GLOBVARS
   // #define USE_SCRIPT_JSON_EXPORT
+  // #define USE_SCRIPT_I2C
+  // #define USE_SCRIPT_ONEWIRE
+  // #define USE_SCRIPT_SPI
+  // #define USE_SCRIPT_TCP_SERVER
   #define USE_SCRIPT_WEB_DISPLAY
   #define USE_BUTTON_EVENT
   #define SCRIPT_POWER_SECTION
@@ -103,7 +107,9 @@
   ">D\n\n" \
   ">R\n=>Hostname tasmotix\n\n"
   
-/*   32 Zeichen Skript; 8160 Zeichen übrig von 8192   */
+/*    32 Zeichen Skript; 8160 Zeichen übrig von 8192
+      https://tasmota.github.io/docs/Commands/#setoptions
+*/
 #endif // MY_SCRIPT
 
 #ifdef USER_TEMPLATE
@@ -113,7 +119,7 @@
 /*  Espressif ESP Modules:  https://www.espressif.com/en/products/modules  */
 #ifdef ESP8266
 #define USER_TEMPLATE "{\"NAME\":\"tasmotix\",\"GPIO\":[32,0,544,0,0,0,0,0,0,0,0,0,0,0],\"FLAG\":0,\"BASE\":18,\"CMND\":\"Module 0\"}"  // [Template] Set JSON template
-/* https://tasmota.github.io/docs/Components/  &  https://randomnerdtutorials.com/esp8266-pinout-reference-gpios
+/* https://tasmota.github.io/docs/Components/  &  https://tasmota.github.io/docs/Supported-Peripherals/  &  https://randomnerdtutorials.com/esp8266-pinout-reference-gpios
   GPIO0  Taster gegen GND (kann damit auch zum FlashBoot benutzt werden) -- 32     // Taster 
   GPIO1  TX UART0                                                        -- 0      // 
   GPIO2  hat die interne LED gegen VCC; Funktion LedLink (544; _i: 576)  -- 544    // LedLink
@@ -135,8 +141,14 @@
     1. Param:   Nullpunkt für DC Messung; bei AC immer 0!
     2. Param:   Multiplikator; param = (100.000 * Irms / ADC_value); ADC_value = Upp_sensor / 5,0244 * 1023; 1 / 820 * (3300 + 820) = 5,0244   // für ACS712 Stromsensoren
                 (https://github.com/arendst/Tasmota/discussions/19409#discussioncomment-6857837)
-    3. Param:   Spannung; Wert * 1000
+    3. Param:   Spannung; Wert * 1000 (0.235 ergibt 235V)
     4. Param:   NULL-Offset; Strom kleiner als der hier eingetragene wird als 0 behandelt
+    
+    ACS712-05: 185mV/A ==> UPP = 2,616V
+    ACS712-20: 100mV/A ==> UPP = 5,656V (kann also nur bis ca. 16A AC genutzt werden!)
+    Der Ausgang des ACS712 darf nur mit 4,7kOhm oder größer belastet werden.
+
+  uDisplay: https://tasmota.github.io/docs/Universal-Display-Driver/
 */
 // hawa-lc4: xsns_02_analog.ino Zeile 482 (12.5.0.2) bzw. 504 (13.2.0.2) aktivieren des logging der ADC Werte
 #define hawa_LOG               false
@@ -146,6 +158,9 @@
 
 #ifdef LUATOS_ESP32C3     // Luatos-ESP32C3 board mit AIR101-LCD Modul
 /*      https://tasmota.github.io/docs/Displays/#descriptor-file & https://github.com/arendst/Tasmota/discussions/18350      */
+#ifdef DSP_ROM_DESC
+#undef DSP_ROM_DESC
+#endif
 #define DSP_ROM_DESC \
   ":H,ST7735S,160,80,16,SPI,1,7,2,3,6,11,10,*,16\n" \
   ":S,2,1,1,0,30,30\n" \
@@ -503,6 +518,10 @@ Strapping Pins:   The ESP32 chip has the following strapping pins:
 
 #ifdef USE_DGR_LIGHT_SEQUENCE
 #undef USE_DGR_LIGHT_SEQUENCE
+#endif
+
+#ifdef USE_AC_ZERO_CROSS_DIMMER
+#undef USE_AC_ZERO_CROSS_DIMMER
 #endif
 
 #ifdef USE_DS18x20
