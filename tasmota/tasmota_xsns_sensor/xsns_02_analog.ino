@@ -516,7 +516,9 @@ void AdcGetCurrentPower(uint8_t idx, uint8_t factor) {
         analog_max = analog;
       }
     }
-    if (hawa_LOG) AddLog(0, PSTR("min: %u, max:%u, dif:%u"), analog_min, analog_max, analog_max-analog_min);   // hawa
+#ifdef ADC_LOG
+    AddLog(LOG_LEVEL_INFO, PSTR("min: %u, max:%u, dif:%u"), analog_min, analog_max, analog_max-analog_min);
+#endif  //ADC_LOG
     Adc[idx].current = (float)(analog_max-analog_min) * ((float)(Adc[idx].param2) / 100000);
     if (Adc[idx].current < (((float)Adc[idx].param4) / 10000.0))
         Adc[idx].current = 0.0;

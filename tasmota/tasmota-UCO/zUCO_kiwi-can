@@ -141,7 +141,7 @@
  *  VCC     Vin/5V
 */
 // hawa-lc4: xsns_02_analog.ino Zeile 482 (12.5.0.2) bzw. 504 (13.2.0.2) aktivieren des logging der ADC Werte
-#define hawa_LOG               false
+// #define ADC_LOG
 #define USE_UFILESYS
 #define UFSYS_SIZE 8192
 #endif    // ESP8266

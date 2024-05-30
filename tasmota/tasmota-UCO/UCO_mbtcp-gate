@@ -145,7 +145,7 @@ SetOption64 	Switch between - or _ as sensor name separator
 // Tasmota SML verwendet den Hardware UART0; eine entsprechende Konfiguration der GPIO ist nicht nötig.
 // 
 // hawa: xsns_02_analog.ino Zeile 482 aktivieren zum logging der ADC Werte
-#define hawa_LOG               false
+// #define ADC_LOG
 #define USE_UFILESYS
 #define UFSYS_SIZE 8192
 #else

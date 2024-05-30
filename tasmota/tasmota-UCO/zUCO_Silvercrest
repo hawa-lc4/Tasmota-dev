@@ -153,7 +153,7 @@
 //  3. Param:   Spannung; Wert * 1000
 //  4. Param:   NULL-Offset; Strom kleiner als der hier eingetragene wird als 0 behandelt
 // hawa: xsns_02_analog.ino Zeile 482 aktivieren zum logging der ADC Werte
-#define hawa_LOG               false
+// #define ADC_LOG
 
 
 #ifdef TELE_PERIOD
