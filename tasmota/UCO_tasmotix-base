@@ -144,8 +144,8 @@
     3. Param:   Spannung; Wert * 1000 (0.235 ergibt 235V)
     4. Param:   NULL-Offset; Strom kleiner als der hier eingetragene wird als 0 behandelt
     
-    ACS712-05: 185mV/A ==> UPP = 2,616V
-    ACS712-20: 100mV/A ==> UPP = 5,656V (kann also nur bis ca. 16A AC genutzt werden!)
+    ACS712-05: 185mV/A ==> UPP = 2,616V; bei einem Teiler exakt 4:1 ergibt das als Multiplikator von 934
+    ACS712-20: 100mV/A ==> UPP = 5,656V (kann also nur bis ca. 16A AC genutzt werden!); bei einem Teiler exakt 4:1 ergibt das als Multiplikator von 1728
     Der Ausgang des ACS712 darf nur mit 4,7kOhm oder größer belastet werden.
 
   uDisplay: https://tasmota.github.io/docs/Universal-Display-Driver/
