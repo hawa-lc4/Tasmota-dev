@@ -45,7 +45,7 @@
 #ifdef PROJECT
 #undef PROJECT
 #endif
-#define PROJECT               "BadHkHz"      // die Zusatzheizer für Handtuch-Heizkörper im Bad EG und OG; openWB device 8 und 9
+#define PROJECT               "BadHkHzO"      // die Zusatzheizer für Handtuch-Heizkörper im Bad EG und OG; openWB device 8 und 9
 
 #ifdef MY_RULE
   #error **** Build: SCRIPT only! ****
@@ -92,7 +92,7 @@
       "if mqtts>0 {\n=#publish\n}\n\n" \
       "#publish\n+>Subscribe devM, %topM%/%0dNo%/mode\n+>Subscribe devS, %topS%/%0dNo%/Status\n\n" \
   ">R\n" \
-      "=>Hostname BadHkHzE\n=>FriendlyName1 BadHkHzE\n\n" \
+      "=>Hostname BadHkHzO\n=>FriendlyName1 BadHkHzO\n\n" \
   ">E\n" \
       "butA=Button1#Action\n" \
       "if butA==\"HOLD\" {\n" \
@@ -157,7 +157,7 @@
 #undef USER_TEMPLATE
 #endif
 #ifdef ESP8266
-#define USER_TEMPLATE "{\"NAME\":\"BadFbHz\",\"GPIO\":[32,0,256,0,640,608,5730,0,289,0,6272,225,6304,4896],\"FLAG\":0,\"BASE\":18,\"CMND\":\"AdcParam 7,0,1728,0.235,0.25\",\"CMND\":\"Module 0\"}"  // [Template] Set JSON template
+#define USER_TEMPLATE "{\"NAME\":\"BadHkHzO\",\"GPIO\":[32,0,256,0,640,608,5730,0,289,0,6272,225,6304,4896],\"FLAG\":0,\"BASE\":18,\"CMND\":\"AdcParam 7,0,1728,0.235,0.25\",\"CMND\":\"Module 0\"}"  // [Template] Set JSON template
 /* https://tasmota.github.io/docs/Components/  &  https://tasmota.github.io/docs/Supported-Peripherals/  &  https://randomnerdtutorials.com/esp8266-pinout-reference-gpios
   GPIO0  Taster gegen GND (kann damit auch zum FlashBoot benutzt werden) -- 32     // Taster 
   GPIO1  TX UART0                                                        -- 0      // 
