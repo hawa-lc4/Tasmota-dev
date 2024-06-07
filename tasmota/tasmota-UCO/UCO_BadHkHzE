@@ -81,7 +81,7 @@
   #define PRECONFIGURED_SCRIPT \
   ">D 48\n" \
       "dNo=8\n" \
-      "p:tempS=20\ntempI=0\ntempR=0\ntempC=0\nt:tCon=-1\nhumI=0\n" \
+      "p:tempS=20\ntempI=0\ntempR=0\ntempC=0\ntempO=-4.0\nt:tCon=-1\nhumI=0\n" \
       "t:dpOn=300\n" \
       "manu=0\ndevM=0\ndevS=0\nbutA=\"\"\nbutP=0\n" \
       "topM=\"openWB/config/get/SmartHome/Devices\"\n" \
@@ -122,7 +122,7 @@
   ">b\n" \
       "dpOn=300\n\n" \
   ">T\n" \
-      "tempI=HTU21#Temperature\n" \
+      "tempI=HTU21#Temperature+tempO\n" \
       "humI=HTU21#Humidity\n" \
       "if tCon==0 {\ntCon=-1\ntempC=0\nsvars\n}\n\n" \
   ">S\n" \
@@ -131,8 +131,8 @@
       "if butP==0 {\n->LedPower2 %manu%\n}\n" \
       "if mqttc>0 {\n=#publish\n}\n" \
       "if upd[devM]>0 {\nmanu=devM\n}\n" \
-      "if (pwr[1]==1 and tempS>tempI) {\n->Power2 1\n}\n" \
-      "if (pwr[1]==0 or tempS<tempI) {\n->Power2 0\n}\n" \
+      "if (pwr[1]==1 and tempS>tempI+0.2) {\n->Power2 1\n}\n" \
+      "if (pwr[1]==0 or tempI>tempS) {\n->Power2 0\n}\n" \
       "if dpOn==0 {\n->DisplayDimmer 0\n} else {\n" \
         "->DisplayDimmer 1\n" \
         "if (tempC==1 and tCon>0) {\n" \
@@ -146,9 +146,10 @@
   ">W\n" \
       "@Manuelle Steuerung:&emsp;&emsp;&emsp;%0manu%\n" \
       "@openWB Geräte Nr.: &emsp;&emsp;&emsp;%0dNo%\n" \
-      "Solltemperatur:&emsp;&emsp;%1tempS% °C\n"
+      "Solltemperatur:    %1tempS% °C\n" \
+      "Temp. kompensiert: %1tempI% °C\n"
 
-/*    1881 Zeichen Skript; 6329 Zeichen übrig von 8192
+/*    1940 Zeichen Skript; 6275 Zeichen übrig von 8192
       https://tasmota.github.io/docs/Commands/#setoptions
 */
 #endif // MY_SCRIPT
@@ -157,7 +158,7 @@
 #undef USER_TEMPLATE
 #endif
 #ifdef ESP8266
-#define USER_TEMPLATE "{\"NAME\":\"BadHkHzE\",\"GPIO\":[32,0,256,0,640,608,5730,0,289,0,6272,225,6304,4896],\"FLAG\":0,\"BASE\":18,\"CMND\":\"AdcParam 7,0,934,0.235,0.25\",\"CMND\":\"Module 0\"}"  // [Template] Set JSON template
+#define USER_TEMPLATE "{\"NAME\":\"BadHkHzE\",\"GPIO\":[32,0,256,0,640,608,5730,0,289,0,6272,225,6304,4896],\"FLAG\":0,\"BASE\":18,\"CMND\":\"AdcParam 7,0,934,0.235,0.3\",\"CMND\":\"Module 0\"}"  // [Template] Set JSON template
 /* https://tasmota.github.io/docs/Components/  &  https://tasmota.github.io/docs/Supported-Peripherals/  &  https://randomnerdtutorials.com/esp8266-pinout-reference-gpios
   GPIO0  Taster gegen GND (kann damit auch zum FlashBoot benutzt werden) -- 32     // Taster 
   GPIO1  TX UART0                                                        -- 0      // 
@@ -186,8 +187,8 @@
     3. Param:   Spannung; Wert * 1000 (0.235 ergibt 235V)
     4. Param:   NULL-Offset; Strom kleiner als der hier eingetragene wird als 0 behandelt
 
-    ACS712-05: 185mV/A ==> UPP = 2,616V
-    ACS712-20: 100mV/A ==> UPP = 5,656V (kann also nur bis ca. 16A AC genutzt werden!)
+    ACS712-05: 185mV/A ==> UPP = 2,616V; bei einem Teiler exakt 4:1 ergibt das als Multiplikator von 934
+    ACS712-20: 100mV/A ==> UPP = 5,656V (kann also nur bis ca. 16A AC genutzt werden!); bei einem Teiler exakt 4:1 ergibt das als Multiplikator von 1728
     Der Ausgang des ACS712 darf nur mit 4,7kOhm oder größer belastet werden.
 */
 // hawa-lc4: xsns_02_analog.ino Zeile 482 (12.5.0.2) bzw. 504 (13.2.0.2) aktivieren des logging der ADC Werte
