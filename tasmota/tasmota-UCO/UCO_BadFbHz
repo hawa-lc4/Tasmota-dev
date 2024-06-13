@@ -75,7 +75,7 @@
   #define USER_BACKLOG "Script 1"     // hier nur script aktivieren, sonst nichts!
 
   #define PRECONFIGURED_SCRIPT \
-  ">D 48\ndNo=4\n" \
+  ">D 48\ndNo=9\n" \
       "manu=0\ndevM=0\ndevS=0\nbutA=\"\"\nbutP=0\n" \
       "topM=\"openWB/config/get/SmartHome/Devices\"\n" \
       "topS=\"openWB/SmartHome/Devices\"\n" \

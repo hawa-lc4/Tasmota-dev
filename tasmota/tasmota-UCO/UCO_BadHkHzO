@@ -80,7 +80,7 @@
 
   #define PRECONFIGURED_SCRIPT \
   ">D 48\n" \
-      "dNo=9\n" \
+      "dNo=8\n" \
       "p:tempS=20\ntempI=0\ntempR=0\ntempC=0\ntempO=-4.0\nt:tCon=-1\nhumI=0\n" \
       "t:dpOn=300\n" \
       "manu=0\ndevM=0\ndevS=0\nbutA=\"\"\nbutP=0\n" \
