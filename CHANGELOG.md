@@ -3,20 +3,80 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased] - Development
 
-## [14.0.0.2]
+## [14.1.0.2]
 ### Added
-- Disabled watchdog for ESP32 and variants (#21509)
+- Support for Sonoff WTS01 temperature sensor using SerialBridge in ``SSerialMode 3``
+- Berry `classof` extended to class methods (#21615)
 
 ### Breaking Changed
+
+### Changed
+- SerialBridge command ``SSerialSend9`` replaced by ``SSerialMode``
+
+### Fixed
+
+### Removed
+
+## [14.1.0.1] 20240611
+### Added
+- Berry solidification of `bytes` instances (#21558)
+- Matter support for Air Quality sensors (#21559)
+- Matter support for bridged Air Quality (#21597)
+- HASPmota rounds to nearest int values passed as 'real' (#21599)
+- Berry automatic rounding of float to int when calling C mapped functions (#21601)
+- Berry add `math.round` (#21602)
+- Support for QMP6988 temperature and pressure sensor
+
+### Changed
+- Matter refactoring of bridged devices (#21575)
+- ESP32 Core3 platform update from 2024.05.13 to 2024.06.10 (#21569)
+- Optional MQTT_TELE_RETAIN to Energy Margins message replaced by ``SensorRetain``
+- Matter filter suffix automatically added for sensors (#21589)
+- Display timing splash screen with display modes 1 to 5
+- ESP32 MI32 refactoring, bugfixes, generic device scanning (#21603)
+- Allow receive or send using SerialBridge
+
+### Fixed
+- Berry `input()` returns empty string and does not crash (#21565)
+
+## [Released]
+
+## [14.1.0] 20240603
+- Release Rachel
+
+## [14.0.0.4] 20240603
+### Added
+- SML FastExit for binary SML parsing (#21497)
+
+### Changed
+- GPIOViewer from v1.5.3 to v1.5.4 (No functional change)
+- TCP bridge increased baudrate selection (#21528)
+- Berry coc parser keeps order of variables (#21542)
+
+### Fixed
+- uDisplay Parallel display on Core3 (#21529)
+- LVGL exception when using tjpegd (#21544)
+
+### Removed
+- Deprecated code from drivers, `USE_TTGO_WATCH` and `USE_M5STACK_CORE2` (#21533)
+
+## [14.0.0.3] 20240530
+### Changed
+- ESP32 Core3 platform update from 2024.05.12 to 2024.05.13 (#21524)
+
+### Fixed
+- ESP32 slow response when using UDP as in emulation (#21470)
+
+## [14.0.0.2] 20240529
+### Added
+- Disabled watchdog for ESP32 and variants (#21509)
 
 ### Changed
 - Update Telegram CA (Go Daddy Root Certificate Authority - G2)
 
 ### Fixed
 - Telegram TLS fingerprint, remove CA validation (#21514)
-
-### Removed
-
+- ESP32 I2S multiple fixes (#21511)
 
 ## [14.0.0.1] 20240527
 ### Added
@@ -54,8 +114,6 @@ All notable changes to this project will be documented in this file.
 
 ### Removed
 - Support of old insecure fingerprint algorithm. Deprecated since v8.4.0 (#21417)
-
-## [Released]
 
 ## [14.0.0] 20240515
 - Release Rodney
