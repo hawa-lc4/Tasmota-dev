@@ -1,5 +1,5 @@
 #
-# Matter_Plugin.be - generic superclass for all Matter plugins, used to define specific behaviors (light, switch, media...)
+# Matter_Plugin_0.be - generic superclass for all Matter plugins, used to define specific behaviors (light, switch, media...)
 #
 # Copyright (C) 2023  Stephan Hadinger & Theo Arends
 #
@@ -48,6 +48,7 @@ class Matter_Plugin
   static var FEATURE_MAPS = {               # feature map per cluster
     0x0031: 0x04,                           # Put Eth for now which should work for any on-network
     0x0102: 1 + 4,                          # Lift + PA_LF
+    0x0202: 2,                              # Fan: Auto
   }
   # `CLUSTER_REVISIONS` contains revision numbers for each cluster, or `1` if not present
   static var CLUSTER_REVISIONS = {
@@ -68,6 +69,7 @@ class Matter_Plugin
     # 0x0033: 1,                            # Initial Release
     # 0x0034: 1,                            # Initial Release
     0x0038: 2,                              #
+    # 0x003B: 1,                            # Initial Release
     # 0x003C: 1,                            # Initial Release
     # 0x003E: 1,                            # Initial Release
     0x003F: 2,                              # Clarify KeySetWrite validation and behavior on invalid epoch key lengths
@@ -116,7 +118,7 @@ class Matter_Plugin
   def init(device, endpoint, config)
     self.device = device
     self.endpoint = endpoint
-    self.clusters = self.consolidate_clusters()
+    self.clusters = self.get_clusters()
     self.parse_configuration(config)
     self.node_label = config.find("name", "")
   end
@@ -179,11 +181,51 @@ class Matter_Plugin
   end
 
   #############################################################
+  # generate a new event
+  #
+  def publish_event(cluster, event_id, priority, data0, data1, data2)
+    self.device.events.publish_event(self.endpoint, cluster, event_id, true #-urgent-#, priority, data0, data1, data2)
+  end
+  # def publish_event_non_urgent(cluster, event, priority, data0, data1, data2)
+  #   self.device.events.publish_event(self.endpoint, cluster, event, false #-non_urgent-#, priority, data0, data1, data2)
+  # end
+#- testing
+
+var root = matter_device.plugins[0]
+var tlv_solo = matter.TLV.Matter_TLV_item()
+tlv_solo.set(matter.TLV.U4, 42)
+root.publish_event(0x001D, 0, matter.EVENT_CRITICAL, tlv_solo)
+matter_device.events.dump()
+
+-#
+
+# elements are made of `Matter_EventDataIB`
+# var path                        # 
+    # var node                        # u64 as bytes
+    # var endpoint                    # u16
+    # var cluster                     # u32
+    # var event                       # u32
+    # var is_urgent                   # bool
+# var event_number                # u64 as bytes
+# var priority                    # u8
+# # one of
+# var epoch_timestamp             # u64
+# var system_timestamp            # u64
+# var delta_epoch_timestamp       # u64
+# var delta_system_timestamp      # u64
+# # data
+# var data                        # any TLV
+
+# EVENT_DEBUG=0
+# EVENT_INFO=1
+# EVENT_CRITICAL=2
+
+  #############################################################
   # consolidate_clusters
   #
   # Build a consolidated map of all the `CLUSTERS` static vars
   # from the inheritance hierarchy
-  def consolidate_clusters()
+  def get_clusters()
     return self.CLUSTERS
     # def real_super(o) return super(o) end   # enclose `super()` in a static function to disable special behavior for super in instances
     # var ret = {}
@@ -257,12 +299,6 @@ class Matter_Plugin
     return false
   end
 
-  #############################################################
-  # Does it handle this endpoint and this cluster
-  def has(cluster, endpoint)
-    return self.clusters.contains(cluster) && self.endpoints.find(endpoint) != nil
-  end
-
   def set_name(n)
     if n != self.node_label
       self.attribute_updated(0x0039, 0x0005)
@@ -321,7 +357,7 @@ class Matter_Plugin
     if   attribute == 0xFFF8            # GeneratedCommandList
       var gcl = TLV.Matter_TLV_array()
       return gcl                        # return empty list
-    elif attribute == 0xFFF9            # AcceptedCommandList
+    elif attribute == 0xFFFB            # AttributeList
       var acli = TLV.Matter_TLV_array()
       var attr_list = self.get_attribute_list(cluster)
       var idx = 0
@@ -333,7 +369,7 @@ class Matter_Plugin
     elif attribute == 0xFFFA            # EventList
       var el = TLV.Matter_TLV_array()
       return el                         # return empty list
-    elif attribute == 0xFFFB            # AttributeList
+    elif attribute == 0xFFF9            # AcceptedCommandList
       var al = TLV.Matter_TLV_array()
       return al                         # TODO
     elif attribute == 0xFFFC            # FeatureMap
