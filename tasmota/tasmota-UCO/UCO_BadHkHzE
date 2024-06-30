@@ -81,14 +81,14 @@
   #define PRECONFIGURED_SCRIPT \
   ">D 48\n" \
       "dNo=7\n" \
-      "p:tempS=20\ntempI=0\ntempR=0\ntempC=0\ntempO=-4.0\nt:tCon=-1\nhumI=0\n" \
+      "p:tempS=20\ntempI=0\ntempR=0\ntempC=0\ntempO=-2.0\nt:tCon=-1\nhumI=0\n" \
       "t:dpOn=300\n" \
       "manu=0\ndevM=0\ndevS=0\nbutA=\"\"\nbutP=0\n" \
       "topM=\"openWB/config/get/SmartHome/Devices\"\n" \
       "topS=\"openWB/SmartHome/Devices\"\n" \
       "sufP=\"device_manual_control\"\n\n" \
   ">B\n" \
-      "->SetOption73 1\n->SetOption32 20\n->SwitchMode 5\n" \
+      "->SetOption73 1\n->SetOption32 20\n->SwitchMode 5\n->SetOption98 1\n" \
       "if mqtts>0 {\n=#publish\n}\n\n" \
       "#publish\n+>Subscribe devM, %topM%/%0dNo%/mode\n+>Subscribe devS, %topS%/%0dNo%/Status\n\n" \
   ">R\n" \
@@ -109,7 +109,7 @@
       "}\n}\n" \
       "if butA==\"DOUBLE\" {\ntempC=1\ntCon=15\n}\n" \
       "butA=\"\"\n\n" \
-      "tempR=Rotary1#Pos\n" \
+      "tempR=Rotary1#Pos1\n" \
       "if upd[tempR]>0 {\ndpOn=300\n" \
         "if (tempC==1 and tCon>0) {\ntCon=15\n" \
           "if tempR>0 {\ntempS+=0.2\n" \
@@ -149,7 +149,7 @@
       "Solltemperatur:    %1tempS% °C\n" \
       "Temp. kompensiert: %1tempI% °C\n"
 
-/*    1940 Zeichen Skript; 6275 Zeichen übrig von 8192
+/*    1957 Zeichen Skript; 6258 Zeichen übrig von 8192
       https://tasmota.github.io/docs/Commands/#setoptions
 */
 #endif // MY_SCRIPT
@@ -170,25 +170,25 @@
   GPIO10 DO NOT USE!!                                                    -- 0      // DO NOT USE!!
   GPIO12 SPI MISO (672)                                                  -- 289    // Led2 rot (Anzeige manueller Betrieb)
   GPIO13 SPI MOSI (704)                                                  -- 0      // 
-  GPIO14 SPI CLK  (736)                                                  -- 6272   // Rotary switch (A_n1)
+  GPIO14 SPI CLK  (736)                                                  -- 6272   // Rotary switch (A_n1 = DT)
   GPIO15 SPI SS (768) - SDCard CS (6240)                                 -- 225    // Relais2 (Heizung & Led blau)
-  GPIO16 (wake-up aus dem deep-sleep Modus: 4096)                        -- 6304   // Rotary switch (B_n1)
+  GPIO16 (wake-up aus dem deep-sleep Modus: 4096)                        -- 6304   // Rotary switch (B_n1 = CLK)
   GPIO17 ist der AD0 (CT Power: 4896)                                    -- 4896   // ACS712-05 Stromsensor 185 mv/A (Upp = 2,616 V)
-!!  ACHTUNG:  der D1-mini hat am Eingang AD0 einen Spannungsteiler und damit eine max. Eingangsspannung von 3,3V
+!!  ACHTUNG:  der D1-mini hat am Eingang AD0 einen Spannungsteiler (220k + 100k) und damit eine max. Eingangsspannung von 3,2V
               der ESP8266 hat keinen Spannungsteiler und damit eine max. Eingangsspannung von 1,0V
 
   uDisplay: https://tasmota.github.io/docs/Universal-Display-Driver/
 
   AdcParam:  7 = CT Power
     1. Param:   Nullpunkt für DC Messung; bei AC immer 0!
-    2. Param:   Multiplikator; param = (100.000 * Irms / ADC_value); ADC_value = Upp_sensor / 5,0244 * 1023; (3300 + 820) / 820 = 5,0244   // für ACS712 Stromsensoren
+    2. Param:   Multiplikator; param = (100.000 * Irms / ADC_value); ADC_value = Upp_sensor / 5 * 1023; (6800 + 1700) / 1700 = 5   // für ACS712 Stromsensoren
                 (https://github.com/arendst/Tasmota/discussions/19409#discussioncomment-6857837)
                 ACHTUNG:  Theorie und Praxis!
     3. Param:   Spannung; Wert * 1000 (0.235 ergibt 235V)
     4. Param:   NULL-Offset; Strom kleiner als der hier eingetragene wird als 0 behandelt
 
-    ACS712-05: 185mV/A ==> UPP = 2,616V; bei einem Teiler exakt 4:1 ergibt das als Multiplikator von 934
-    ACS712-20: 100mV/A ==> UPP = 5,656V (kann also nur bis ca. 16A AC genutzt werden!); bei einem Teiler exakt 4:1 ergibt das als Multiplikator von 1728
+    ACS712-05: 185mV/A ==> UPP = 2,616V; bei einem Teiler exakt 4:1 ergibt das als Multiplikator 934
+    ACS712-20: 100mV/A ==> UPP = 5,656V (kann also nur bis ca. 16A AC genutzt werden!); bei einem Teiler exakt 4:1 ergibt das als Multiplikator 1728
     Der Ausgang des ACS712 darf nur mit 4,7kOhm oder größer belastet werden.
 */
 // hawa-lc4: xsns_02_analog.ino Zeile 482 (12.5.0.2) bzw. 504 (13.2.0.2) aktivieren des logging der ADC Werte
@@ -254,7 +254,7 @@
 #ifdef ROTARY_MAX_STEPS
 #undef ROTARY_MAX_STEPS                              
 #endif
-#define ROTARY_MAX_STEPS        100              // siehe auch SetOption43
+#define ROTARY_MAX_STEPS        1              // siehe auch SetOption43
 
 #ifndef ROTARY_RAW
 #define ROTARY_RAW

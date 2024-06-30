@@ -134,18 +134,18 @@
   GPIO15 SPI SS (768) - SDCard CS (6240)                                 -- 0      // 
   GPIO16 (wake-up aus dem deep-sleep Modus: 4096)                        -- 0      // 
   GPIO17 ist der AD0 (CT Power: 4896)                                    -- 0      // 
-!!  ACHTUNG:  der D1-mini hat am Eingang AD0 einen Spannungsteiler und damit eine max. Eingangsspannung von 3,3V
+!!  ACHTUNG:  der D1-mini hat am Eingang AD0 einen Spannungsteiler (220k + 100k) und damit eine max. Eingangsspannung von 3,2V
               der ESP8266 hat keinen Spannungsteiler und damit eine max. Eingangsspannung von 1,0V
 
   AdcParam:  7 = CT Power
     1. Param:   Nullpunkt für DC Messung; bei AC immer 0!
-    2. Param:   Multiplikator; param = (100.000 * Irms / ADC_value); ADC_value = Upp_sensor / 5,0244 * 1023; 1 / 820 * (3300 + 820) = 5,0244   // für ACS712 Stromsensoren
+    2. Param:   Multiplikator; param = (100.000 * Irms / ADC_value); ADC_value = Upp_sensor / 5 * 1023; (6800 + 1700) / 1700 = 5   // für ACS712 Stromsensoren
                 (https://github.com/arendst/Tasmota/discussions/19409#discussioncomment-6857837)
     3. Param:   Spannung; Wert * 1000 (0.235 ergibt 235V)
     4. Param:   NULL-Offset; Strom kleiner als der hier eingetragene wird als 0 behandelt
     
-    ACS712-05: 185mV/A ==> UPP = 2,616V; bei einem Teiler exakt 4:1 ergibt das als Multiplikator von 934
-    ACS712-20: 100mV/A ==> UPP = 5,656V (kann also nur bis ca. 16A AC genutzt werden!); bei einem Teiler exakt 4:1 ergibt das als Multiplikator von 1728
+    ACS712-05: 185mV/A ==> UPP = 2,616V; bei einem Teiler exakt 4:1 ergibt das als Multiplikator 934
+    ACS712-20: 100mV/A ==> UPP = 5,656V (kann also nur bis ca. 16A AC genutzt werden!); bei einem Teiler exakt 4:1 ergibt das als Multiplikator 1728
     Der Ausgang des ACS712 darf nur mit 4,7kOhm oder größer belastet werden.
 
   uDisplay: https://tasmota.github.io/docs/Universal-Display-Driver/
