@@ -946,6 +946,29 @@ bool Xdrv52(uint32_t function)
     case FUNC_SET_DEVICE_POWER:
       result = callBerryEventDispatcher(PSTR("set_power_handler"), nullptr, XdrvMailbox.index, nullptr);
       break;
+    case FUNC_BUTTON_PRESSED:
+      {
+        static uint32_t timer_last_button_sent = 0;
+        // XdrvMailbox.index = button_index;
+        // XdrvMailbox.payload = button;
+        // XdrvMailbox.command_code = Button.last_state[button_index];
+        uint8_t state = (XdrvMailbox.command_code & 0xFF);
+        uint8_t multipress_state = (XdrvMailbox.command_code >> 8) & 0xFF;
+        if ((XdrvMailbox.payload != state) || TimeReached(timer_last_button_sent)) {    // fire event only when state changes
+          timer_last_button_sent = millis() + 1000;     // wait for 1 second
+          result = callBerryEventDispatcher(PSTR("button_pressed"), nullptr, 
+                                                (multipress_state & 0xFF) << 24 | (XdrvMailbox.payload & 0xFF) << 16 | (XdrvMailbox.command_code & 0xFF) << 8 | (XdrvMailbox.index & 0xFF) ,
+                                                nullptr);
+        }
+      }
+      break;
+    case FUNC_BUTTON_MULTI_PRESSED:
+      // XdrvMailbox.index = button_index;
+      // XdrvMailbox.payload = Button.press_counter[button_index];
+      result = callBerryEventDispatcher(PSTR("button_multi_pressed"), nullptr, 
+                                             (XdrvMailbox.payload & 0xFF) << 8 | (XdrvMailbox.index & 0xFF) ,
+                                             nullptr);
+      break;
     case FUNC_ANY_KEY:
       // XdrvMailbox.payload = device_save << 24 | key << 16 | state << 8 | device;
       // key 0 = KEY_BUTTON = button_topic
@@ -1012,10 +1035,6 @@ bool Xdrv52(uint32_t function)
       break;
     case FUNC_AFTER_TELEPERIOD:
       callBerryEventDispatcher(PSTR("after_teleperiod"), nullptr, 0, nullptr);
-      break;
-
-    case FUNC_BUTTON_PRESSED:
-      callBerryEventDispatcher(PSTR("button_pressed"), nullptr, 0, nullptr);
       break;
 
     case FUNC_ACTIVE:
