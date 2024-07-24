@@ -75,5 +75,6 @@
       "uco_onioff": "cpp",
       "uco_badfbhz": "c",
       "zuco_taupunkt-lüfter": "c"
-    }
+    },
+    "cmake.ignoreCMakeListsMissing": true
   }
