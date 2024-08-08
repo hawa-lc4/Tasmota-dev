@@ -607,7 +607,9 @@ void AdcGetCurrentPower(uint8_t channel, uint8_t factor) {
         analog_max = analog;
       }
     }
-    //AddLog(0, PSTR("min: %u, max:%u, dif:%u"), analog_min, analog_max, analog_max-analog_min);
+#ifdef ADC_LOG
+    AddLog(LOG_LEVEL_INFO, PSTR("min: %u, max:%u, dif:%u"), analog_min, analog_max, analog_max-analog_min);
+#endif  //ADC_LOG
     Adc[channel].current = (float)(analog_max-analog_min) * ((float)(Adc[channel].param2) / 100000);
     if (Adc[channel].current < (((float)Adc[channel].param4) / 10000.0))
         Adc[channel].current = 0.0;
