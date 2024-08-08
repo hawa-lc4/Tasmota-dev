@@ -244,6 +244,11 @@ Ausrichtung AIR101-LCD mit Display quer und Eingabe-Stick rechts; die Button-Bez
 #endif    // LUATOS_ESP32C3
 
 #ifdef ESP32
+#ifdef USE_BERRY
+#undef USE_BERRY
+#endif
+// #define USE_BERRY_DEBUG             // Compile Berry bytecode with line number information, makes exceptions easier to debug. Adds +8% of memory consumption for compiled code
+
 #define USER_TEMPLATE "{\"NAME\":\"CORE-ESP32\",\"GPIO\":[0,1,2,3,4,5,0,0,12,13,14,15,16,17,18,19,0,21,22,23,0,25,26,27,0,0,0,0,32,33,34,35,36,0,0,39],\"FLAG\":0,\"BASE\":1,\"CMND\":\"Module 0\"}"
 /*  User Template ScratchPad:                            [0,1,2,3,4,5,0,0,12,13,14,15,16,17,18,19,0,21,22,23,0,25,26,27,0,0,0,0,32,33,34,35,36,0,0,39]
   ESP32 template GPIO pin mapping:  https://github.com/arendst/Tasmota/discussions/19000
