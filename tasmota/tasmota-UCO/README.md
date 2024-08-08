@@ -17,7 +17,7 @@ The file user_private_data.h not included in this package keeps private settings
  - WEB_PASSWORD
 
 If you need settings on any of these parameters at compilation time please create this file using the usual C++ rules and provide the information there.
-Alternatively comment on the #include line if not already done and provide in user_config_override.h file directly.
+Alternatively comment on the #include line if not already done and provide the information needed in user_config_override.h file directly.
  
 
 A short description (UCO = User Config Override):
@@ -33,9 +33,10 @@ A short description (UCO = User Config Override):
                         Build:  env:tasmota4M-script  only
                         Work in progress .....
 
-- UCO_mbtcp-gate:       A modbusTCP gateway for a PV-Inverter together with a fan control for this inverter based on temperature detected by a DS18B20 sensor
-                        Also a smartmeter reader to provide data to a MQTT broker
-                        Work in progress .....
+- UCO_mbtcp-gate:       A modbusTCP gateway for a PV-Inverter together with a PWM fan control for this inverter based on temperature given by a DS18B20 sensor
+                        Also including a smartmeter reader to provide grid data to a MQTT broker
+
+- UCO_mbtcp-gate-eth:   The same as above but redesigned to use a WT32-ETH01 module working via Ethernet only instead of using WiFi.
 
 - 
 
