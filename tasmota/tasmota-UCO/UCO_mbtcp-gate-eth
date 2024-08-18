@@ -76,27 +76,39 @@
 
 #define PRECONFIGURED_SCRIPT \
   ">D 48\nt:TCPdelay=7\n" \
-    "tempS=0\ntempL=35.0\ntempH=45.0\nmF=0\npwmV=0\n\n" \
+    "tempS=0\ntempL=35.0\ntempH=45.0\nmF=0\npwmV=0\n" \
+    "tE_In=0\ntE_Out=0\ntP_Cur=0\ntP_L1=0\ntP_L2=0\ntP_L3=0\ntU_L1=0\ntU_L2=0\ntU_L3=0\nI_L1=0\nI_L2=0\nI_L3=0\n\n" \
   ">B\n->WiFi 0\n" \
-    "->SetOption64 1\n->PWMRange 255\n" \
+    "->SetOption64 1\n->PWMRange 255\nmF=255/(tempH-tempL)\n" \
     "->ModbusBaudrate 9600\n->ModbusSerialConfig 8N1\n" \
     "=>sensor53 r\n\n" \
   ">R\n=>Hostname mbtcp-gate\n\n" \
   ">M 1\n+1,-5,o,0,9600,EVU,-1\n" \
     "1,1-0:1.8.0*255(@1,Energie Import,kWh,E_In,2\n" \
     "1,1-0:2.8.0*255(@1,Energie Export,kWh,E_Out,2\n" \
-    "1,1-0:16.7.0*255(@1,Leistung ges.,W,P_Cur,0\n\n" \
-  ">T\ntempS=DS18B20#Temperature\n\n" \
+    "1,1-0:16.7.0*255(@1,Leistung ges.,W,P_Cur,0\n" \
+    "1,1-0:32.7.0*255(@1,Spannung L1,V,U_L1,0\n" \
+    "1,1-0:52.7.0*255(@1,Spannung L2,V,U_L2,0\n" \
+    "1,1-0:72.7.0*255(@1,Spannung L3,V,U_L3,0\n\n" \
+  ">T\ntempS=DS18B20#Temperature\n" \
+    "tE_In=EVU#E_In*1000\ntE_Out=EVU#E_Out*1000\n;tP_Cur=EVU#P_Cur\n" \
+    ";tP_L1=EVU#P_L1\n;tP_L2=EVU#P_L2\n;tP_L3=EVU#P_L3\n" \
+    "tU_L1=EVU#U_L1\ntU_L2=EVU#U_L2\ntU_L3=EVU#U_L3\n" \
+    ";I_L1=tP_L1/tU_L1\n;I_L2=tP_L2/tU_L2\n;I_L3=tP_L3/tU_L3\n\n" \
   ">S\nif TCPdelay==0 {\n=>ModbusTCPStart 502\n=>SerialConfig 7E1\nTCPdelay=-1\n}\n" \
-    "mF=255/(tempH-tempL)\n" \
     "if tempS<=tempL {\npwmV=0\n}\n" \
     "if tempS>tempH {\npwmV=255\n}\n" \
     "if (tempS>tempL and tempS<=tempH) {\npwmV=(tempS-tempL)*mF\n}\n" \
     "->PWM1 %pwmV%\n" \
-  ">W\n@PWM-Wert:      %0pwmV%\n" \
-    "@Temp. Start:     %1tempL% °C\n"
+    ";=>Publish %topic%W %0tP_Cur%\n" \
+    "=>Publish %topic%WhImported %tE_In%\n=>Publish %topic%WhExported %tE_Out%\n" \
+    ";=>Publish %topic%WPhase1 %tP_L1%\n;=>Publish %topic%WPhase2 %tP_L2%\n;=>Publish %topic%WPhase3 %tP_L3%\n" \
+    "=>Publish %topic%VPhase1 %tU_L1%\n=>Publish %topic%VPhase2 %tU_L2%\n=>Publish %topic%VPhase3 %tU_L3%\n" \
+    ";=>Publish %topic%APhase1 %I_L1%\n;=>Publish %topic%APhase2 %I_L2%\n;=>Publish %topic%APhase3 %I_L3%\n\n" \
+  ">W\nPWM-Wert:   %0pwmV%\n" \
+    "Temp. Bereich: %1tempL% °C bis %1tempH% °C\n"
 
-/* ">D 48\ntempS=0\ntempL=35.0\ntempH=45.0\nmF=0\npwmV=0\n" \
+/* ">D 48\ntempS=0\ntempL=35.0\ntempH=45.0\nmF=255/(tempH-tempL)\npwmV=0\n" \
     "tE_In=0\ntE_Out=0\ntP_Cur=0\ntP_L1=0\ntP_L2=0\ntP_L3=0\ntU_L1=0\ntU_L2=0\ntU_L3=0\nI_L1=0\nI_L2=0\nI_L3=0\n\n" \
   ">B\n->ModbusBaudrate 9600\n->ModbusSerialConfig 8N1\n->SerialConfig 7E1\n=>sensor53 r\n" \
     "->SetOption64 1\n->PWMRange 255\n;=>Publish %topic%PfPhase1 0\n;=>Publish %topic%PfPhase2 0\n;=>Publish %topic%PfPhase3 0\n\n" \
@@ -116,7 +128,7 @@
     "tP_L1=EVU#P_L1\ntP_L2=EVU#P_L2\ntP_L3=EVU#P_L3\n" \
     "tU_L1=EVU#U_L1\ntU_L2=EVU#U_L2\ntU_L3=EVU#U_L3\n" \
     "I_L1=tP_L1/tU_L1\nI_L2=tP_L2/tU_L2\nI_L3=tP_L3/tU_L3\n\n" \
-  ">S\nmF=255/(tempH-tempL)\n" \
+  ">S\n" \
     "if tempS<=tempL\nthen\npwmV=0\nendif\n" \
     "if tempS>tempH\nthen\npwmV=255\nendif\n" \
     "if (tempS>tempL and tempS<=tempH)\nthen\npwmV=(tempS-tempL)*mF\nendif\n" \
@@ -137,7 +149,7 @@ SetOption64 	Switch between - or _ as sensor name separator
       1 = sensor name index separator is _ (underscore)
           Affects DS18X20, DHT, BMP and SHT3X sensor names in tele messages
 */
-// 1725 Zeichen Skript; 6501 Zeichen übrig von 8192
+// 1514 Zeichen Skript; 6688 Zeichen übrig von 8192
 #endif // MY_SCRIPT
 
 #ifdef USER_TEMPLATE
@@ -154,23 +166,23 @@ SetOption64 	Switch between - or _ as sensor name separator
 //  User Template ScratchPad:  [0,1,2,3,4,5,9,10,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,6,7,8,11,32,33,34,35,36,37,38,39]
 //                            "NAME":"WT32-ETH01","GPIO":[0,0,1,0,1   ,0,0,0,1  ,0,1,1,3840,576,5600,0,0,0,0,5568,0,0,0,0,0,0,0,0,1   ,1,0,1,1,0,0,1   ],"FLAG":0,"BASE":1
 // #define USER_TEMPLATE "{\"NAME\":\"WT32-ETH01\",\"GPIO\":[0,0,1,0,1312,0,0,0,416,0,1,1,3840,576,5600,0,0,0,0,5568,0,0,0,0,0,0,0,0,9408,1,0,1,1,0,0,9440],\"FLAG\":0,\"BASE\":1,\"CMND\":\"Module 0\"}"
-#define USER_TEMPLATE "{\"NAME\":\"WT32-ETH01\",\"GPIO\":[0,0,1,0,1312,0,0,0,416,0,1,1,3840,576,5600,0,0,0,0,5568,0,0,0,0,0,0,0,0,9408,9952,0,9440,1,0,0,1],\"FLAG\":0,\"BASE\":1,\"CMND\":\"Module 0\"}"
+#define USER_TEMPLATE "{\"NAME\":\"WT32-ETH01\",\"GPIO\":[0,0,416,0,1312,0,0,0,1,0,1,1,5536,576,5600,0,0,0,0,5568,0,0,0,0,0,0,0,0,9408,1,0,1,1,0,0,9440],\"FLAG\":0,\"BASE\":1,\"CMND\":\"Module 0\"}"
 // erstes Template für RS485-to-UART adapter, zweites Template für standard RS485 Adapter mit TX-enable Pin
 /* https://tasmota.github.io/docs/Components/  &  https://randomnerdtutorials.com/esp32-pinout-reference-gpios/
          xdrv_82_esp32_ethernet                   https://templates.blakadder.com/wireless_tag_WT32-ETH01.html
   GPIO00 Brücke gegen GND (kann damit auch zum FlashBoot benutzt werden) -- 0      // Ethernet EMAC_REF_CLK and FlashBoot
   GPIO01 TX UART0                                                        -- 0      // 
-  GPIO02                                                                 -- 1      // 
+  GPIO02                                                                 -- 416    // PWM1 (PWM_i1: 448)
   GPIO03 RX UART0                                                        -- 0      // 
-  GPIO04                                                                 -- 1312   // DS18x20 1-wire
+  GPIO04                                                                 -- 1312   // 1-wire: DS18x20
   GPIO05 RX UART2       (interne LED gn.)                                -- 0      // SML data Rx
   GPIO09 DO NOT USE!!   (SDData2)                                        -- 0      // DO NOT USE!!
   GPIO10 DO NOT USE!!   (SDData3)                                        -- 0      // DO NOT USE!!
-  GPIO12 HSPI MISO                                                       -- 416    // PWM1 (PWM_i1: 448)
+  GPIO12 HSPI MISO                                                       -- 1      // 
   GPIO13 HSPI MOSI                                                       -- 0      // Ethernet EMAC_RX_ER
   GPIO14 HSPI CLK                                                        -- 1      // 
   GPIO15 HSPI CS0                                                        -- 1      // 
-  GPIO16                                                                 -- 5536   // Output Hi - Ethernet OSC_ENA
+  GPIO16                                                                 -- 5536   // Output Hi (3840) oder ETH POWER (5536) - Ethernet OSC_ENA
   GPIO17 TX UART2       (interne LED gn.)                                -- 576    // LedLink_i     (der kann offenbar auch anders verwendet werden)
   GPIO18 VSPI CLK                                                        -- 5600   // Ethernet MDIO
   GPIO19 VSPI MISO                                                       -- 0      // Ethernet TXD0
@@ -194,7 +206,7 @@ SetOption64 	Switch between - or _ as sensor name separator
   GPIO37 Nicht verfügbar auf den meisten Boards                          -- 0      // Nicht verfügbar auf den meisten Boards
   GPIO38 Nicht verfügbar auf den meisten Boards                          -- 0      // Nicht verfügbar auf den meisten Boards
   GPIO39 (input only)                                                    -- 9440   // RS485 Rx (+ LED gn)
-                                                                                      "9952":"ModBr Tx Ena","9408":"ModBr Tx","9440":"ModBr Rx"
+                                                                            "9952":"ModBr Tx Ena","9408":"ModBr Tx","9440":"ModBr Rx"
 Nicht jedes Board hat alle GPIOs verfügbar!
   GPIO00 fehlt auf dem DEVKIT V1 – DOIT 30-Pin Board und ist nur durch den boot-Taster am Board bedienbar.
   Das DEVKIT V1 – DOIT 30-Pin Board verwendest Standardmäßig den VSPI.
