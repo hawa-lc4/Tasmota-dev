@@ -158,6 +158,11 @@
 
 #ifdef LUATOS_ESP32C3     // Luatos-ESP32C3 board mit AIR101-LCD Modul
 /*      https://tasmota.github.io/docs/Displays/#descriptor-file & https://github.com/arendst/Tasmota/discussions/18350      */
+#ifdef USE_BERRY
+#undef USE_BERRY
+#endif
+// #define USE_BERRY_DEBUG             // Compile Berry bytecode with line number information, makes exceptions easier to debug. Adds +8% of memory consumption for compiled code
+
 #ifdef DSP_ROM_DESC
 #undef DSP_ROM_DESC
 #endif
@@ -202,12 +207,13 @@
   Die Beschreibung bei Tasmota kann nicht so recht stimmen denn mein Board hat GPIO11 verfügbar und verwendet den für den BL des Display!
 */
 
-#define USER_TEMPLATE "{\"NAME\":\"Luatos 32C3\",\"GPIO\":[0,6210,736,704,1,1,800,768,1,1,8736,992,544,1,0,0,0,0,0,0,0,0],\"FLAG\":0,\"BASE\":1,\"CMND\":\"Module 0\"}"
-/* https://tasmota.github.io/docs/Components/  &  https://www.studiopieters.nl/esp32-c3-pinout/
+#define USER_TEMPLATE "{\"NAME\":\"Luatos 32C3\",\"GPIO\":[0,6210,736,704,1,1,800,768,1,1,8736,992,544,1,0,0,0,0,1,1,1,1],\"FLAG\":0,\"BASE\":1,\"CMND\":\"Module 0\"}"
+/*  https://pcbartists.com/design/embedded/esp32-c3-gpio-notes-strapping-pins/
+    https://tasmota.github.io/docs/Components/  &  https://www.studiopieters.nl/esp32-c3-pinout/
   GPIO0 ADC0 U1TXD                                                       -- 0      // 
   GPIO1 ADC1 U1RXD                                                       -- 6210   // OptionA3 	Specific device options to be served in code
-  GPIO2 ADC2                                             AIR101-LCD SCL  -- 736    // SPI CLK1 	Hardware SPI
-  GPIO3 ADC3                                             AIR101-LCD SCA  -- 704    // SPI MOSI1 Hardware SPI
+  GPIO2 ADC2                                             AIR101-LCD SCK  -- 736    // SPI CLK1 	Hardware SPI
+  GPIO3 ADC3                                             AIR101-LCD SDA  -- 704    // SPI MOSI1 Hardware SPI
   GPIO4 ADC4 I2C_SDA                                     AIR101-Btn Ent. -- 1      // USER
   GPIO5 ADC5 I2C_SCL                                     AIR101-Btn L    -- 1      // USER
   GPIO6                                                  AIR101-LCD DC   -- 800    // SPI DC1 	Hardware SPI
@@ -218,14 +224,14 @@
   GPIO11                                                 AIR101-LCD BL   -- 992 	 // Backlight Display backlight control
   GPIO12 LED-D4 LedLink (544; _i: 576)                                   -- 544    // 
   GPIO13 LED-D5 PWM_1 (416)                              AIR101-Btn D    -- 1      // USER
-  GPIO14 NOT AVAILABLE                                                   -- 0      // is NOT AVAILABLE on this board 
-  GPIO15 NOT AVAILABLE                                                   -- 0      // is NOT AVAILABLE on this board 
-  GPIO16 NOT AVAILABLE                                                   -- 0      // is NOT AVAILABLE on this board 
-  GPIO17 NOT AVAILABLE                                                   -- 0      // is NOT AVAILABLE on this board 
-  GPIO18                                                                 -- 0      // 
-  GPIO19                                                                 -- 0      // 
-  GPIO20 U0RXD                                                           -- 0      // 
-  GPIO21 U0TXD                                                           -- 0      // 
+  GPIO14 NOT AVAILABLE on this board                                     -- 0      // n/a
+  GPIO15 NOT AVAILABLE on this board                                     -- 0      // n/a
+  GPIO16 NOT AVAILABLE on this board                                     -- 0      // n/a
+  GPIO17 NOT AVAILABLE on this board                                     -- 0      // n/a
+  GPIO18                                                                 -- 1      // USER
+  GPIO19                                                                 -- 1      // USER
+  GPIO20 U0RXD                                                           -- 1      // USER
+  GPIO21 U0TXD                                                           -- 1      // USER
 Ausrichtung AIR101-LCD mit Display quer und Eingabe-Stick rechts; die Button-Bezeichnung ist oben angepaßt!
 */
 
@@ -244,6 +250,7 @@ Ausrichtung AIR101-LCD mit Display quer und Eingabe-Stick rechts; die Button-Bez
 #endif    // LUATOS_ESP32C3
 
 #ifdef ESP32
+#ifndef LUATOS_ESP32C3
 #ifdef USE_BERRY
 #undef USE_BERRY
 #endif
@@ -304,7 +311,26 @@ Strapping Pins:   The ESP32 chip has the following strapping pins:
 // hawa-lc4: xsns_02_analog.ino Zeile 482 (12.5.0.2) bzw. 504 (13.2.0.2) aktivieren des logging der ADC Werte
 // #define ADC_LOG
 
-// #define USE_BERRY_DEBUG                          // Compile Berry bytecode with line number information, makes exceptions easier to debug. Adds +8% of memory consumption for compiled code
+#ifdef MY_ETH01
+  #define USE_ETHERNET                             // Add support for ethernet (+20k code)
+  #define USE_WT32_ETH01                           // Add support for Wireless-Tag WT32-ETH01
+
+  #ifdef ETH_TYPE
+  #undef ETH_TYPE
+  #endif
+  #define ETH_TYPE          0                      // LAN8720
+
+  #ifdef ETH_CLKMODE
+  #undef ETH_CLKMODE
+  #endif
+  #define ETH_CLKMODE       0                      // [EthClockMode] 0 = ETH_CLOCK_GPIO0_IN, 1 = ETH_CLOCK_GPIO0_OUT, 2 = ETH_CLOCK_GPIO16_OUT, 3 = ETH_CLOCK_GPIO17_OUT
+
+  #ifdef ETH_ADDRESS
+  #undef ETH_ADDRESS
+  #endif
+  #define ETH_ADDRESS       1                      // [EthAddress] 0 = PHY0 .. 31 = PHY31
+#endif    // MY_ETH01
+#endif    // LUATOS_ESP32C3
 #endif    // ESP32
 
 #define GUI_EDIT_FILE
