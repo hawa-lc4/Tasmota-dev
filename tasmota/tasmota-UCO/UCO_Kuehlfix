@@ -77,15 +77,17 @@
   #define PRECONFIGURED_SCRIPT \
   ">D 48\ndNo=1\n" \
       "tempHi=15.0\ntempLo=14.0\ntemp=0\n" \
-      "manu=0\ndevM=0\ndevS=0\n" \
+      "manu=0\nmanT=\"\"\n" \
+      "devM=0\ndevS=0\n" \
       "t:dpON=600\nt:tMS=240\n" \
       "butA=\"\"\nbutP=0\n" \
+      "swT=\"\"\nswS=0\n" \
       "topM=\"openWB/config/get/SmartHome/Devices\"\n" \
       "topS=\"openWB/SmartHome/Devices\"\n" \
       "sufP=\"device_manual_control\"\n\n" \
   ">B\n" \
       "if pwr[2]==1 {\n=>Power2 0\n}\n" \
-      "->SetOption73 1\n->SetOption32 30\n->SwitchMode1 5\n" \
+      "->SetOption73 1\n->SetOption114 1\n->SetOption32 30\n->SwitchMode1 5\n->SwitchMode2 2\n" \
       "->DisplayRotate 2\n->DisplayFont 0\n\n" \
       "if mqtts>0 {\n=#publish\n}\n\n" \
       "#publish\n+>Subscribe devM, %topM%/%0dNo%/mode\n+>Subscribe devS, %topS%/%0dNo%/Status\n\n" \
@@ -93,8 +95,10 @@
       "=>Hostname Kuehlfix\n\n" \
   ">E\n" \
       "butA=Button1#Action\n" \
+      "swS=sw[1]\n" \
+      "if swS==1 {\nswT=\"voll oder offen\"\n} else {\nswT=\"alles ok.\"\n}\n" \
       "if butA==\"HOLD\" {\n" \
-        "if manu==0 {\nmanu=1\n} else {\nmanu=0\n}\n" \
+        "if manu==0 {\nmanu=1\nmanT=\"An\"\n} else {\nmanu=0\nmanT=\"Aus\"\n}\n" \
         "=>publish %topic%/%0dNo%/mode %0manu%\n" \
       "}\n" \
       "if (butA==\"DOUBLE\" and manu==1) {\n=>publish %topic%/%0dNo%/mode 1\n" \
@@ -110,34 +114,44 @@
       "dpON=600\n\n" \
   ">T\n" \
       "temp=DS18B20#Temperature\n\n" \
+  ">F\n" \
+      "if swS==1 {\n->LedPower2 toggle\n}\n\n" \
   ">S\n" \
-      "if ((butP==10 and pwr[1]==1) or (butP==11 and pwr[1]==0)) {\n" \
+      "if (((butP==10 and pwr[1]==1) or (butP==11 and pwr[1]==0)) and swS==0) {\n" \
         "->LedPower2 toggle\n" \
       "} else {\nbutP=0\n}\n" \
-      "if butP==0 {\n->LedPower2 %manu%\n}\n" \
+      "if (butP==0 and swS==0) {\n->LedPower2 %manu%\n}\n" \
       "if mqttc>0 {\n=#publish\n}\n" \
-      "if upd[devM]>0 {\nmanu=devM\n}\n" \
+      "if upd[devM]>0 {\nmanu=devM\n" \
+          "if manu==1 {\nmanT=\"An\"\n} else {\nmanT=\"Aus\"\n}\n" \
+      "}\n" \
       "if dpON==0 {\n->DisplayDimmer 0\n" \
          "} else {\n->DisplayDimmer 10\n" \
-      "dt [zs4l1c1]%1temp%[s2l2c9] ~f8C[s2l4c1]delay %0tMS%\n" \
+      "dt [zs4l1c1]%1temp%[s2l2c9]~f8C[s2l4c1]delay %0tMS%\n" \
       "}\n" \
-      "if (pwr[1]==1 and temp>=tempHi and tMS==0) {\n->Power2 1\ntMS=-1\n}\n" \
-      "if ((pwr[1]==0 or temp<=tempLo) and pwr[2]==1) {\n->Power2 0\ntMS=240\n}\n\n" \
+      "if (pwr[1]==1 and temp>=tempHi and tMS==0 and swS==0) {\n->Power2 1\ntMS=-1\n}\n" \
+      "if ((pwr[1]==0 or temp<=tempLo or swS==1) and pwr[2]==1) {\n->Power2 0\ntMS=240\n}\n\n" \
   ">W\n" \
-    "@Manuelle Steuerung:&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;%0manu%\n" \
-    "@openWB Geräte Nr.: &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;%0dNo%\n" \
-    "delay Motorschutz:&emsp;&emsp;&emsp;&emsp;&emsp;%0tMS% sec\n" \
-    "POWER1 ist die Steuerung für openWB.\n" \
-    "POWER2 ist das Relais! NICHT SCHALTEN!\n" \
-    "POWER3 ist das Display.\n"
+    "@Manuelle Steuerung:    %manT%\n" \
+    "@Wassertank & Fenster:   %swT%\n" \
+    "@openWB Geräte Nr.:     %0dNo%\n" \
+    "@delay Motorschutz:     %0tMS% sec\n" \
+    "Power1 ist die Steuerung für openWB.\n" \
+    "Power2 ist das Relais!\nPower2 NICHT MANUELL SCHALTEN!\n" \
+    "Power3 ist das Display.\n"
 
-// 1554 Zeichen Skript; 6674 Zeichen übrig von 8192
+// 1876 Zeichen Skript; 6350 Zeichen übrig von 8192
 
 /*
 SetOption73 	Detach buttons from relays and send multi-press and hold MQTT messages instead
       0 = disable (default)
       1 = enable
-Example message: {"Button1":{"Action":"SINGLE"}}
+  Example message: {"Button1":{"Action":"SINGLE"}}
+
+SetOption114  Detach switches from relays and send MQTT messages instead
+      0 = disable (default)
+      1 = enable
+  Example result: {"Switch1":{"Action":"ON"}}
 
 SetOption32 	Number of 0.1 seconds to hold button before sending HOLD action message.
       1..100 to set button hold time (default = 40).
@@ -151,7 +165,7 @@ SetOption32 	Number of 0.1 seconds to hold button before sending HOLD action mes
 #endif
 
 #ifdef ESP8266
-#define USER_TEMPLATE "{\"NAME\":\"Kuehlfix\",\"GPIO\":[32,0,576,0,640,608,0,0,224,1312,289,225,0,4896],\"FLAG\":0,\"BASE\":18,\"CMND\":\"AdcParam 7,0,1500,0.235,0.15\",\"CMND\":\"Module 0\"}"  // [Template] Set JSON template
+#define USER_TEMPLATE "{\"NAME\":\"Kuehlfix\",\"GPIO\":[32,0,576,0,640,608,5730,0,224,1312,289,225,193,4896],\"FLAG\":0,\"BASE\":18,\"CMND\":\"AdcParam 7,0,1500,0.235,0.15\",\"CMND\":\"Module 0\"}"  // [Template] Set JSON template
 /* https://tasmota.github.io/docs/Components/  &  https://randomnerdtutorials.com/esp8266-pinout-reference-gpios
   GPIO0  Taster gegen GND (kann damit auch zum FlashBoot benutzt werden) -- 32     // Taster zum umschalten Manuell|Automatik mit openWB
   GPIO1  TX UART0                                                        -- 0      // 
@@ -159,13 +173,13 @@ SetOption32 	Number of 0.1 seconds to hold button before sending HOLD action mes
   GPIO3  RX UART0                                                        -- 0      // 
   GPIO4  I2C SDA (640)                                                   -- 640    // Display
   GPIO5  I2C SCL (608)                                                   -- 608    // Display
-  GPIO9  DO NOT USE!!                                                    -- 0      // DO NOT USE!!
+  GPIO9  DO NOT USE!!                                                    -- 5730   // Option A3 (zur Aktivierung des uDisplay Treibers)
   GPIO10 DO NOT USE!!                                                    -- 0      // DO NOT USE!!
-  GPIO12 SPI MISO (672)                                                  -- 224    // Relais1 - dummy ==> LED ge. ==> Anforderung von openWB
+  GPIO12 SPI MISO (672)                                                  -- 224    // Relais1 (dummy) = LED ge. ==> Anforderung von openWB
   GPIO13 SPI MOSI (704)                                                  -- 1312   // DS18x20 1-wire
-  GPIO14 SPI CLK  (736)                                                  -- 289    // LED2 ==> LED rt. ==> Anzeige Manuell/Automatik
-  GPIO15 SPI SS (768) - SDCard CS (6240)                                 -- 225    // Relais2 ==> LED bl. ==> Relais nur vom Tasmota gesteuert
-  GPIO16 (wake-up aus dem deep-sleep Modus: 4096)                        -- 0      // 
+  GPIO14 SPI CLK  (736)                                                  -- 289    // LED2 = LED rt. ==> Anzeige Manuell/Automatik
+  GPIO15 SPI SS (768) - SDCard CS (6240)                                 -- 225    // Relais2 & LED bl. ==> Motor-Relais nur durch Tasmota Script gesteuert
+  GPIO16 (wake-up aus dem deep-sleep Modus: 4096)                        -- 193    // Switch_n2, kein interner pull-up Widerstand (Öffner für "Wassertank voll" oder "Fenster offen")
   GPIO17 ist der AD0 (CT Power: 4896)                                    -- 4896   // ACS712-20 Stromsensor 100mv/A
 !!  ACHTUNG:  der D1-mini hat am Eingang AD0 einen Spannungsteiler und damit eine max. Eingangsspannung von 3,3V
               der ESP8266 hat keinen Spannungsteiler und damit eine max. Eingangsspannung von 1,0V
@@ -189,14 +203,44 @@ SetOption32 	Number of 0.1 seconds to hold button before sending HOLD action mes
 #define GUI_TRASH_FILE
 
 #define USE_I2C                              // I2C using library wire (+10k code, 0k2 mem, 124 iram)
-#define USE_DISPLAY                          // Add I2C/TM1637/MAX7219 Display Support (+2k code)
-#undef USE_DISPLAY_MODES1TO5                 // Enable display mode 1 to 5 in addition to mode 0
-#undef USE_DISPLAY_LCD                       // [DisplayModel 1] [I2cDriver3] Enable Lcd display (I2C addresses 0x27 and 0x3F) (+6k code)
-#define USE_DISPLAY_SSD1306                  // [DisplayModel 2] [I2cDriver4] Enable SSD1306 Oled 128x64 display (I2C addresses 0x3C and 0x3D) (+16k code)
-#undef USE_DISPLAY_MATRIX                    // [DisplayModel 3] [I2cDriver5] Enable 8x8 Matrix display (I2C adresseses see below) (+11k code)
-#undef USE_DISPLAY_SEVENSEG                  // [DisplayModel 11] [I2cDriver47] Enable sevenseg display (I2C 0x70-0x77) (<+11k code)
-#undef USE_ADE7953
-#undef SHOW_SPLASH
+
+#ifndef USE_DISPLAY
+#define USE_DISPLAY
+#undef USE_DISPLAY_MODES1TO5                    // Enable display mode 1 to 5 in addition to mode 0
+#undef USE_DISPLAY_LCD
+#undef USE_DISPLAY_MATRIX
+#undef USE_DISPLAY_SEVENSEG
+/*    https://tasmota.github.io/docs/Displays/#universal-display-driver   */
+#define USE_UNIVERSAL_DISPLAY                   // New universal display driver for both I2C and SPI
+#ifdef DSP_ROM_DESC
+#undef DSP_ROM_DESC
+#endif
+#define DSP_ROM_DESC \
+ ":H,SSD1306,128,64,1,I2C,3c,*,*,*" \
+  ":S,0,2,1,0,30,20\n" \
+  ":I\n" \
+  "AE\n" \
+  "D5,80\n" \
+  "A8,3F\n" \
+  "D3,00\n" \
+  "40\n" \
+  "8D,14\n" \
+  "20,00\n" \
+  "A1\n" \
+  "C8\n" \
+  "DA,12\n" \
+  "81,9F\n" \
+  "D9,F1\n" \
+  "DB,40\n" \
+  "A4\n" \
+  "A6\n" \
+  "AF\n" \
+  ":o,AE\n" \
+  ":O,AF\n" \
+  ":A,00,10,40,00,00\n" \
+  ":i,A6,A7\n" \
+  "#\n"
+#endif    // USE_DISPLAY
 
 #ifndef USE_DS18x20
 #define USE_DS18x20                             // Add support for DS18x20 sensors with id sort, single scan and read retry (+2k6 code)
