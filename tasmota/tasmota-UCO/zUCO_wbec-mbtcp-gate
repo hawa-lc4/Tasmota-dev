@@ -77,9 +77,10 @@
 #define PRECONFIGURED_SCRIPT \
   ">D 48\nt:TCPdelay=7\n\n" \
   ">B\n->WiFi 0\n" \
+    "->SetOption73=1\n->SwitchMode 5\n->SetOption32 30\n" \
     "->ModbusBaudrate 19200\n->ModbusSerialConfig 8E1\n\n" \
   ">R\n=>Hostname wbec-gate\n\n" \
-  ">S\nif TCPdelay==0 {\n=>ModbusTCPStart 502\nTCPdelay=-1\n}\n"
+  ">S\nif TCPdelay==0 {\n=>ModbusTCPStart 5021\nTCPdelay=-1\n}\n"
 
 // 106 Zeichen Skript; 8086 Zeichen übrig von 8192
 #endif // MY_SCRIPT
@@ -130,7 +131,7 @@
   GPIO08 DO NOT USE!!   (SDData1)                                        -- 0      // DO NOT USE!!
   GPIO11 DO NOT USE!!   (SDCMD)                                          -- 0      // DO NOT USE!!
   GPIO32 CFG                                                             -- 1      // 
-  GPIO33 485_EN                                                          -- 9952   // RS485 Tx Ena
+  GPIO33 485_EN                                                          -- 9952   // ModBr Tx Ena
   GPIO34 (input only)                                                    -- 0      // auf WT32-ETH01 nicht verfügbar
   GPIO35 (input only)                                                    -- 1      // 
   GPIO36 (input only)                                                    -- 1      // 
@@ -152,7 +153,7 @@ Strapping Pins:   The ESP32 chip has the following strapping pins:
 // hawa-lc4: xsns_02_analog.ino Zeile 482 (12.5.0.2) bzw. 504 (13.2.0.2) aktivieren des logging der ADC Werte
 // #define ADC_LOG
 
-#ifdef WT32_ETH01
+#ifdef MY_ETH01
   #define USE_ETHERNET                             // Add support for ethernet (+20k code)
   #define USE_WT32_ETH01                           // Add support for Wireless-Tag WT32-ETH01
 
@@ -170,7 +171,7 @@ Strapping Pins:   The ESP32 chip has the following strapping pins:
   #undef ETH_ADDRESS
   #endif
   #define ETH_ADDRESS       1                      // [EthAddress] 0 = PHY0 .. 31 = PHY31
-#endif  // WT32_ETH01
+#endif    // MY_ETH01
 #else
   #error **** Build: ESP32 only! ****
 #endif    // ESP32
