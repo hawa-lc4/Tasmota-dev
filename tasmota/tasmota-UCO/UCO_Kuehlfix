@@ -137,7 +137,7 @@
     "@openWB Geräte Nr.:     %0dNo%\n" \
     "@delay Motorschutz:     %0tMS% sec\n" \
     "Power1 ist die Steuerung für openWB.\n" \
-    "Power2 ist das Relais!\nPower2 NICHT MANUELL SCHALTEN!\n" \
+    "Power2 ist das Motor-Relais!\nPower2 NICHT MANUELL SCHALTEN!\n" \
     "Power3 ist das Display.\n"
 
 // 1876 Zeichen Skript; 6350 Zeichen übrig von 8192
