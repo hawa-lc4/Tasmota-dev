@@ -72,9 +72,6 @@ tim2=-1
 endif
 if tim1>=3
 then
-->DisplayText [zs2]%0smP%
-->DisplayText [l2c14s1]Watt
-->DisplayText [l4c1s1]%1smI% kWh Imp
-->DisplayText [l5c1s1]%1smO% kWh Exp
+->dt [zs2]%0smP%[l2c14s1]Watt[l4c1s1]%1smI% kWh Imp[l5c1s1]%1smO% kWh Exp
 tim1=0
 endif

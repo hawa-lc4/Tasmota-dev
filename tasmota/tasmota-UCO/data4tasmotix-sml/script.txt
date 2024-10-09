@@ -31,5 +31,4 @@ fc(fr)
 =>Hostname tasmotix-sml
 
 >S
-->DisplayText [zs2]script
-->DisplayText [l2c1]waehlen!
+->dt [zs2]script[l2c1]waehlen!
