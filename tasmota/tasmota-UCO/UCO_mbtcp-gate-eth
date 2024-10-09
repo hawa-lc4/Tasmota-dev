@@ -79,6 +79,7 @@
     "tempS=0\ntempL=35.0\ntempH=45.0\nmF=0\npwmV=0\n" \
     "tE_In=0\ntE_Out=0\ntP_Cur=0\ntP_L1=0\ntP_L2=0\ntP_L3=0\ntU_L1=0\ntU_L2=0\ntU_L3=0\nI_L1=0\nI_L2=0\nI_L3=0\n\n" \
   ">B\n->WiFi 0\n" \
+    "->SetOption0 0\n->SaveData 0\n" \
     "->SetOption64 1\n->PWMRange 255\nmF=255/(tempH-tempL)\n" \
     "->ModbusBaudrate 9600\n->ModbusSerialConfig 8N1\n" \
     "=>sensor53 r\n\n" \
@@ -149,7 +150,7 @@ SetOption64 	Switch between - or _ as sensor name separator
       1 = sensor name index separator is _ (underscore)
           Affects DS18X20, DHT, BMP and SHT3X sensor names in tele messages
 */
-// 1514 Zeichen Skript; 6688 Zeichen übrig von 8192
+// 1542 Zeichen Skript; 6660 Zeichen übrig von 8192
 #endif // MY_SCRIPT
 
 #ifdef USER_TEMPLATE

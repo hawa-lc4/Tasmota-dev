@@ -86,7 +86,8 @@
       "topS=\"openWB/SmartHome/Devices\"\n" \
       "sufP=\"device_manual_control\"\n\n" \
   ">B\n" \
-      "if pwr[2]==1 {\n=>Power2 0\n}\n" \
+      "->SetOption0 0\n->SaveData 0\n" \
+      "if pwr[2]==1 {\n->Power2 0\n}\n" \
       "->SetOption73 1\n->SetOption114 1\n->SetOption32 30\n->SwitchMode1 5\n->SwitchMode2 2\n" \
       "->DisplayRotate 2\n->DisplayFont 0\n\n" \
       "if mqtts>0 {\n=#publish\n}\n\n" \
@@ -96,7 +97,7 @@
   ">E\n" \
       "butA=Button1#Action\n" \
       "swS=sw[1]\n" \
-      "if swS==1 {\nswT=\"voll oder offen\"\n} else {\nswT=\"alles ok.\"\n}\n" \
+      "if swS==1 {\nswT=\"Störung!\"\n} else {\nswT=\"alles ok.\"\n}\n" \
       "if butA==\"HOLD\" {\n" \
         "if manu==0 {\nmanu=1\nmanT=\"An\"\n} else {\nmanu=0\nmanT=\"Aus\"\n}\n" \
         "=>publish %topic%/%0dNo%/mode %0manu%\n" \
@@ -140,7 +141,7 @@
     "Power2 ist das Motor-Relais!\nPower2 NICHT MANUELL SCHALTEN!\n" \
     "Power3 ist das Display.\n"
 
-// 1876 Zeichen Skript; 6350 Zeichen übrig von 8192
+// 1904 Zeichen Skript; 6323 Zeichen übrig von 8192
 
 /*
 SetOption73 	Detach buttons from relays and send multi-press and hold MQTT messages instead
