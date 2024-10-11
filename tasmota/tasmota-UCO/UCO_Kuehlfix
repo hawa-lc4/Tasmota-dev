@@ -76,7 +76,7 @@
 
   #define PRECONFIGURED_SCRIPT \
   ">D 48\ndNo=1\n" \
-      "tempHi=15.0\ntempLo=14.0\ntemp=0\n" \
+      "tempZiel=0\ntempDiff=0.25\np:tempSoll=150\nt:saveTemp=30\ntemp=0\n" \
       "manu=0\nmanT=\"\"\n" \
       "devM=0\ndevS=0\n" \
       "t:dpON=600\nt:tMS=240\n" \
@@ -89,7 +89,8 @@
       "->SetOption0 0\n->SaveData 0\n" \
       "if pwr[2]==1 {\n->Power2 0\n}\n" \
       "->SetOption73 1\n->SetOption114 1\n->SetOption32 30\n->SwitchMode1 5\n->SwitchMode2 2\n" \
-      "->DisplayRotate 2\n->DisplayFont 0\n\n" \
+      "->DisplayRotate 2\n->DisplayFont 0\n" \
+      "tempZiel=tempSoll/10\n" \
       "if mqtts>0 {\n=#publish\n}\n\n" \
       "#publish\n+>Subscribe devM, %topM%/%0dNo%/mode\n+>Subscribe devS, %topS%/%0dNo%/Status\n\n" \
   ">R\n" \
@@ -116,7 +117,8 @@
   ">T\n" \
       "temp=DS18B20#Temperature\n\n" \
   ">F\n" \
-      "if swS==1 {\n->LedPower2 toggle\n}\n\n" \
+      "if swS==1 {\n->LedPower2 toggle\n}\n" \
+      "if upd[tempSoll]>0 {\ntempZiel=tempSoll/10\nsaveTemp=30\n}\n\n"
   ">S\n" \
       "if (((butP==10 and pwr[1]==1) or (butP==11 and pwr[1]==0)) and swS==0) {\n" \
         "->LedPower2 toggle\n" \
@@ -131,12 +133,15 @@
       "dt [zs4l1c1]%1temp%[s2l2c9]~f8C[s2l4c1]delay %0tMS%\n" \
       "}\n" \
       "if (pwr[1]==1 and temp>=tempHi and tMS==0 and swS==0) {\n->Power2 1\ntMS=-1\n}\n" \
-      "if ((pwr[1]==0 or temp<=tempLo or swS==1) and pwr[2]==1) {\n->Power2 0\ntMS=240\n}\n\n" \
+      "if ((pwr[1]==0 or temp<=tempLo or swS==1) and pwr[2]==1) {\n->Power2 0\ntMS=240\n}\n" \
+      "if saveTemp==0 {\nsvars\nsaveTemp=-1\n}\n\n"
   ">W\n" \
     "@Manuelle Steuerung:    %manT%\n" \
     "@Wassertank & Fenster:   %swT%\n" \
     "@openWB Geräte Nr.:     %0dNo%\n" \
     "@delay Motorschutz:     %0tMS% sec\n" \
+    "@sl(130 180 tempSoll \"13.0 °C\" \"Zieltemperatur\" \"18.0 °C\")\n" \
+    "@Zieltemperatur:    %1tempZiel% °C\n"
     "Power1 ist die Steuerung für openWB.\n" \
     "Power2 ist das Motor-Relais!\nPower2 NICHT MANUELL SCHALTEN!\n" \
     "Power3 ist das Display.\n"
