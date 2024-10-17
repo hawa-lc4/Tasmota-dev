@@ -77,7 +77,7 @@
 #define PRECONFIGURED_SCRIPT \
   ">D 48\nt:TCPdelay=7\n\n" \
   ">B\n->WiFi 0\n" \
-    "->SetOption73=1\n->SwitchMode 5\n->SetOption32 30\n" \
+    "->SetOption73 1\n->SwitchMode 5\n->SetOption32 30\n" \
     "->ModbusBaudrate 19200\n->ModbusSerialConfig 8E1\n\n" \
   ">R\n=>Hostname wbec-gate\n\n" \
   ">S\nif TCPdelay==0 {\n=>ModbusTCPStart 5021\nTCPdelay=-1\n}\n"
