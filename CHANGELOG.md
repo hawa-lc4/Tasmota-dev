@@ -3,15 +3,38 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased] - Development
 
-## [14.2.0.6]
+## [14.3.0.1]
+### Added
+
+### Breaking Changed
+
+### Changed
+
+### Fixed
+
+### Removed
+
+
+## [Released]
+
+## [14.3.0] 20241015
+- Release Robert
+
+## [14.2.0.6] 20241015
 ### Added
 - Support for Sonoff SPM v1.3.0 (#13447)
 - LVGL port `colorwheel` from LVGL 8 (#22244)
 - HASPmota `cpicker` and `msgbox` (#22244)
 - Support for DALI on ESP8266
 - Command ``DaliWeb 1`` to enable light control for DALI broadcast address
-
-### Breaking Changed
+- Command ``DaliSend <address>|<address+256>,<command>`` to send command (address+256 is repeat) on DALI bus
+- Command ``DaliQuery <address>|<address+256>,<command>`` to send command (address+256 is repeat) on DALI bus and wait up to DALI_TIMEOUT ms for response
+- Berry Serial `config` to change parity on-the-fly for RS-485 (#22285)
+- Misubishi Electric HVAC Heat/Dry/Cool Auto operation mode (#22216)
+- Misubishi Electric HVAC Bridge to HomeBridge/Homekit locally (#22236)
+- Misubishi Electric HVAC Air Direction Control (#22241)
+- Misubishi Electric HVAC prohibit function (#22269)
+- Misubishi Electric HVAC compressor map and operation power and energy (#22290)
 
 ### Changed
 - ESP32 platform update from 2024.09.10 to 2024.09.30 and Framework (Arduino Core) from v3.0.5 to v3.1.0.240926 (#22203)
@@ -27,6 +50,7 @@ All notable changes to this project will be documented in this file.
 - DALI received data decoding
 - ESP32 Ethernet using EthClockMode 3 (#22248)
 - ESP32 disable SPI DMA for uDisplay (broken since esp-idf 5.3 (core 3.1.0)) (#22264)
+- Sonoff WTS01 temperature sensor shows incorrect negative temperature (#19373)
 
 ### Removed
 - Berry Zigbee removed test code (#22263)
@@ -127,8 +151,6 @@ All notable changes to this project will be documented in this file.
 
 ### Removed
 - ESP8266 Analog input support using energy driver as only one channel is available
-
-## [Released]
 
 ## [14.2.0] 20240814
 - Release Rita
