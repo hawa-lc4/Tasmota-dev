@@ -34,8 +34,9 @@
  *   - All parameters can be persistent changed online using commands via MQTT, WebConsole or Serial.
 \*****************************************************************************************************/
 
-// #include "user_private_data.h"               // not sharing sensible data with the global community; hawa-lc4 (M1)
-// ^^ wird in diesem Projekt nicht benutzt
+// wird in diesem Projekt nicht benutzt
+#include "user_private_data.h"               // not sharing sensible data with the global community; hawa-lc4 (M1)
+// don't forget to check and modify the file above!
 
 // #ifdef %identifier%
 // #undef %identifier%
@@ -52,6 +53,7 @@
 #endif // MY_RULE
 
 #ifdef MY_SCRIPT
+  // #warning **** Build: SCRIPT ****
   #undef CODE_IMAGE_STR
   #define CODE_IMAGE_STR "hawa-lc4_BMX-LightControl"
 
@@ -68,7 +70,6 @@
   #define USE_SCRIPT_SERIAL
   #define USE_SCRIPT_TIMERS
   // #define USE_SCRIPT_SUB_COMMAND
-  #define USE_SCRIPT_FATFS_EXT        // https://github.com/arendst/Tasmota/discussions/19031#discussioncomment-6359175
   #define USE_SCRIPT_GLOBVARS
   // #define USE_SCRIPT_JSON_EXPORT
   // #define USE_SCRIPT_I2C
@@ -83,54 +84,12 @@
   #endif    // USE_SCRIPT
 
   #define PRECONFIGURED_SCRIPT \
-  ">D 48\n" \
-    "fr=0\nres=0\ncnt=0\nMAf=0\nUIDf=0\nUIDrU=0\n" \
-    "UIDr=\"\"\nstr=\"\"\nt:doTi=-1\nt:MaEn=-1\n\n" \
+  ">D\n\n" \
   ">B\n->SetOption0 0\n" \
-    "->PWM1 10\n->PWM2 10\n" \
-    "fr=fo("/" 0)\n" \
-    "for cnt 1 20 1\nres=fr(str fr)\n" \
-    "if res>0 {\nprint %0cnt% : %str%\n} else {\nbreak\n}\n" \
-    "next\nfc(fr)\n\n" \
-    "#LOGTOFILE\n" \
-      "fr=fo(\"/rfidLog.txt\" 2)\nres=fz(fr)\n" \
-      "if res>=4096 {\nfc(fr)\nfd(\"/rfidLog.old\")\nfrn(\"/rfidLog.txt\" \"/rfidLog.old\")\nfr=fo(\"/rfidLog.txt\" 1)\n}\n" \
-      "str=tstamp+\"\t\"+UIDr+\"\t\"+str+\"\n\"\nres=fw(str fr)\nfc(fr)\n" \
-  ">R\n=>Hostname BMX-LightControl\n\n" \
-  ">E\nUIDr=RC522#UID\n\n" \
-  ">F\nif upd[UIDr]>0 {\nUIDrU=1\n}\n" \
-  ">S\n" \
-    "if MaEn==0 {\ndoTi=0\nMAf=0\nMaEn=-1\n}\n" \
-    "if MAf==1 {\n->PWM1 100\n->PWM2 100\n" \
-      "if UIDrU>0 {\nfr=fo(\"/rfidUIDs.txt\" 0)\n" \
-      "for cnt 1 20 1\nres=fr(str fr)\n" \
-        "if res>0 {\nif str==UIDr {\nUIDf=1\n}\n" \
-        "} else {\nbreak\n}\nnext\n" \
-      "fc(fr)\n" \
-      "if UIDf==0 {\nstr=UIDr+\"\nfr=fo(\"/rfidUIDs.txt\" 2)\nres=fw(str fr)\nfc(fr)\n" \
-        "if res>0 {\n-> PWM1 0\n-> PWM2 1000\nMAf=0\ndoTi=3\nstr=\"Chip eingetragen\"\n=#LOGTOFILE\n" \
-        "} else {\n-> PWM1 1000\n-> PWM2 0\nMAf=0\ndoTi=3\nstr=\"FEHLER +UID+\"\n=#LOGTOFILE\n}\n" \
-      "} else {\n" \
-        "-> PWM1 1000\n-> PWM2 0\nMAf=0\ndoTi=3\nUIDf=0\nstr=\"Chip bekannt\"\n=#LOGTOFILE\n}\n" \
-      "}\nUIDrU=0\n" \
-    "}\n" \
-    "if UIDrU>0 {\n" \
-      "fr=fo(\"/masterUID.txt\" 0)\nres=fr(str fr)\n" \
-      "if str==UIDr {\nMAf=1\nMaEn=30\ndoTi=-1\nstr=\"Master erkannt\"\n=#LOGTOFILE\n}\n" \
-      "fc(fr)\n" \
-      "if MAf==0 {\nfr=fo(\"/rfidUIDs.txt\" 0)\n" \
-        "for cnt 1 20 1\nres=fr(str fr)\n" \
-          "if res>0 {\nif str==UIDr {\nUIDf=1\n}\n" \
-          "} else {\nbreak\n}\nnext\n" \
-        "fc(fr)\ndoTi=3\n" \
-        "if UIDf==1 {\n->PWM2 1000\n} else {\n->PWM1 1000\nstr=\"Chip unbekannt\"\n=#LOGTOFILE\n}\n" \
-      "}\nUIDrU=0\n" \
-    "}\n" \
-    "if UIDf==1 {\nif pwr[1]==0 {\nstr=\"Licht an\"\n} else {\nstr=\"Licht aus\"\n}\n=#LOGTOFILE\n" \
-      "->Power1 toggle\nUIDf=0\n}\n" \
-    "if doTi==0 {\n->PWM1 10\n->PWM2 10\ndoTi=-1\n}\n"
+    "\n" \
+  ">R\n=>Hostname BMX-LightControl\n\n"
   
-/*    1563 Zeichen Skript; 6629 Zeichen übrig von 8192
+/*    32 Zeichen Skript; 8160 Zeichen übrig von 8192
       https://tasmota.github.io/docs/Commands/#setoptions
       SetOption0 	- Save power state and use after restart (=SaveState); 0 = disable
       SetOption73 - Decouple buttons from controlling power outputs; 1 = decoupled
@@ -142,54 +101,80 @@
 #endif
 
 
-/*  Espressif ESP Modules:  https://www.espressif.com/en/products/modules  */
-#ifdef ESP8266
-#define USER_TEMPLATE "{\"NAME\":\"tasmotix\",\"GPIO\":[5632,417,576,416,640,608,0,0,672,704,736,224,5792,0],\"FLAG\":0,\"BASE\":18,\"CMND\":\"Module 0\"}"  // [Template] Set JSON template
-/* https://tasmota.github.io/docs/Components/  &  https://tasmota.github.io/docs/Supported-Peripherals/  &  https://randomnerdtutorials.com/esp8266-pinout-reference-gpios
-  GPIO0  (D3) Taster gegen GND (kann damit auch zum FlashBoot benutzt werden) -- 5632   // RC522 Rst 
-  GPIO1  (TX) TX UART0                                                        -- 417    // PWM2 (grün)
-  GPIO2  (D4) hat die interne LED gegen VCC; Funktion LedLink (544; _i: 576)  -- 576    // LedLink
-  GPIO3  (RX) RX UART0                                                        -- 416    // PWM1 (rot)
-  GPIO4  (D2) I2C SDA (640)                                                   -- 640    // I2C SDA
-  GPIO5  (D1) I2C SCL (608)                                                   -- 608    // I2C SCL
-  GPIO9  (  ) DO NOT USE!!                                                    -- 0      // DO NOT USE!!
-  GPIO10 (  ) DO NOT USE!!                                                    -- 0      // DO NOT USE!!
-  GPIO12 (D6) SPI MISO (672)                                                  -- 672    // SPI MISO
-  GPIO13 (D7) SPI MOSI (704)                                                  -- 704    // SPI MOSI
-  GPIO14 (D5) SPI CLK  (736)                                                  -- 736    // SPI CLK
-  GPIO15 (D8) SPI SS (768) - SDCard CS (6240)                                 -- 224    // Relay1
-  GPIO16 (D0) (wake-up aus dem deep-sleep Modus: 4096)                        -- 5792   // RC522 CS
-  GPIO17 (A0) ist der AD0 (CT Power: 4896)                                    -- 0      // 
-!!  ACHTUNG:  der D1-mini hat am Eingang AD0 einen Spannungsteiler (220k + 100k) und damit eine max. Eingangsspannung von 3,2V
-              der ESP8266 hat keinen Spannungsteiler und damit eine max. Eingangsspannung von 1,0V
-
-  AdcParam:  7 = CT Power
-    1. Param:   Nullpunkt für DC Messung; bei AC immer 0!
-    2. Param:   Multiplikator; param = (100.000 * Irms / ADC_value); ADC_value = Upp_sensor / 5 * 1023; (6800 + 1700) / 1700 = 5   // für ACS712 Stromsensoren
-                (https://github.com/arendst/Tasmota/discussions/19409#discussioncomment-6857837)
-    3. Param:   Spannung; Wert * 1000 (0.235 ergibt 235V)
-    4. Param:   NULL-Offset; Strom kleiner als der hier eingetragene wird als 0 behandelt
-    
-    ACS712-05: 185mV/A ==> UPP = 2,616V; bei einem Teiler exakt 4:1 ergibt das als Multiplikator 934
-    ACS712-20: 100mV/A ==> UPP = 5,656V (kann also nur bis ca. 16A AC genutzt werden!); bei einem Teiler exakt 4:1 ergibt das als Multiplikator 1728
-    Der Ausgang des ACS712 darf nur mit 4,7kOhm oder größer belastet werden.
-
-  uDisplay: https://tasmota.github.io/docs/Universal-Display-Driver/
-*/
-// hawa-lc4: xsns_02_analog.ino Zeile 482 (12.5.0.2) bzw. 504 (13.2.0.2) aktivieren des logging der ADC Werte
-// #define ADC_LOG
-#define USE_UFILESYS
-#define UFSYS_SIZE 8192
-#endif    // ESP8266
-
-
 #ifdef LUATOS_ESP32C3     // Luatos-ESP32C3 board mit AIR101-LCD Modul
   #error **** ESP32C3 will not build at the moment! ****
 #endif
 
+/*  Espressif ESP Modules:  https://www.espressif.com/en/products/modules  */
+#ifdef ESP8266
+  #error **** Build ESP32 only! ****
+#endif    // ESP8266
+
+
 #ifdef ESP32
 #ifndef LUATOS_ESP32C3
-  #error **** Build ESP8266 only! ****
+#ifdef USE_BERRY
+#undef USE_BERRY
+#endif
+// #define USE_BERRY_DEBUG             // Compile Berry bytecode with line number information, makes exceptions easier to debug. Adds +8% of memory consumption for compiled code
+
+//  User Template ScratchPad:                            [0,0,544,0,0,6272,0,0,0,288,289,290,0,0,736,672,0,640,608,704,0,0,6112,0,0,0,0,0,224,225,32,33,0,0,0,0]
+#define USER_TEMPLATE "{\"NAME\":\"CORE-ESP32\",\"GPIO\":[0,0,544,0,0,6272,0,0,0,288,289,290,0,0,736,672,0,640,608,704,0,0,6112,0,0,0,0,0,224,225,32,33,0,0,0,0],\"FLAG\":0,\"BASE\":1,\"CMND\":\"Module 0\"}"
+/*  User Template ScratchPad:                            [0,1,2  ,3,4,5   ,-,-,12,13,14 ,15 ,16,17,18,19,0,21 ,22 ,23 ,0,25,26,27,-,-,-,-,32 ,33 ,34,35,36,0,0,39]
+  ESP32 template GPIO pin mapping:  https://github.com/arendst/Tasmota/discussions/19000
+        [0,1,2,3,4,5,9,10,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,6,7,8,11,32,33,34,35,36,37,38,39]
+  https://tasmota.github.io/docs/Components/  &  https://randomnerdtutorials.com/esp32-pinout-reference-gpios/
+  GPIO00 Taster gegen GND (kann damit auch zum FlashBoot benutzt werden) -- 0      // 
+  GPIO01 TX UART0                                                        -- 0      // belegt durch USB
+  GPIO02 (hat die interne LED gegen VCC)                                 -- 544    // LedLink
+  GPIO03 RX UART0                                                        -- 0      // belegt durch USB
+  GPIO04                                                                 -- 0      // 
+  GPIO05 VSPI CS0                                                        -- 6272   // RC522 CS
+  GPIO09 DO NOT USE!!   (SDData2)                                        -- 0      // DO NOT USE!!
+  GPIO10 DO NOT USE!!   (SDData3)                                        -- 0      // DO NOT USE!!
+  GPIO12 HSPI MISO                                                       -- 0      // 
+  GPIO13 HSPI MOSI                                                       -- 288    // LED1 (rot)
+  GPIO14 HSPI CLK                                                        -- 289    // LED2 (grün)
+  GPIO15 HSPI CS0                                                        -- 290    // LED3 (blau)
+  GPIO16 RX UART2                                                        -- 0      // 
+  GPIO17 TX UART2                                                        -- 0      // 
+  GPIO18 VSPI CLK                                                        -- 736    // SPI CLK1
+  GPIO19 VSPI MISO                                                       -- 672    // SPI MISO1
+  GPIO20 Nicht verfügbar auf den meisten Boards                          -- 0      // Nicht verfügbar auf den meisten Boards
+  GPIO21 I2C SDA (640)                                                   -- 640    // I2C SDA
+  GPIO22 I2C SCL (608)                                                   -- 608    // I2C SCL
+  GPIO23 VSPI MOSI                                                       -- 704    // SPI MOSI1
+  GPIO24 Nicht verfügbar auf den meisten Boards                          -- 0      // Nicht verfügbar auf den meisten Boards
+  GPIO25                                                                 -- 0      // 
+  GPIO26                                                                 -- 6112   // RC522 Reset
+  GPIO27                                                                 -- 0      // 
+  GPIO06 DO NOT USE!!   (SDCLK)                                          -- 0      // DO NOT USE!!
+  GPIO07 DO NOT USE!!   (SDData0)                                        -- 0      // DO NOT USE!!
+  GPIO08 DO NOT USE!!   (SDData1)                                        -- 0      // DO NOT USE!!
+  GPIO11 DO NOT USE!!   (SDCMD)                                          -- 0      // DO NOT USE!!
+  GPIO32                                                                 -- 224    // Relay1
+  GPIO33                                                                 -- 225    // Relay2
+  GPIO34 (input only)                                                    -- 32     // Button1
+  GPIO35 (input only)                                                    -- 33     // Button2
+  GPIO36 (input only)                                                    -- 0      // 
+  GPIO37 Nicht verfügbar auf den meisten Boards                          -- 0      // Nicht verfügbar auf den meisten Boards
+  GPIO38 Nicht verfügbar auf den meisten Boards                          -- 0      // Nicht verfügbar auf den meisten Boards
+  GPIO39 (input only)                                                    -- 0      // 
+Nicht jedes Board hat alle GPIOs verfügbar!
+  GPIO00 fehlt auf dem DEVKIT V1 – DOIT 30-Pin Board und ist nur durch den boot-Taster am Board bedienbar.
+  Das DEVKIT V1 – DOIT 30-Pin Board verwendest Standardmäßig den VSPI.
+Aufpassen bei VSPI und HSPI; die sind nicht immmer auf allen Boards gleich definiert! VSPI ist üblicherweise der Standard SPI Bus.
+Strapping Pins:   The ESP32 chip has the following strapping pins:
+    GPIO 0 (must be LOW to enter boot mode)
+    GPIO 2 (must be floating or LOW during boot)
+    GPIO 5 (must be HIGH during boot)
+    GPIO 12 (must be LOW during boot)
+    GPIO 15 (must be HIGH during boot)
+*/
+// hawa-lc4: xsns_02_analog.ino Zeile 482 (12.5.0.2) bzw. 504 (13.2.0.2) aktivieren des logging der ADC Werte
+// #define ADC_LOG
+
+// #define USE_BERRY_DEBUG                          // Compile Berry bytecode with line number information, makes exceptions easier to debug. Adds +8% of memory consumption for compiled code
 #endif    // LUATOS_ESP32C3
 #endif    // ESP32
 
@@ -220,40 +205,30 @@
 #endif
 #define MODULE                 USER_MODULE
 
-#ifdef WIFI_AP_PASSPHRASE
-#undef WIFI_AP_PASSPHRASE
-#endif
-#define WIFI_AP_PASSPHRASE     "BMX!light"                // AccessPoint passphrase. For WPA2 min 8 char, for open use "" (max 63 char).
+// #ifdef WIFI_AP_PASSPHRASE
+// #undef WIFI_AP_PASSPHRASE
+// #endif
+// #define WIFI_AP_PASSPHRASE     "BMX!light"                // AccessPoint passphrase. For WPA2 min 8 char, for open use "" (max 63 char).
 
-#ifdef WIFI_CONFIG_TOOL
-#undef WIFI_CONFIG_TOOL
-#endif
-#define WIFI_CONFIG_TOOL       WIFI_MANAGER_RESET_ONLY        // [WifiConfig] Default tool if Wi-Fi fails to connect (default option: 4 - WIFI_RETRY)
+// #ifdef WIFI_CONFIG_TOOL
+// #undef WIFI_CONFIG_TOOL
+// #endif
+// #define WIFI_CONFIG_TOOL       WIFI_MANAGER_RESET_ONLY        // [WifiConfig] Default tool if Wi-Fi fails to connect (default option: 4 - WIFI_RETRY)
 
-#ifdef NTP_SERVER1
-#undef NTP_SERVER1
-#endif
-#define NTP_SERVER1            ""
+// #ifdef NTP_SERVER1
+// #undef NTP_SERVER1
+// #endif
+// #define NTP_SERVER1            ""
 
-#ifdef NTP_SERVER2
-#undef NTP_SERVER2
-#endif
-#define NTP_SERVER2            ""
+// #ifdef NTP_SERVER2
+// #undef NTP_SERVER2
+// #endif
+// #define NTP_SERVER2            ""
 
-#ifdef NTP_SERVER3
-#undef NTP_SERVER3
-#endif
-#define NTP_SERVER3            ""
-
-#ifdef WEB_USERNAME
-#undef WEB_USERNAME
-#endif
-#define WEB_USERNAME            "admyn"
-
-#ifdef WEB_PASSWORD
-#undef WEB_PASSWORD
-#endif
-#define WEB_PASSWORD            ""
+// #ifdef NTP_SERVER3
+// #undef NTP_SERVER3
+// #endif
+// #define NTP_SERVER3            ""
 
 #ifdef MQTT_USE
 #undef MQTT_USE
@@ -277,7 +252,7 @@
 #ifdef GUI_SHOW_HOSTNAME
 #undef GUI_SHOW_HOSTNAME
 #endif
-#define GUI_SHOW_HOSTNAME      true             // [SetOption53] Show hostname and IP address in GUI main menu
+#define GUI_SHOW_HOSTNAME      false             // [SetOption53] Show hostname and IP address in GUI main menu
 
 #ifdef APP_TIMEZONE
 #undef APP_TIMEZONE
