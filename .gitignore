@@ -23,7 +23,7 @@ data
 unpacked_fs
 unpacked_boards
 tasmota/user_config_override.h
-tasmota/user_private_data.h
+tasmota/user_private_data*
 variants
 variants3
 build
@@ -37,6 +37,7 @@ platformio_tasmota_user_env.ini
 platformio_tasmota_core3_env.ini
 lib/libesp32/berry/generate/*
 lib/libesp32/berry/berry
+tempFiles
 
 ## Visual Studio Code specific ######
 .vscode

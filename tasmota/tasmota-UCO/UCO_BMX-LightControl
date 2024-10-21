@@ -34,8 +34,8 @@
  *   - All parameters can be persistent changed online using commands via MQTT, WebConsole or Serial.
 \*****************************************************************************************************/
 
-// #include "user_private_data.h"               // not sharing sensible data with the global community; hawa-lc4 (M1)
-// ^^ wird in diesem Projekt nicht benutzt
+#include "user_private_data2.h"               // not sharing sensible data with the global community; hawa-lc4 (M1)
+// don't forget to check and modify the file above!
 
 // #ifdef %identifier%
 // #undef %identifier%
@@ -82,23 +82,26 @@
   #define USER_BACKLOG "Script 1"     // hier nur script aktivieren, sonst nichts! Siehe https://tasmota.github.io/docs/Compile-your-build/#user_backlog
   #endif    // USE_SCRIPT
 
+  #ifdef PRECONFIGURED_SCRIPT
+  #undef PRECONFIGURED_SCRIPT
+  #endif
   #define PRECONFIGURED_SCRIPT \
   ">D 48\n" \
     "fr=0\nres=0\ncnt=0\nMAf=0\nUIDf=0\nUIDrU=0\n" \
     "UIDr=\"\"\nstr=\"\"\nt:doTi=-1\nt:MaEn=-1\n\n" \
   ">B\n->SetOption0 0\n" \
     "->PWM1 10\n->PWM2 10\n" \
-    "fr=fo("/" 0)\n" \
+    "fr=fo(\"/\" 0)\n" \
     "for cnt 1 20 1\nres=fr(str fr)\n" \
     "if res>0 {\nprint %0cnt% : %str%\n} else {\nbreak\n}\n" \
     "next\nfc(fr)\n\n" \
     "#LOGTOFILE\n" \
       "fr=fo(\"/rfidLog.txt\" 2)\nres=fz(fr)\n" \
       "if res>=4096 {\nfc(fr)\nfd(\"/rfidLog.old\")\nfrn(\"/rfidLog.txt\" \"/rfidLog.old\")\nfr=fo(\"/rfidLog.txt\" 1)\n}\n" \
-      "str=tstamp+\"\t\"+UIDr+\"\t\"+str+\"\n\"\nres=fw(str fr)\nfc(fr)\n" \
+      "str=tstamp+\"\\t\"+UIDr+\"\\t\"+str+\"\\n\"\nres=fw(str fr)\nfc(fr)\n" \
   ">R\n=>Hostname BMX-LightControl\n\n" \
   ">E\nUIDr=RC522#UID\n\n" \
-  ">F\nif upd[UIDr]>0 {\nUIDrU=1\n}\n" \
+  ">F\nif upd[UIDr]>0 {\nUIDrU=1\n}\n\n" \
   ">S\n" \
     "if MaEn==0 {\ndoTi=0\nMAf=0\nMaEn=-1\n}\n" \
     "if MAf==1 {\n->PWM1 100\n->PWM2 100\n" \
@@ -107,7 +110,7 @@
         "if res>0 {\nif str==UIDr {\nUIDf=1\n}\n" \
         "} else {\nbreak\n}\nnext\n" \
       "fc(fr)\n" \
-      "if UIDf==0 {\nstr=UIDr+\"\nfr=fo(\"/rfidUIDs.txt\" 2)\nres=fw(str fr)\nfc(fr)\n" \
+      "if UIDf==0 {\nstr=UIDr+\"\\n\"\nfr=fo(\"/rfidUIDs.txt\" 2)\nres=fw(str fr)\nfc(fr)\n" \
         "if res>0 {\n-> PWM1 0\n-> PWM2 1000\nMAf=0\ndoTi=3\nstr=\"Chip eingetragen\"\n=#LOGTOFILE\n" \
         "} else {\n-> PWM1 1000\n-> PWM2 0\nMAf=0\ndoTi=3\nstr=\"FEHLER +UID+\"\n=#LOGTOFILE\n}\n" \
       "} else {\n" \
@@ -129,7 +132,7 @@
     "if UIDf==1 {\nif pwr[1]==0 {\nstr=\"Licht an\"\n} else {\nstr=\"Licht aus\"\n}\n=#LOGTOFILE\n" \
       "->Power1 toggle\nUIDf=0\n}\n" \
     "if doTi==0 {\n->PWM1 10\n->PWM2 10\ndoTi=-1\n}\n"
-  
+
 /*    1563 Zeichen Skript; 6629 Zeichen übrig von 8192
       https://tasmota.github.io/docs/Commands/#setoptions
       SetOption0 	- Save power state and use after restart (=SaveState); 0 = disable
@@ -144,9 +147,9 @@
 
 /*  Espressif ESP Modules:  https://www.espressif.com/en/products/modules  */
 #ifdef ESP8266
-#define USER_TEMPLATE "{\"NAME\":\"tasmotix\",\"GPIO\":[5632,417,576,416,640,608,0,0,672,704,736,224,5792,0],\"FLAG\":0,\"BASE\":18,\"CMND\":\"Module 0\"}"  // [Template] Set JSON template
+#define USER_TEMPLATE "{\"NAME\":\"BMX-LightControl\",\"GPIO\":[5632,417,576,416,640,608,0,0,672,704,736,224,5792,0],\"FLAG\":0,\"BASE\":18,\"CMND\":\"Module 0\"}"  // [Template] Set JSON template
 /* https://tasmota.github.io/docs/Components/  &  https://tasmota.github.io/docs/Supported-Peripherals/  &  https://randomnerdtutorials.com/esp8266-pinout-reference-gpios
-  GPIO0  (D3) Taster gegen GND (kann damit auch zum FlashBoot benutzt werden) -- 5632   // RC522 Rst 
+  GPIO0  (D3) Taster gegen GND (kann damit auch zum FlashBoot benutzt werden) -- 5632   // RC522 Rst (mit SN74LVC1G17 entkoppeln!)
   GPIO1  (TX) TX UART0                                                        -- 417    // PWM2 (grün)
   GPIO2  (D4) hat die interne LED gegen VCC; Funktion LedLink (544; _i: 576)  -- 576    // LedLink
   GPIO3  (RX) RX UART0                                                        -- 416    // PWM1 (rot)
@@ -220,15 +223,16 @@
 #endif
 #define MODULE                 USER_MODULE
 
-#ifdef WIFI_AP_PASSPHRASE
-#undef WIFI_AP_PASSPHRASE
-#endif
-#define WIFI_AP_PASSPHRASE     "BMX!light"                // AccessPoint passphrase. For WPA2 min 8 char, for open use "" (max 63 char).
+/*  https://github.com/arendst/Tasmota/discussions/19009  */
+#define USE_ALWAYS_AP
+// #define WIFI_CONFIG_TOOL       WIFI_MANAGER
+#define WIFI_SCAN_AT_RESTART   false
+#define WIFI_SCAN_REGULARLY    true
 
 #ifdef WIFI_CONFIG_TOOL
 #undef WIFI_CONFIG_TOOL
 #endif
-#define WIFI_CONFIG_TOOL       WIFI_MANAGER_RESET_ONLY        // [WifiConfig] Default tool if Wi-Fi fails to connect (default option: 4 - WIFI_RETRY)
+#define WIFI_CONFIG_TOOL       WIFI_MANAGER              // [WifiConfig] Default tool if Wi-Fi fails to connect (default option: 4 - WIFI_RETRY)
 
 #ifdef NTP_SERVER1
 #undef NTP_SERVER1
@@ -244,16 +248,6 @@
 #undef NTP_SERVER3
 #endif
 #define NTP_SERVER3            ""
-
-#ifdef WEB_USERNAME
-#undef WEB_USERNAME
-#endif
-#define WEB_USERNAME            "admyn"
-
-#ifdef WEB_PASSWORD
-#undef WEB_PASSWORD
-#endif
-#define WEB_PASSWORD            ""
 
 #ifdef MQTT_USE
 #undef MQTT_USE
