@@ -561,7 +561,9 @@ NtpServer RtcChipTimeServer(PortUdp);
 void RtcChipEverySecond(void) {
   static bool ntp_server_started = false;
 
+#ifndef USE_ALWAYS_AP
   if (TasmotaGlobal.global_state.network_down) { return; }  // Exception on ESP32 if network is down (#17338)
+#endif
 
   if (Settings->sbflag1.local_ntp_server && (Rtc.utc_time > START_VALID_TIME)) {
     if (!ntp_server_started) {
@@ -577,7 +579,11 @@ void RtcChipEverySecond(void) {
 
 void CmndRtcNtpServer(void) {
   // RtcChipNtpServer 0 or 1
+#ifdef USE_ALWAYS_AP
+  if (XdrvMailbox.payload >= 0) {
+#else
   if ((XdrvMailbox.payload >= 0) && !TasmotaGlobal.global_state.network_down) {
+#endif
     Settings->sbflag1.local_ntp_server = 0;
     if ((XdrvMailbox.payload &1) && RtcChipTimeServer.beginListening()) {
       Settings->sbflag1.local_ntp_server = 1;
