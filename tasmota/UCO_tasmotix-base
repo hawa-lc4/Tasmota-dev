@@ -373,7 +373,7 @@ Strapping Pins:   The ESP32 chip has the following strapping pins:
 #ifdef APP_TIMEZONE
 #undef APP_TIMEZONE
 #endif
-#define APP_TIMEZONE           99     // https://tasmota-tz.netlify.app/
+#define APP_TIMEZONE           99     // https://tasmota-tz.netlify.app/ == https://tasmotatimezone.com/
 
 #ifdef MY_LANGUAGE
 #undef MY_LANGUAGE
