@@ -87,10 +87,10 @@
   #endif
   #define PRECONFIGURED_SCRIPT \
   ">D 48\n" \
-    "fr=0\nres=0\ncnt=0\nMAf=0\nUIDf=0\nUIDrU=0\n" \
+    "pwrS=0\nfr=0\nres=0\ncnt=0\nMAf=0\nUIDf=0\nUIDrU=0\n" \
     "UIDr=\"\"\nstr=\"\"\nt:doTi=-1\nt:MaEn=-1\n\n" \
   ">B\n->SetOption0 0\n" \
-    "->PWM1 10\n->PWM2 10\n" \
+    "->PWM1 10\n->PWM2 10\npwrS=pwr[1]\n" \
     "fr=fo(\"/\" 0)\n" \
     "for cnt 1 20 1\nres=fr(str fr)\n" \
     "if res>0 {\nprint %0cnt% : %str%\n} else {\nbreak\n}\n" \
@@ -101,7 +101,7 @@
       "str=tstamp+\"\\t\"+UIDr+\"\\t\"+str+\"\\n\"\nres=fw(str fr)\nfc(fr)\n" \
   ">R\n=>Hostname BMX-LightControl\n\n" \
   ">E\nUIDr=RC522#UID\n\n" \
-  ">F\nif upd[UIDr]>0 {\nUIDrU=1\n}\n\n" \
+  ">F\nif (upd[UIDr]>0 and UIDr!=\"web-UI..\") {\nUIDrU=1\n}\n\n" \
   ">S\n" \
     "if MaEn==0 {\ndoTi=0\nMAf=0\nMaEn=-1\n}\n" \
     "if MAf==1 {\n->PWM1 100\n->PWM2 100\n" \
@@ -130,10 +130,11 @@
       "}\nUIDrU=0\n" \
     "}\n" \
     "if UIDf==1 {\nif pwr[1]==0 {\nstr=\"Licht an\"\n} else {\nstr=\"Licht aus\"\n}\n=#LOGTOFILE\n" \
-      "->Power1 toggle\nUIDf=0\n}\n" \
+      "->Power1 toggle\npwrS=pwr[1]\nUIDf=0\n}\n" \
+    "if (UIDf==0 and pwrS!=pwr[1]) {\npwrS=pwr[1]\nUIDr=\"web-UI..\"\nstr=\"Schaltvorgang\"\n=#LOGTOFILE\n}\n" \
     "if doTi==0 {\n->PWM1 10\n->PWM2 10\ndoTi=-1\n}\n"
 
-/*    1563 Zeichen Skript; 6629 Zeichen übrig von 8192
+/*    1710 Zeichen Skript; 6482 Zeichen übrig von 8192
       https://tasmota.github.io/docs/Commands/#setoptions
       SetOption0 	- Save power state and use after restart (=SaveState); 0 = disable
       SetOption73 - Decouple buttons from controlling power outputs; 1 = decoupled
