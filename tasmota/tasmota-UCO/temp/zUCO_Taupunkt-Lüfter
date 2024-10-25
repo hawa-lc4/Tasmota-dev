@@ -271,7 +271,7 @@ Berechnung für Lüftung: https://www.taupunkt-lueftung.de/ bzw. Abhandlung in d
 #define USE_RTC_CHIPS                        // Enable RTC chip support and NTP server - Select only one
 #define USE_DS3231                           // [I2cDriver26] Enable DS3231 RTC (I2C address 0x68) (+1k2 code)
 // #define USE_RTC_ADDR  0x68                   // optional und geht nicht, siehe dazu CHANGELOG.md und Zeile 43 in xdrv_56_rtc_chips.ino
-// #define RTC_NTP_SERVER                       // https://tasmota.github.io/docs/DS3231/ >> Fehler: findet eine Bibliothek NTPServer.h nicht
+// #define RTC_NTP_SERVER                       // https://tasmota.github.io/docs/DS3231/ >> Fehler: findet eine Bibliothek NTPServer.h nicht >> geht jetzt mit 14.3
 
 #ifdef MODULE
 #undef MODULE

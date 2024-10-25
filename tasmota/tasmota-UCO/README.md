@@ -37,7 +37,7 @@ A very brief description (UCO = User Config Override):
                         to optimize solar charge effectivity for EV. Based on ESP8266 board.
                         Build:  env:tasmota4M-rule  oder env:tasmota4M-script (script untested!)
 
-- UCO_tasmotix-sml:     A simple smart meter reader and data logger to SD-card for dedicated smart meters I have access to. Based on ESP8266 board.
+- UCO_SML-logger:       A simple smart meter reader and data logger to SD-card for dedicated smart meters I have access to. Based on ESP8266 board.
                         Build:  env:tasmota4M-script  only
                         Work in progress .....
 

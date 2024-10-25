@@ -54,7 +54,7 @@
 #ifdef MY_SCRIPT
   // #warning **** Build: SCRIPT ****
   #undef CODE_IMAGE_STR
-  #define CODE_IMAGE_STR "MY_SCRIPT_SML"
+  #define CODE_IMAGE_STR "hawa-lc4_SML-logger"
 
   #undef USE_RULES
   #undef USE_TIMERS
@@ -86,7 +86,7 @@
     "; list all files in root directory\n" \
     "fr=fo(\"/\" 0)\nfor cnt 1 20 1\nres=fr(str fr)\nif res>0\nthen\nprint %cnt% : %str%\nelse\nbreak\nendif\nnext\nfc(fr)\n" \
   ">R\n=>Hostname tasmotix-sml\n" \
-  ">S\n->DisplayText [zs2]script\n->DisplayText [l2c1]waehlen!"
+  ">S\n->DisplayText [zs2]script\n->DisplayText [l2c1]waehlen!\n"
   // Muster-Skripte liegen in Verzeichnis data4tasmotix-sml
 
   /* script core for eBZ DD3 (OBIS ASCII); script.dd3a
