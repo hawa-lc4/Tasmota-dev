@@ -3,7 +3,31 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased] - Development
 
-## [14.4.1.4]
+## [14.5.0.1] 
+### Added
+- Berry experimental driver for AXP2101 for M5Core2v1.1 (#23039)
+- LVGL experimental mirroring of display on Web UI (#23041)
+- Allow acl in mqtt when client certificate is in use with `#define USE_MQTT_CLIENT_CERT` (#22998)
+
+### Breaking Changed
+
+### Changed
+- LVGL, prepare for HASPmota theme, change: no-grow when clicked, DPI set to 160 (#23040)
+- LVGL Mirroring add checkbox to enable/disable the feature (in the iterim for a better solution) (#23047)
+- Leds Panel add checkbox to enable/disable the feature (in the iterim for a better solution) (#23048)
+
+### Fixed
+- Too many zeros in RCSwitch received data regression from v14.4.1.4 (#23050)
+
+### Removed
+
+
+## [Released]
+
+## [14.5.0] 20250219
+- Release Ruth
+
+## [14.4.1.4] 20250219
 ### Added
 - Formatter `%_U` for `ext_snprintf_P()` to print uint64_t variable as decimal equivalent to `%llu`
 - Support for RC-switch decoding of 64-bit received data
@@ -11,16 +35,17 @@ All notable changes to this project will be documented in this file.
 - Support for Lithuanian language translations by zzdovydas (#22971)
 - `MqttTLS` field in `Status 6` to indicate if the MQTT connection is encrypted (#22995)
 - Support for WiZ Smart Remote using `#define USE_WIZMOTE` and command `SetOption164 1`
-
-### Breaking Changed
+- Berry `bytes().appendb64()` (#22767)
 
 ### Changed
 - ESP32 Platform from 2025.01.31 to 2025.02.30, Framework (Arduino Core) from v3.1.1.250109 to v3.1.1.250203 and IDF to 5.3.2 (#22943)
+- ESP32 Webcam resolution changes since v14.4.0 (#22901)
 
 ### Fixed
 - Berry parser error in rare case (#22997)
-
-### Removed
+- ESP32 TasMesh broker MAC address all zeros (#23005)
+- Wrong RMT channels for ESP32S3, now depends on `soc_caps.h` (#23021)
+- HASPmota exception when clicking on a checkbox (#23022)
 
 ## [14.4.1.3] 20250204
 ### Added
@@ -102,8 +127,6 @@ All notable changes to this project will be documented in this file.
 - Webcam compilation with `define USE_WEBCAM` but without `define ENABLE_RTSPSERVER` (#22686)
 - LVGL updated `Antiburn.tapp` (#22699)
 - Matter Air Quality sensor (#22708)
-
-## [Released]
 
 ## [14.4.1] 20241215
 - Release Rudolph

@@ -11146,15 +11146,77 @@ be_local_class(lvh_btn,
 extern const bclass be_class_lvh_checkbox;
 
 /********************************************************************
+** Solidified function: set_val
+********************************************************************/
+be_local_closure(class_lvh_checkbox_set_val,   /* name */
+  be_nested_proto(
+    5,                          /* nstack */
+    2,                          /* argc */
+    2,                          /* varg */
+    0,                          /* has upvals */
+    NULL,                       /* no upvals */
+    0,                          /* has sup protos */
+    NULL,                       /* no sub protos */
+    1,                          /* has constants */
+    ( &(const bvalue[ 2]) {     /* constants */
+    /* K0   */  be_nested_str_weak(_val),
+    /* K1   */  be_nested_str_weak(set_toggle),
+    }),
+    be_str_weak(set_val),
+    &be_const_str_solidified,
+    ( &(const binstruction[ 5]) {  /* code */
+      0x90020001,  //  0000  SETMBR	R0	K0	R1
+      0x8C080101,  //  0001  GETMET	R2	R0	K1
+      0x5C100200,  //  0002  MOVE	R4	R1
+      0x7C080400,  //  0003  CALL	R2	2
+      0x80040400,  //  0004  RET	1	R2
+    })
+  )
+);
+/*******************************************************************/
+
+
+/********************************************************************
+** Solidified function: get_val
+********************************************************************/
+be_local_closure(class_lvh_checkbox_get_val,   /* name */
+  be_nested_proto(
+    3,                          /* nstack */
+    1,                          /* argc */
+    2,                          /* varg */
+    0,                          /* has upvals */
+    NULL,                       /* no upvals */
+    0,                          /* has sup protos */
+    NULL,                       /* no sub protos */
+    1,                          /* has constants */
+    ( &(const bvalue[ 1]) {     /* constants */
+    /* K0   */  be_nested_str_weak(get_toggle),
+    }),
+    be_str_weak(get_val),
+    &be_const_str_solidified,
+    ( &(const binstruction[ 3]) {  /* code */
+      0x8C040100,  //  0000  GETMET	R1	R0	K0
+      0x7C040200,  //  0001  CALL	R1	1
+      0x80040200,  //  0002  RET	1	R1
+    })
+  )
+);
+/*******************************************************************/
+
+
+/********************************************************************
 ** Solidified class: lvh_checkbox
 ********************************************************************/
 extern const bclass be_class_lvh_obj;
 be_local_class(lvh_checkbox,
     0,
     &be_class_lvh_obj,
-    be_nested_map(1,
+    be_nested_map(4,
     ( (struct bmapnode*) &(const bmapnode[]) {
-        { be_const_key_weak(_lv_class, -1), be_const_class(be_class_lv_checkbox) },
+        { be_const_key_weak(get_val, 1), be_const_closure(class_lvh_checkbox_get_val_closure) },
+        { be_const_key_weak(set_val, -1), be_const_closure(class_lvh_checkbox_set_val_closure) },
+        { be_const_key_weak(_lv_part2_selector, -1), be_const_int(131072) },
+        { be_const_key_weak(_lv_class, 0), be_const_class(be_class_lv_checkbox) },
     })),
     be_str_weak(lvh_checkbox)
 );
@@ -11885,7 +11947,7 @@ be_local_class(lvh_page,
     be_str_weak(lvh_page)
 );
 extern const bclass be_class_HASPmota;
-// compact class 'HASPmota' ktab size: 124, total: 197 (saved 584 bytes)
+// compact class 'HASPmota' ktab size: 124, total: 196 (saved 576 bytes)
 static const bvalue be_ktab_class_HASPmota[124] = {
   /* K0   */  be_nested_str_weak(global),
   /* K1   */  be_nested_str_weak(introspect),
@@ -12966,7 +13028,7 @@ be_local_closure(class_HASPmota_get_pages,   /* name */
 ********************************************************************/
 be_local_closure(class_HASPmota_sort,   /* name */
   be_nested_proto(
-    7,                          /* nstack */
+    6,                          /* nstack */
     1,                          /* argc */
     12,                          /* varg */
     0,                          /* has upvals */
@@ -12977,37 +13039,31 @@ be_local_closure(class_HASPmota_sort,   /* name */
     &be_ktab_class_HASPmota,     /* shared constants */
     be_str_weak(sort),
     &be_const_str_solidified,
-    ( &(const binstruction[30]) {  /* code */
+    ( &(const binstruction[24]) {  /* code */
       0x5804006C,  //  0000  LDCONST	R1	K108
-      0x60080010,  //  0001  GETGBL	R2	G16
+      0x58080006,  //  0001  LDCONST	R2	K6
       0x600C000C,  //  0002  GETGBL	R3	G12
       0x5C100000,  //  0003  MOVE	R4	R0
       0x7C0C0200,  //  0004  CALL	R3	1
-      0x040C071F,  //  0005  SUB	R3	R3	K31
-      0x400E3E03,  //  0006  CONNECT	R3	K31	R3
-      0x7C080200,  //  0007  CALL	R2	1
-      0xA8020010,  //  0008  EXBLK	0	#001A
-      0x5C0C0400,  //  0009  MOVE	R3	R2
-      0x7C0C0000,  //  000A  CALL	R3	0
-      0x94100003,  //  000B  GETIDX	R4	R0	R3
-      0x5C140600,  //  000C  MOVE	R5	R3
-      0x24180B06,  //  000D  GT	R6	R5	K6
-      0x781A0008,  //  000E  JMPF	R6	#0018
-      0x04180B1F,  //  000F  SUB	R6	R5	K31
-      0x94180006,  //  0010  GETIDX	R6	R0	R6
-      0x24180C04,  //  0011  GT	R6	R6	R4
-      0x781A0004,  //  0012  JMPF	R6	#0018
-      0x04180B1F,  //  0013  SUB	R6	R5	K31
-      0x94180006,  //  0014  GETIDX	R6	R0	R6
-      0x98000A06,  //  0015  SETIDX	R0	R5	R6
-      0x04140B1F,  //  0016  SUB	R5	R5	K31
-      0x7001FFF4,  //  0017  JMP		#000D
-      0x98000A04,  //  0018  SETIDX	R0	R5	R4
-      0x7001FFEE,  //  0019  JMP		#0009
-      0x58080015,  //  001A  LDCONST	R2	K21
-      0xAC080200,  //  001B  CATCH	R2	1	0
-      0xB0080000,  //  001C  RAISE	2	R0	R0
-      0x80040000,  //  001D  RET	1	R0
+      0x140C0403,  //  0005  LT	R3	R2	R3
+      0x780E000F,  //  0006  JMPF	R3	#0017
+      0x940C0002,  //  0007  GETIDX	R3	R0	R2
+      0x5C100400,  //  0008  MOVE	R4	R2
+      0x24140906,  //  0009  GT	R5	R4	K6
+      0x78160008,  //  000A  JMPF	R5	#0014
+      0x0414091F,  //  000B  SUB	R5	R4	K31
+      0x94140005,  //  000C  GETIDX	R5	R0	R5
+      0x24140A03,  //  000D  GT	R5	R5	R3
+      0x78160004,  //  000E  JMPF	R5	#0014
+      0x0414091F,  //  000F  SUB	R5	R4	K31
+      0x94140005,  //  0010  GETIDX	R5	R0	R5
+      0x98000805,  //  0011  SETIDX	R0	R4	R5
+      0x0410091F,  //  0012  SUB	R4	R4	K31
+      0x7001FFF4,  //  0013  JMP		#0009
+      0x98000803,  //  0014  SETIDX	R0	R4	R3
+      0x0008051F,  //  0015  ADD	R2	R2	K31
+      0x7001FFEA,  //  0016  JMP		#0002
+      0x80040000,  //  0017  RET	1	R0
     })
   )
 );
