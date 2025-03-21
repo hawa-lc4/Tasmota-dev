@@ -8,6 +8,9 @@ All notable changes to this project will be documented in this file.
 - Berry load `.tapp` files in `/.extensions/` then in `/` (#23113)
 - Support Vango Technologies V924x ultralow power, single-phase, power measurement (#23127)
 - Support for HLK-LD2402 24GHz smart wave motion sensor (#23133)
+- Matter prepare for ICD cluster (#23158)
+- Berry `re.dump()` (#23162)
+- Telnet server using command `Telnet <0|1|port>[,<IP filter>]`
 
 ### Breaking Changed
 - Berry remove `Leds.create_matrix` from the standard library waiting for reimplementation (#23114)
@@ -18,11 +21,13 @@ All notable changes to this project will be documented in this file.
 - ESP8266 enable FTP for >= 4MB variants (#23120)
 - Berry update flasher for Sonoff ZBBridge Pro (#23136)
 - Berry `re` now accepts `bytes()` as precompiled patterns, added `re.compilebytes()` (#23149)
+- RCSwitch `RCSWITCH_SEPARATION_LIMIT` from 4100 to 3600
 
 ### Fixed
 - Berry prevent `import` from hiding a solidified class (#23112)
 - ESP32-C3 WiFi sleep (#23096)
 - ESP32 intermittent exception on WiFi AP cannot be reached (#23115)
+- ESP32 receive incomplete serial data over 128 bytes (#23156)
 
 ### Removed
 
