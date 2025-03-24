@@ -732,9 +732,11 @@ void UfsCheckSDCardInit(void);
     Serial.printf("CLK : %d\n", spi_clk);
     Serial.printf("MOSI: %d\n", spi_mosi);
     Serial.printf("DC  : %d\n", spi_dc);
+#ifdef USE_UNIVERSAL_TOUCH
     Serial.printf("TS_CS: %d\n", ut_spi_cs);
     Serial.printf("TS_RST: %d\n", ut_reset);
     Serial.printf("TS_IRQ: %d\n", ut_irq);
+#endif
     Serial.printf("BPAN: %d\n", bpanel);
     Serial.printf("RES : %d\n", reset);
     Serial.printf("MISO: %d\n", spi_miso);
@@ -772,7 +774,7 @@ void UfsCheckSDCardInit(void);
     Serial.printf("pa_end: %x\n", i2c_page_end);
     Serial.printf("SCA   : %x\n", saw_2);
     Serial.printf("ca_sta: %x\n", i2c_col_start);
-    Serial.printf("pa_end: %x\n", i2c_col_end);
+    Serial.printf("ca_end: %x\n", i2c_col_end);
     Serial.printf("WRA   : %x\n", saw_3);
   }
 
@@ -1667,7 +1669,7 @@ void uDisplay::Updateframe(void) {
 
   if (interface == _UDSP_I2C) {
 
-  #if 0
+#if 0
     i2c_command(saw_1);
     i2c_command(i2c_page_start);
     i2c_command(i2c_page_end);
