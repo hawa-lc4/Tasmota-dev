@@ -24,6 +24,7 @@ A very brief description (UCO = User Config Override):
 - UCO_BadFbHz:          A SmartHome switch to control an electric floor heater with PV overpower. Temperature control is done outside this module.
                         Based on ESP8266 and basically the same as onIoff.
 - UCO_BadHkHz?:         Basically the same funktion as UCO_BadFbHz expanded with a display and a rotary switch to change the target temperature.
+
 - UCO_onIoff:           A modification of a onIoff MS-101 smart switch. The processor chip inside has to be replaced by an ESP8266.
                         Build:  env:tasmota4M-script  only
 
@@ -38,8 +39,11 @@ A very brief description (UCO = User Config Override):
                         Build:  env:tasmota4M-rule  oder env:tasmota4M-script (script untested!)
 
 - UCO_SML-logger:       A simple smart meter reader and data logger to SD-card for dedicated smart meters I have access to. Based on ESP8266 board.
+                        Work In Progress! The logging rate is too high; has to be changed.
                         Build:  env:tasmota4M-script  only
                         Work in progress .....
+- UCO_SML-reader&NTP:   Basically the same as UCO_SML-logger; a special version to permanently in AP mode and expanded by a RTC module to work fully
+                        without internet access. A special version for Volker.
 
 - UCO_mbtcp-gate:       A modbusTCP gateway for a PV-Inverter together with a PWM fan control for this inverter based on temperature given by a DS18B20 sensor
                         Also including a smartmeter reader to provide grid data to a MQTT broker
@@ -53,7 +57,7 @@ A very brief description (UCO = User Config Override):
 
 - 
 
-The subfolder "temp" only keeps started projects but not finished and probaly will never be.
+The subfolder "temp" only keeps started projects but not finished and probaly they never will be.
 Keep caution! They may work or not!
 
 ## License
