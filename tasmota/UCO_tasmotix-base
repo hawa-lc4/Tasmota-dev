@@ -48,7 +48,7 @@
 #define PROJECT               "tasmotix"
 
 #ifdef MY_RULE
-  #warning **** Build: RULES ****
+  // #warning **** Build: RULES ****
   #undef CODE_IMAGE_STR
   #define CODE_IMAGE_STR "MY_RULE_"
   #ifdef USE_SCRIPT
@@ -74,7 +74,7 @@
 #endif // MY_RULE
 
 #ifdef MY_SCRIPT
-  #warning **** Build: SCRIPT ****
+  // #warning **** Build: SCRIPT ****
   #undef CODE_IMAGE_STR
   #define CODE_IMAGE_STR "MY_SCRIPT_"
 
@@ -112,9 +112,15 @@
 */
 #endif // MY_SCRIPT
 
+#ifdef MY_BERRY
+  // #warning **** Build: RULES ****
+  #undef CODE_IMAGE_STR
+  #define CODE_IMAGE_STR "MY_BERRY_"
+#endif
+
 #ifdef USER_TEMPLATE
 #undef USER_TEMPLATE
-#endif
+#endif // USER_TEMPLATE
 
 /*  Espressif ESP Modules:  https://www.espressif.com/en/products/modules  */
 #ifdef ESP8266
@@ -158,10 +164,16 @@
 
 #ifdef LUATOS_ESP32C3     // Luatos-ESP32C3 board mit AIR101-LCD Modul
 /*      https://tasmota.github.io/docs/Displays/#descriptor-file & https://github.com/arendst/Tasmota/discussions/18350      */
+
+// #define USE_BERRY_DEBUG             // Compile Berry bytecode with line number information, makes exceptions easier to debug. Adds +8% of memory consumption for compiled code
+#ifndef MY_BERRY
 #ifdef USE_BERRY
 #undef USE_BERRY
 #endif
-// #define USE_BERRY_DEBUG             // Compile Berry bytecode with line number information, makes exceptions easier to debug. Adds +8% of memory consumption for compiled code
+#ifdef USE_BERRY_DEBUG
+#undef USE_BERRY_DEBUG
+#endif
+#endif    // !MY_BERRY
 
 #ifdef DSP_ROM_DESC
 #undef DSP_ROM_DESC
@@ -251,10 +263,15 @@ Ausrichtung AIR101-LCD mit Display quer und Eingabe-Stick rechts; die Button-Bez
 
 #ifdef ESP32
 #ifndef LUATOS_ESP32C3
+// #define USE_BERRY_DEBUG             // Compile Berry bytecode with line number information, makes exceptions easier to debug. Adds +8% of memory consumption for compiled code
+#ifndef MY_BERRY
 #ifdef USE_BERRY
 #undef USE_BERRY
 #endif
-// #define USE_BERRY_DEBUG             // Compile Berry bytecode with line number information, makes exceptions easier to debug. Adds +8% of memory consumption for compiled code
+#ifdef USE_BERRY_DEBUG
+#undef USE_BERRY_DEBUG
+#endif
+#endif    // !MY_BERRY
 
 #define USER_TEMPLATE "{\"NAME\":\"CORE-ESP32\",\"GPIO\":[0,1,2,3,4,5,0,0,12,13,14,15,16,17,18,19,0,21,22,23,0,25,26,27,0,0,0,0,32,33,34,35,36,0,0,39],\"FLAG\":0,\"BASE\":1,\"CMND\":\"Module 0\"}"
 /*  User Template ScratchPad:                            [0,1,2,3,4,5,-,-,12,13,14,15,16,17,18,19,-,21,22,23,-,25,26,27,-,-,-,-,32,33,34,35,36,-,-,39]
@@ -302,7 +319,7 @@ Nicht jedes Board hat alle GPIOs verfügbar!
   Das DEVKIT V1 – DOIT 30-Pin Board verwendest Standardmäßig den VSPI.
 Aufpassen bei VSPI und HSPI; die sind nicht immmer auf allen Boards gleich definiert! VSPI ist üblicherweise der Standard SPI Bus.
 Strapping Pins:   The ESP32 chip has the following strapping pins:
-    GPIO 0 (must be LOW to enter boot mode)
+    GPIO 0 (must be HIGH to enter normal boot or LOW to enter flash boot)
     GPIO 2 (must be floating or LOW during boot)
     GPIO 5 (must be HIGH during boot)
     GPIO 12 (must be LOW during boot)
@@ -369,6 +386,11 @@ Strapping Pins:   The ESP32 chip has the following strapping pins:
 #undef GUI_SHOW_HOSTNAME
 #endif
 #define GUI_SHOW_HOSTNAME      true
+
+#ifdef WIFI_DEFAULT_HOSTNAME
+#undef WIFI_DEFAULT_HOSTNAME
+#endif
+#define WIFI_DEFAULT_HOSTNAME PROJECT
 
 #ifdef APP_TIMEZONE
 #undef APP_TIMEZONE
