@@ -50,7 +50,7 @@
 #ifdef MY_RULE
   // #warning **** Build: RULES ****
   #undef CODE_IMAGE_STR
-  #define CODE_IMAGE_STR "MY_RULE_"
+  #define CODE_IMAGE_STR "MY_RULE_" PROJECT
   #ifdef USE_SCRIPT
   #undef USE_SCRIPT
   #endif
@@ -76,7 +76,7 @@
 #ifdef MY_SCRIPT
   // #warning **** Build: SCRIPT ****
   #undef CODE_IMAGE_STR
-  #define CODE_IMAGE_STR "MY_SCRIPT_"
+  #define CODE_IMAGE_STR "MY_SCRIPT_" PROJECT
 
   #ifdef USE_RULES
   #undef USE_RULES
@@ -113,9 +113,9 @@
 #endif // MY_SCRIPT
 
 #ifdef MY_BERRY
-  // #warning **** Build: RULES ****
+  // #warning **** Build: BERRY ****
   #undef CODE_IMAGE_STR
-  #define CODE_IMAGE_STR "MY_BERRY_"
+  #define CODE_IMAGE_STR "MY_BERRY_" PROJECT
 #endif
 
 #ifdef USER_TEMPLATE
@@ -372,6 +372,11 @@ Strapping Pins:   The ESP32 chip has the following strapping pins:
 #undef MQTT_TOPIC
 #endif
 #define MQTT_TOPIC             PROJECT
+
+#ifdef MQTT_FULLTOPIC
+#undef MQTT_FULLTOPIC
+#endif
+#define MQTT_FULLTOPIC         PROJECT
 
 // #ifndef SUPPORT_MQTT_EVENT
 // #define SUPPORT_MQTT_EVENT                     // Support trigger event with MQTT subscriptions (+3k5 code)
