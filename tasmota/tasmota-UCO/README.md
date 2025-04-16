@@ -55,7 +55,12 @@ A very brief description (UCO = User Config Override):
                         The time base is provided by an RTC module. Control program is based on scripting language.
                         It has a modified library xdrv_01_9_webserver.ino; please read this: https://github.com/arendst/Tasmota/discussions/19009
 
-- 
+- UCO_Heizstab_berry:   A modified Shelly Plus Plug-S to control a heater element added to the central heating in my house.
+                        The heating function is controlled ba a flow sensor detecting the central heater is active or not. It also hosts a 1-wire
+                        temperature sensor to show the temparature of the outgoing water; currently not used to control the heater function.
+                        The four WS2812 RGB-Leds can be controlled by Berry-script separately and are used to indicate the state of activation via HEMS,
+                        state of the flow sensor, state of the power relay and the actual power consumption.
+                        Based on the env:tasmota32-berry and operated by Berry-scriptonly.
 
 The subfolder "temp" only keeps started projects but not finished and probaly they never will be.
 Keep caution! They may work or not!
