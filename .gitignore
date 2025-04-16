@@ -51,6 +51,9 @@ tempFiles
 *.bak
 *.code-workspace
 
+## IntelliJ ######
+.idea
+
 ## Python virtual environments for Platformio ##
 venv
 .venv
