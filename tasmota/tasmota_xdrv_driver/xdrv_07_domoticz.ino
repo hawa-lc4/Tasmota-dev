@@ -17,6 +17,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifdef ESP8266
 #ifdef USE_DOMOTICZ
 /*********************************************************************************************\
  * Domoticz support
@@ -770,3 +771,4 @@ bool Xdrv07(uint32_t function) {
 }
 
 #endif  // USE_DOMOTICZ
+#endif  // ESP8266
