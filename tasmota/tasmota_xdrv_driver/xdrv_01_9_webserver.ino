@@ -1008,24 +1008,26 @@ void WSContentSendStyle_P(const char* formatP, ...) {
 
   // Output style root colors by names
   WSContentSend_P(HTTP_HEAD_STYLE_ROOT_COLOR,
-                  WebColor(COL_BACKGROUND),         // --c_bg
-                  WebColor(COL_FORM),               // --c_frm
-                  WebColor(COL_TITLE),              // --c_ttl
-                  WebColor(COL_TEXT),               // --c_txt
-                  WebColor(COL_TEXT_WARNING),       // --c_txtwrn
-                  WebColor(COL_TEXT_SUCCESS),       // --c_txtscc
-                  WebColor(COL_BUTTON),             // --c_btn
-                  WebColor(COL_BUTTON_OFF),         // --c_btnoff
-                  WebColor(COL_BUTTON_TEXT),        // --c_btntxt
-                  WebColor(COL_BUTTON_HOVER),       // --c_btnhvr
-                  WebColor(COL_BUTTON_RESET),       // --c_btnrst
-                  WebColor(COL_BUTTON_RESET_HOVER), // --c_btnrsthvr
-                  WebColor(COL_BUTTON_SAVE),        // --c_btnsv
-                  WebColor(COL_BUTTON_SAVE_HOVER),  // --c_btnsvhvr
-                  WebColor(COL_INPUT),              // --c_in
-                  WebColor(COL_INPUT_TEXT),         // --c_intxt
-                  WebColor(COL_CONSOLE),            // --c_csl
-                  WebColor(COL_CONSOLE_TEXT)        // --c_csltxt
+                  WebColor(COL_BACKGROUND),           // --c_bg
+                  WebColor(COL_FORM),                 // --c_frm
+                  WebColor(COL_TITLE),                // --c_ttl
+                  WebColor(COL_TEXT),                 // --c_txt
+                  WebColor(COL_TEXT_WARNING),         // --c_txtwrn
+                  WebColor(COL_TEXT_SUCCESS),         // --c_txtscc
+                  WebColor(COL_BUTTON),               // --c_btn
+                  WebColor(COL_BUTTON_OFF),           // --c_btnoff
+                  WebColor(COL_BUTTON_TEXT),          // --c_btntxt
+                  WebColor(COL_BUTTON_HOVER),         // --c_btnhvr
+                  WebColor(COL_BUTTON_RESET),         // --c_btnrst
+                  WebColor(COL_BUTTON_RESET_HOVER),   // --c_btnrsthvr
+                  WebColor(COL_BUTTON_SAVE),          // --c_btnsv
+                  WebColor(COL_BUTTON_SAVE_HOVER),    // --c_btnsvhvr
+                  WebColor(COL_INPUT),                // --c_in
+                  WebColor(COL_INPUT_TEXT),           // --c_intxt
+                  WebColor(COL_CONSOLE),              // --c_csl
+                  WebColor(COL_CONSOLE_TEXT),         // --c_csltxt
+                  WebColor(COL_TIMER_TAB_BACKGROUND), // --c_tab
+                  WebColor(COL_TIMER_TAB_TEXT)        // --c_tabtxt
   );
 
   WSContentSendRaw_P(HTTP_HEAD_STYLE1);
@@ -2291,7 +2293,11 @@ uint16_t WebGetGpioArg(uint32_t i) {
 
 void TemplateSaveSettings(void) {
   char tmp[TOPSZ];                                      // WebGetArg NAME and GPIO/BASE/FLAG byte value
+#ifdef ESP8266
   char command[300];                                    // Template command string
+#else
+  char command[500];                                    // Template command string supporting P4 (55 GPIOs)
+#endif
 
   WebGetArg(PSTR("s1"), tmp, sizeof(tmp));              // NAME
   snprintf_P(command, sizeof(command), PSTR(D_CMND_TEMPLATE " {\"" D_JSON_NAME "\":\"%s\",\"" D_JSON_GPIO "\":["), tmp);
@@ -2995,10 +3001,9 @@ void HandleInformation(void) {
   }
   WSContentSeparatorIFat();
 #ifdef CONFIG_ESP_WIFI_REMOTE_ENABLED
-  WSContentSend_P(PSTR("}1 Hosted MCU }2 " CONFIG_ESP_HOSTED_IDF_SLAVE_TARGET ""));
-  WSContentSend_P(PSTR("}1 Hosted Remote Fw }2%s"), GetHostedMCUFwVersion().c_str());
+  WSContentSend_P(PSTR("}1" D_HOSTED_MCU "}2%s (%s)"), GetHostedMCU().c_str(), GetHostedMCUFwVersion().c_str());
   WSContentSeparatorIFat();
-#endif //CONFIG_ESP_WIFI_REMOTE_ENABLED
+#endif  // CONFIG_ESP_WIFI_REMOTE_ENABLED
   bool show_hr = false;
   if ((WiFi.getMode() >= WIFI_AP) && (static_cast<uint32_t>(WiFi.softAPIP()) != 0)) {
     WSContentSend_P(PSTR("}1" D_MAC_ADDRESS "}2%s"), WiFi.softAPmacAddress().c_str());
