@@ -906,6 +906,15 @@ void MqttShowState(void)
     ResponseAppend_P(PSTR(","));
     MqttShowPWMState();
   }
+  
+  char *hostname = TasmotaGlobal.hostname;
+  uint32_t ipaddress = 0;
+#if defined(ESP32) && defined(USE_ETHERNET)
+  if (static_cast<uint32_t>(EthernetLocalIP()) != 0) {
+    hostname = EthernetHostname();           // Set ethernet as IP connection
+    ipaddress = (uint32_t)EthernetLocalIP();
+  }
+#endif
 
   if (!TasmotaGlobal.global_state.wifi_down) {
     int32_t rssi = WiFi.RSSI();
@@ -913,7 +922,15 @@ void MqttShowState(void)
       Settings->sta_active +1, EscapeJSONString(SettingsText(SET_STASSID1 + Settings->sta_active)).c_str(), WiFi.BSSIDstr().c_str(), WiFi.channel(),
       WifiGetPhyMode().c_str(), WifiGetRssiAsQuality(rssi), rssi,
       WifiLinkCount(), WifiDowntime().c_str());
+
+    if (static_cast<uint32_t>(WiFi.localIP()) != 0) {
+      hostname = TasmotaGlobal.hostname;     // Overrule ethernet as primary IP connection
+      ipaddress = (uint32_t)WiFi.localIP();
+    }
   }
+  // I only want to show one active connection for device access
+  ResponseAppend_P(PSTR(",\"" D_CMND_HOSTNAME "\":\"%s\",\"" D_CMND_IPADDRESS "\":\"%_I\""),
+    hostname, ipaddress);
 
   ResponseJsonEnd();
 }
@@ -1517,34 +1534,6 @@ void Every250mSeconds(void)
         AllowInterrupts(1);
       }
     }
-
-#ifdef CONFIG_ESP_WIFI_REMOTE_ENABLED
-    if (TasmotaGlobal.hosted_ota_state_flag && CommandsReady()) {
-      TasmotaGlobal.hosted_ota_state_flag--;
-/*
-      if (2 == TasmotaGlobal.hosted_ota_state_flag) {
-        SettingsSave(0);
-      }
-*/
-      if (TasmotaGlobal.hosted_ota_state_flag <= 0) {
-        // Blocking
-        int ret = OTAHostedMCU(TasmotaGlobal.hosted_ota_url);
-        free(TasmotaGlobal.hosted_ota_url);
-        TasmotaGlobal.hosted_ota_url = nullptr;
-        Response_P(PSTR("{\"" D_CMND_HOSTEDOTA "\":\""));
-        if (ret == ESP_OK) {
-          // next lines are questionable, because currently the system will reboot immediately on succesful upgrade
-          ResponseAppend_P(PSTR(D_JSON_SUCCESSFUL ". " D_JSON_RESTARTING));
-          TasmotaGlobal.restart_flag = 5;                 // Allow time for webserver to update console
-        } else {
-          ResponseAppend_P(PSTR(D_JSON_FAILED " %d\"}"), ret);
-        }
-        ResponseAppend_P(PSTR("\"}"));
-        MqttPublishPrefixTopicRulesProcess_P(STAT, PSTR(D_CMND_HOSTEDOTA));
-      }
-    }
-#endif  // CONFIG_ESP_WIFI_REMOTE_ENABLED
-
     break;
   case 1:                                                 // Every x.25 second
     if (MidnightNow()) {

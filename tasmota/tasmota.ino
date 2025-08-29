@@ -208,11 +208,12 @@ WiFiUDP PortUdp;                            // UDP Syslog and Alexa
 #ifdef ESP32
 /*
 #if CONFIG_IDF_TARGET_ESP32C3 ||            // support USB via HWCDC using JTAG interface
+    CONFIG_IDF_TARGET_ESP32C5 ||            // support USB via HWCDC using JTAG interface
     CONFIG_IDF_TARGET_ESP32C6 ||            // support USB via HWCDC using JTAG interface
     CONFIG_IDF_TARGET_ESP32S2 ||            // support USB via USBCDC
     CONFIG_IDF_TARGET_ESP32S3               // support USB via HWCDC using JTAG interface or USBCDC
 */
-#if CONFIG_IDF_TARGET_ESP32C3 || CONFIG_IDF_TARGET_ESP32C6 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32S3 || CONFIG_IDF_TARGET_ESP32P4
+#if CONFIG_IDF_TARGET_ESP32C3 || CONFIG_IDF_TARGET_ESP32C5 || CONFIG_IDF_TARGET_ESP32C6 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32S3 || CONFIG_IDF_TARGET_ESP32P4
 
 //#if CONFIG_TINYUSB_CDC_ENABLED              // This define is not recognized here so use USE_USB_CDC_CONSOLE
 #ifdef USE_USB_CDC_CONSOLE
@@ -268,11 +269,6 @@ struct TasmotaGlobal_t {
   uint32_t zc_interval;                     // Zero cross interval around 8333 (60Hz) or 10000 (50Hz) (microseconds)
   GpioOptionABits gpio_optiona;             // GPIO Option_A flags
   void *log_buffer_mutex;                   // Control access to log buffer
-
-#ifdef CONFIG_ESP_WIFI_REMOTE_ENABLED
-  char *hosted_ota_url;                     // ESP32-P4 hosted OTA URL
-  int hosted_ota_state_flag;                // ESP32-P4 hosted OTA initiated flag
-#endif  // CONFIG_ESP_WIFI_REMOTE_ENABLED
 
   power_t power;                            // Current copy of Settings->power
   power_t power_latching;                   // Current state of single pin latching power
@@ -498,7 +494,7 @@ void setup(void) {
   }
 
 #ifdef ESP32
-#if CONFIG_IDF_TARGET_ESP32C3 || CONFIG_IDF_TARGET_ESP32C6 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32S3 || CONFIG_IDF_TARGET_ESP32P4
+#if CONFIG_IDF_TARGET_ESP32C3 || CONFIG_IDF_TARGET_ESP32C5 || CONFIG_IDF_TARGET_ESP32C6 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32S3 || CONFIG_IDF_TARGET_ESP32P4
 #ifdef USE_USB_CDC_CONSOLE
 
   bool is_connected_to_USB = false;
