@@ -45,7 +45,7 @@
 #ifdef PROJECT
 #undef PROJECT
 #endif
-#define PROJECT               "tasmotix"
+#define PROJECT               "Silvercrest"
 
 #ifdef MY_RULE
   // #warning **** Build: RULES ****
@@ -109,7 +109,7 @@
 
   #define PRECONFIGURED_SCRIPT \
   ">D\n\n" \
-  ">R\n=>Hostname tasmotix\n\n"
+  ">R\n=>Hostname Silvercrest\n\n"
   
 /*    32 Zeichen Skript; 8160 Zeichen übrig von 8192
       https://tasmota.github.io/docs/Commands/#setoptions
@@ -118,6 +118,9 @@
 
 #ifdef MY_BERRY
   // #warning **** Build: BERRY ****
+  #ifdef ESP8266
+    #error *!*!* No Berry for ESP8266 *!*!*
+  #endif
   #undef CODE_IMAGE_STR
   #define CODE_IMAGE_STR "MY_BERRY_" PROJECT
   
@@ -282,49 +285,50 @@ Ausrichtung AIR101-LCD mit Display quer und Eingabe-Stick rechts; die Button-Bez
 // hawa-lc4: xsns_02_analog.ino Zeile 482 (12.5.0.2) bzw. 504 (13.2.0.2) aktivieren des logging der ADC Werte
 // #define ADC_LOG
 
-#else
+#else    // LUATOS_ESP32C3
 
-#define USER_TEMPLATE "{\"NAME\":\"CORE-ESP32\",\"GPIO\":[0,1,2,3,4,5,0,0,12,13,14,15,16,17,18,19,0,21,22,23,0,25,26,27,0,0,0,0,32,33,34,35,36,0,0,39],\"FLAG\":0,\"BASE\":1,\"CMND\":\"Module 0\"}"
-/*  User Template ScratchPad:                            [0,1,2,3,4,5,-,-,12,13,14,15,16,17,18,19,-,21,22,23,-,25,26,27,-,-,-,-,32,33,34,35,36,-,-,39]
+//                           {"NAME":"Shelly Plus Plug S","GPIO":[0,0,0,0,224,0,32,2720,0,0,0,0,0,0,0,2624,0,0,2656,0,0,288,289,0,0,0,0,0,0,4736,0,0,0,0,0,0],"FLAG":0,"BASE":1}
+#define USER_TEMPLATE "{\"NAME\":\"Shelly Plus Plug S\",\"GPIO\":[0,0,0,0,224,0,32,2720,0,0,0,0,0,0,0,2624,0,0,2656,0,0,1376,1377,0,0,0,0,0,0,0,0,0,0,0,0,0],\"FLAG\":0,\"BASE\":1}"
+/*  User Template ScratchPad:                                    [0,1,2,3,4,5,-,-,12,13,14,15,16,17,18,19,-,21,22,23,-,25,26,27,-,-,-,-,32,33,34,35,36,-,-,39]
   ESP32 template GPIO pin mapping:  https://github.com/arendst/Tasmota/discussions/19000
         [0,1,2,3,4,5,9,10,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,6,7,8,11,32,33,34,35,36,37,38,39]
   https://tasmota.github.io/docs/Components/  &  https://randomnerdtutorials.com/esp32-pinout-reference-gpios/
-  GPIO00 Taster gegen GND (kann damit auch zum FlashBoot benutzt werden) -- 1      // 
-  GPIO01 TX UART0                                                        -- 0      // belegt durch USB
-  GPIO02                                                                 -- 1      // 
-  GPIO03 RX UART0                                                        -- 0      // belegt durch USB
-  GPIO04                                                                 -- 1      // 
-  GPIO05 VSPI CS0                                                        -- 1      // 
-  GPIO09 DO NOT USE!!   (SDData2)                                        -- 0      // DO NOT USE!!
-  GPIO10 DO NOT USE!!   (SDData3)                                        -- 0      // DO NOT USE!!
-  GPIO12 HSPI MISO                                                       -- 1      // 
-  GPIO13 HSPI MOSI                                                       -- 1      // 
-  GPIO14 HSPI CLK                                                        -- 1      // 
-  GPIO15 HSPI CS0                                                        -- 1      // 
-  GPIO16 RX UART2                                                        -- 1      //
-  GPIO17 TX UART2                                                        -- 1      // 
-  GPIO18 VSPI CLK                                                        -- 1      // 
-  GPIO19 VSPI MISO                                                       -- 1      // 
+  GPIO00 Taster gegen GND (kann damit auch zum FlashBoot benutzt werden) -- 0      // 
+  GPIO01 TX UART0                                                        -- 1      // 
+  GPIO02                                                                 -- 0      // 
+  GPIO03 RX UART0                                                        -- 1      // 
+  GPIO04                                                                 -- 224    // Relay1
+  GPIO05 VSPI CS0                                                        -- 0      // 
+  GPIO09 DO NOT USE!!   (SDData2)                                        -- 32     // Button1
+  GPIO10 DO NOT USE!!   (SDData3)                                        -- 2720   // BL0937 CF: Stromsensor
+  GPIO12 HSPI MISO                                                       -- 0      // 
+  GPIO13 HSPI MOSI                                                       -- 0      // 
+  GPIO14 HSPI CLK                                                        -- 0      // 
+  GPIO15 HSPI CS0                                                        -- 0      // 
+  GPIO16 RX UART2                                                        -- 0      //
+  GPIO17 TX UART2                                                        -- 0      // 
+  GPIO18 VSPI CLK                                                        -- 0      // 
+  GPIO19 VSPI MISO                                                       -- 2624   // HLWBL Sel_i: Stromsensor
   GPIO20 Nicht verfügbar auf den meisten Boards                          -- 0      // Nicht verfügbar auf den meisten Boards
-  GPIO21 I2C SDA (640)                                                   -- 1      // 
-  GPIO22 I2C SCL (608)                                                   -- 1      // 
-  GPIO23 VSPI MOSI                                                       -- 1      // 
+  GPIO21 I2C SDA (640)                                                   -- 0      // 
+  GPIO22 I2C SCL (608)                                                   -- 2656   // HLWBL CF1: Stromsensor
+  GPIO23 VSPI MOSI                                                       -- 0      // 
   GPIO24 Nicht verfügbar auf den meisten Boards                          -- 0      // Nicht verfügbar auf den meisten Boards
-  GPIO25                                                                 -- 1      // 
-  GPIO26                                                                 -- 1      // 
-  GPIO27                                                                 -- 1      // 
+  GPIO25                                                                 -- 1376   // WS2812 Led string 1; Konfig über Berry-Script
+  GPIO26                                                                 -- 1377   // WS2812 Led string 2; Konfig über Berry-Script
+  GPIO27                                                                 -- 0      // 
   GPIO06 DO NOT USE!!   (SDCLK)                                          -- 0      // DO NOT USE!!
   GPIO07 DO NOT USE!!   (SDData0)                                        -- 0      // DO NOT USE!!
   GPIO08 DO NOT USE!!   (SDData1)                                        -- 0      // DO NOT USE!!
   GPIO11 DO NOT USE!!   (SDCMD)                                          -- 0      // DO NOT USE!!
-  GPIO32                                                                 -- 1      // 
-  GPIO33                                                                 -- 1      // 
-  GPIO34 (input only)                                                    -- 1      // 
-  GPIO35 (input only)                                                    -- 1      // 
-  GPIO36 (input only)                                                    -- 1      // 
+  GPIO32                                                                 -- 0      // 
+  GPIO33                                                                 -- 0      // 
+  GPIO34 (input only)                                                    -- 0      // 
+  GPIO35 (input only)                                                    -- 0      // 
+  GPIO36 (input only)                                                    -- 0      // 
   GPIO37 Nicht verfügbar auf den meisten Boards                          -- 0      // Nicht verfügbar auf den meisten Boards
   GPIO38 Nicht verfügbar auf den meisten Boards                          -- 0      // Nicht verfügbar auf den meisten Boards
-  GPIO39 (input only)                                                    -- 1      // 
+  GPIO39 (input only)                                                    -- 0      // 
 Nicht jedes Board hat alle GPIOs verfügbar!
   GPIO00 fehlt auf dem DEVKIT V1 – DOIT 30-Pin Board und ist nur durch den boot-Taster am Board bedienbar.
   Das DEVKIT V1 – DOIT 30-Pin Board verwendest Standardmäßig den VSPI.
@@ -335,6 +339,10 @@ Strapping Pins:   The ESP32 chip has the following strapping pins:
     GPIO 5 (must be HIGH during boot)
     GPIO 12 (must be LOW during boot)
     GPIO 15 (must be HIGH during boot)
+Kalibrierung des Stromsensors (Werte gültig nur für dieses Board!):
+    "VoltageCal":1766
+    "CurrentCal":3437
+    "PowerCal":11656
 */
 // hawa-lc4: xsns_02_analog.ino Zeile 482 (12.5.0.2) bzw. 504 (13.2.0.2) aktivieren des logging der ADC Werte
 // #define ADC_LOG
@@ -377,12 +385,12 @@ Strapping Pins:   The ESP32 chip has the following strapping pins:
 #ifdef MQTT_USE
 #undef MQTT_USE
 #endif
-#define MQTT_USE               false
+#define MQTT_USE               true
 
 #ifdef MQTT_TOPIC
 #undef MQTT_TOPIC
 #endif
-#define MQTT_TOPIC             PROJECT
+#define MQTT_TOPIC             "openWB/config/set/SmartHome/Devices"
 
 #ifdef MQTT_FULLTOPIC
 #undef MQTT_FULLTOPIC
@@ -502,9 +510,9 @@ Strapping Pins:   The ESP32 chip has the following strapping pins:
 #undef USE_LIGHT
 #endif
 
-#ifdef USE_WS2812
-#undef USE_WS2812
-#endif
+// #ifdef USE_WS2812
+// #undef USE_WS2812
+// #endif
 
 #ifdef USE_MY92X1
 #undef USE_MY92X1
@@ -580,9 +588,9 @@ Strapping Pins:   The ESP32 chip has the following strapping pins:
 #undef USE_ENERGY_DUMMY
 #endif
 
-#ifdef USE_HLW8012
-#undef USE_HLW8012
-#endif
+// #ifdef USE_HLW8012
+// #undef USE_HLW8012
+// #endif
 
 #ifdef USE_CSE7766
 #undef USE_CSE7766
@@ -604,9 +612,9 @@ Strapping Pins:   The ESP32 chip has the following strapping pins:
 #undef USE_MCP39F501
 #endif
 
-#ifdef USE_BL09XX
-#undef USE_BL09XX
-#endif
+// #ifdef USE_BL09XX
+// #undef USE_BL09XX
+// #endif
 
 #ifdef USE_DHT
 #undef USE_DHT
