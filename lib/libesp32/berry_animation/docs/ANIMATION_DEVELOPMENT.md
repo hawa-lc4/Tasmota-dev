@@ -291,7 +291,7 @@ def render(frame, time_ms)
     frame.set_pixel_color(i, pixel_color)
   end
   
-  # Apply opacity if not full
+  # Apply opacity if not full (supports numbers, animations)
   if opacity < 255
     frame.apply_opacity(opacity)
   end
@@ -537,7 +537,7 @@ anim.color = 0xFFFF0000
 anim.pos = 5
 anim.beacon_size = 3
 
-engine.add_animation(anim)
+engine.add(anim)  # Unified method for animations and sequence managers
 engine.start()
 
 # Let it run for a few seconds
