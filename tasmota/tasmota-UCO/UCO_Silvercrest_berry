@@ -45,7 +45,9 @@
 #ifdef PROJECT
 #undef PROJECT
 #endif
-#define PROJECT               "Silvercrest"
+#define PROJECT               "Silvercrest"     // openWB dNo 2
+// #define PROJECT               "Honeywell"       // openWB dNo 4
+// #define PROJECT               "Tasmota-Plug"    // openWB dNo 5
 
 #ifdef MY_RULE
   // #warning **** Build: RULES ****

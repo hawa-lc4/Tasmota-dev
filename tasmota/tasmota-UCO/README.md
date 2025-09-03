@@ -46,7 +46,7 @@ A very brief description (UCO = User Config Override):
                         without internet access. A special version for Volker.
 
 - UCO_mbtcp-gate:       A modbusTCP gateway for a PV-Inverter together with a PWM fan control for this inverter based on temperature given by a DS18B20 sensor
-                        Also including a smartmeter reader to provide grid data to a MQTT broker
+                        Also including a smartmeter reader to provide grid data to a MQTT broker.
 
 - UCO_mbtcp-gate32:     The same as UCO_mbtcp-gate but redesigned to use a WT32-ETH01 module working via Ethernet only instead of using WiFi.
 
@@ -63,7 +63,9 @@ A very brief description (UCO = User Config Override):
                         Based on the env:tasmota32-berry and operated by Berry-script only.
 
 -UCO_Silvercrest_berry: A Shelly Plus Plug-S moved to Tasmota firmware and fully controlled by Berry-script similar to UCO_Heizstab_berry.
-                        The attempt to convert this OTA failed, the deviced had to be opened and flashed by serial interface.
+                        (This single device was flashed succeffully by OTA; unfortunately no documentation of the steps performed.
+                        Further attempts to convert absolutely similar devices by OTA failed, the devices had to be opened and flashed by serial interface.
+                        Affected configurations/devices: Heizstab, Honeywell and Tasmota-Plug)
 
 
 The subfolder "temp" only keeps projects started but not finished and probaly they never will be.
