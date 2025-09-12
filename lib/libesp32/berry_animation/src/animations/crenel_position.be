@@ -24,12 +24,12 @@ class CrenelPositionAnimation : animation.animation
   
   # Parameter definitions with constraints
   static var PARAMS = {
-    "color": {"default": 0xFFFFFFFF},
-    "back_color": {"default": 0xFF000000},
-    "pos": {"default": 0},
-    "pulse_size": {"min": 0, "default": 1},
-    "low_size": {"min": 0, "default": 3},
-    "nb_pulse": {"default": -1}
+    # 'color' for the comet head (32-bit ARGB value), inherited from animation class
+    "back_color": {"default": 0xFF000000},      # background color, TODO change to transparent
+    "pos": {"default": 0},                      # start of the pulse (in pixel)
+    "pulse_size": {"min": 0, "default": 1},     # number of pixels of the pulse
+    "low_size": {"min": 0, "default": 3},       # number of pixel until next pos - full cycle is 2 + 3
+    "nb_pulse": {"default": -1}                 # number of pulses, or `-1` for infinite
   }
   
   # Render the crenel pattern to the provided frame buffer
@@ -41,12 +41,10 @@ class CrenelPositionAnimation : animation.animation
     if !self.is_running || frame == nil
       return false
     end
-    
-    # Use engine time if not provided
-    if time_ms == nil
-      time_ms = self.engine.time_ms
-    end
-    
+
+    # Auto-fix time_ms and start_time
+    time_ms = self._fix_time_ms(time_ms)
+
     var pixel_size = frame.width
     
     # Access parameters via virtual members (automatically resolves ValueProviders)

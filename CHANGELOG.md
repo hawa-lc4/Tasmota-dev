@@ -3,7 +3,20 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased] - Development
 
-## [15.0.1.3]
+## [15.0.1.4]
+### Added
+
+### Breaking Changed
+
+### Changed
+- ESP32 Platform from 2025.08.30 to 2025.09.30, Framework (Arduino Core) from v3.1.3.250808 to v3.1.4 and IDF from v5.3.3.250801 to v5.3.4.250826 (#23888)
+- Use HAL instead of ROM for SHA HW acceleration as used by TLS (#23902)
+
+### Fixed
+
+### Removed
+
+## [15.0.1.3] 20250908
 ### Added
 - ESP32 ROM SHA Hardware Acceleration to BearSSL (#23819)
 - Extend state JSON message with functional hostname and ipaddress which could be WiFi or Ethernet
@@ -20,10 +33,13 @@ All notable changes to this project will be documented in this file.
 - Support for ESP32-C5 (#23804)
 - Berry update of preview of animation framework (#23816)
 - ESP8266 platform update from 2025.08.00 to 2025.09.00 (#23801)
+- JPEGDEC library from v1.5.0 to v1.8.3 (#23883)
+- Web UI styles and HTML syntax (#23847)
 
 ### Fixed
 - Syslog RFC5424 compliance (#23509)
 - Berry calling `setmember` with a function (#23825)
+- Unable to use default serial GPIOs by TasmotaSerial regression from v14.5.0 with IDF 5.3.2.250120 (#23775)
 
 ### Removed
 - `user-scalable=no` from HTTP HEADER (#23798)

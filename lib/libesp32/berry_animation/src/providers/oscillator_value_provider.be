@@ -24,7 +24,6 @@ var BOUNCE = 9
 #@ solidify:OscillatorValueProvider,weak
 class OscillatorValueProvider : animation.value_provider
   # Non-parameter instance variables only
-  var origin            # origin time in ms for cycle calculation
   var value             # current calculated value
   
   # Static array for better solidification (moved from inline array)
@@ -47,19 +46,20 @@ class OscillatorValueProvider : animation.value_provider
     super(self).init(engine)  # Initialize parameter system
     
     # Initialize non-parameter instance variables
-    self.origin = 0 # Will be set when `start` is called
     self.value = 0  # Will be calculated on first produce_value call
   end
   
   # Start/restart the oscillator at a specific time
   #
-  # @param time_ms: int - Time in milliseconds to set as origin (optional, uses engine time if nil)
+  # start() is typically not called at beginning of animations for value providers.
+  # The start_time is set at the first call to produce_value().
+  # This method is mainly aimed at restarting the value provider start_time
+  # via the `restart` keyword in DSL.
+  #
+  # @param time_ms: int - Time in milliseconds to set as start_time (optional, uses engine time if nil)
   # @return self for method chaining
   def start(time_ms)
-    if time_ms == nil
-      time_ms = self.engine.time_ms
-    end
-    self.origin = time_ms
+    super(self).start(time_ms)
     return self
   end
 
@@ -77,12 +77,15 @@ class OscillatorValueProvider : animation.value_provider
     var phase = self.phase
     var duty_cycle = self.duty_cycle
     
+    # Ensure time_ms is valid and initialize start_time if needed
+    time_ms = self._fix_time_ms(time_ms)
+
     if duration == nil || duration <= 0
       return min_value
     end
-    
-    # Calculate elapsed time since origin
-    var past = time_ms - self.origin
+
+    # Calculate elapsed time since start_time
+    var past = time_ms - self.start_time
     if past < 0
       past = 0
     end
@@ -92,7 +95,7 @@ class OscillatorValueProvider : animation.value_provider
     # Handle cycle wrapping
     if past >= duration
       var cycles = past / duration
-      self.origin += cycles * duration
+      self.start_time += cycles * duration
       past = past % duration
     end
     
@@ -134,12 +137,13 @@ class OscillatorValueProvider : animation.value_provider
     elif form == animation.EASE_IN
       # Quadratic ease-in: starts slow, accelerates
       var t = tasmota.scale_uint(past_with_phase, 0, duration - 1, 0, 255)  # 0..255
-      var eased = (t * t) / 255  # t^2 scaled back to 0..255
+      var eased = tasmota.scale_int(t * t, 0, 255 * 255, 0, 255)  # t^2 scaled back to 0..255
       self.value = tasmota.scale_int(eased, 0, 255, min_value, max_value)
     elif form == animation.EASE_OUT
       # Quadratic ease-out: starts fast, decelerates
       var t = tasmota.scale_uint(past_with_phase, 0, duration - 1, 0, 255)  # 0..255
-      var eased = 255 - ((255 - t) * (255 - t)) / 255  # 1 - (1-t)^2 scaled to 0..255
+      var inv_t = 255 - t
+      var eased = 255 - tasmota.scale_int(inv_t * inv_t, 0, 255 * 255, 0, 255)  # 1 - (1-t)^2 scaled to 0..255
       self.value = tasmota.scale_int(eased, 0, 255, min_value, max_value)
     elif form == animation.ELASTIC
       # Elastic easing: overshoots and oscillates like a spring
@@ -154,12 +158,12 @@ class OscillatorValueProvider : animation.value_provider
         var decay = tasmota.scale_uint(255 - t, 0, 255, 255, 32)  # Exponential decay approximation
         var freq_angle = tasmota.scale_uint(t, 0, 255, 0, 32767 * 6)  # High frequency oscillation
         var oscillation = tasmota.sine_int(freq_angle % 32767)  # -4096 to 4096
-        var elastic_offset = (oscillation * decay) / 4096  # Scale oscillation by decay
+        var elastic_offset = tasmota.scale_int(oscillation * decay, -4096 * 255, 4096 * 255, -255, 255)  # Scale oscillation by decay
         var base_progress = tasmota.scale_int(t, 0, 255, 0, max_value - min_value)
         self.value = min_value + base_progress + elastic_offset
         # Clamp to reasonable bounds to prevent extreme overshoots
         var value_range = max_value - min_value
-        var max_overshoot = value_range / 4  # Allow 25% overshoot
+        var max_overshoot = tasmota.scale_int(value_range, 0, 4, 0, 1)  # Allow 25% overshoot
         if self.value > max_value + max_overshoot  self.value = max_value + max_overshoot  end
         if self.value < min_value - max_overshoot  self.value = min_value - max_overshoot  end
       end
@@ -171,15 +175,18 @@ class OscillatorValueProvider : animation.value_provider
       # Simplified bounce with 3 segments for better behavior
       if t < 128  # First big bounce (0-50% of time)
         var segment_t = tasmota.scale_uint(t, 0, 127, 0, 255)
-        bounced_t = 255 - ((255 - segment_t) * (255 - segment_t)) / 255  # Ease-out curve
+        var inv_segment = 255 - segment_t
+        bounced_t = 255 - tasmota.scale_int(inv_segment * inv_segment, 0, 255 * 255, 0, 255)  # Ease-out curve
       elif t < 192  # Second smaller bounce (50-75% of time)
         var segment_t = tasmota.scale_uint(t - 128, 0, 63, 0, 255)
-        var bounce_val = 255 - ((255 - segment_t) * (255 - segment_t)) / 255
-        bounced_t = (bounce_val * 128) / 255  # Scale to 50% height
+        var inv_segment = 255 - segment_t
+        var bounce_val = 255 - tasmota.scale_int(inv_segment * inv_segment, 0, 255 * 255, 0, 255)
+        bounced_t = tasmota.scale_int(bounce_val, 0, 255, 0, 128)  # Scale to 50% height
       else  # Final settle (75-100% of time)
         var segment_t = tasmota.scale_uint(t - 192, 0, 63, 0, 255)
-        var bounce_val = 255 - ((255 - segment_t) * (255 - segment_t)) / 255
-        bounced_t = 255 - ((255 - bounce_val) * 64) / 255  # Settle towards full value
+        var inv_segment = 255 - segment_t
+        var bounce_val = 255 - tasmota.scale_int(inv_segment * inv_segment, 0, 255 * 255, 0, 255)
+        bounced_t = 255 - tasmota.scale_int(255 - bounce_val, 0, 255, 0, 64)  # Settle towards full value
       end
       
       self.value = tasmota.scale_int(bounced_t, 0, 255, min_value, max_value)

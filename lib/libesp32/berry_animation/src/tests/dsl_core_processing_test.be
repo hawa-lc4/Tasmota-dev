@@ -204,7 +204,7 @@ def test_sequence_processing()
   assert(string.find(berry_code, "red_anim") >= 0, "Should reference animation")
   assert(string.find(berry_code, ".push_play_step(red_anim_, 2000)") >= 0, "Should create play step")
   assert(string.find(berry_code, "engine.add(demo_)") >= 0, "Should add sequence manager")
-  assert(string.find(berry_code, "engine.start()") >= 0, "Should start engine")
+  assert(string.find(berry_code, "engine.run()") >= 0, "Should start engine")
   
   # Test repeat in sequence
   var repeat_seq_dsl = "color custom_blue = 0x0000FF\n" +
@@ -366,8 +366,8 @@ def test_reserved_name_validation()
     "color red_custom = 0x800000",
     "color smooth_custom = 0x808080",
     # Easing function names are now valid as user-defined names
-    "animation smooth = solid(color=blue)",
-    "animation linear = solid(color=green)"
+    "animation smooth2 = solid(color=blue)",
+    "animation linear2 = solid(color=green)"
   ]
   
   for dsl_input : valid_name_tests

@@ -49,9 +49,13 @@ var sunset_sky_ = bytes(
   "FFFFFF00"  # Sun
 )
 # Create animations using each palette
-var fire_effect_ = animation.rich_palette_animation(engine)
-fire_effect_.palette = fire_gradient_
-fire_effect_.cycle_period = 3000
+var fire_effect_ = animation.solid(engine)
+fire_effect_.color = (def (engine)
+  var provider = animation.rich_palette(engine)
+  provider.palette = fire_gradient_
+  provider.cycle_period = 3000
+  return provider
+end)(engine)
 var ocean_waves_ = animation.rich_palette_animation(engine)
 ocean_waves_.palette = ocean_depths_
 ocean_waves_.cycle_period = 8000
@@ -89,7 +93,7 @@ var palette_showcase_ = animation.SequenceManager(engine)
     .push_play_step(sunset_glow_, 2000)
     )
 engine.add(palette_showcase_)
-engine.start()
+engine.run()
 
 
 #- Original DSL source:
@@ -139,7 +143,7 @@ palette sunset_sky = [
 ]
 
 # Create animations using each palette
-animation fire_effect = rich_palette_animation(palette=fire_gradient, cycle_period=3s)
+animation fire_effect = solid(color=rich_palette(palette=fire_gradient, cycle_period=3s))
 
 animation ocean_waves = rich_palette_animation(palette=ocean_depths, cycle_period=8s, transition_type=SINE, brightness=200)
 

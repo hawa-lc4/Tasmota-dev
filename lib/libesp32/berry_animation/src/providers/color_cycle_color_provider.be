@@ -86,6 +86,7 @@ class ColorCycleColorProvider : animation.color_provider
   # @param name: string - Name of the parameter that changed
   # @param value: any - New value of the parameter
   def on_param_changed(name, value)
+    super(self).on_param_changed(name, value)
     if name == "palette_size"
       # palette_size is read-only - restore the actual value and raise an exception
       self.values["palette_size"] = self._get_palette_size()
@@ -197,21 +198,10 @@ class ColorCycleColorProvider : animation.color_provider
     return self._get_color_at_index(color_index)
   end
   
-
-  
-
   # String representation of the provider
   def tostring()
-    try
-      var mode = self.cycle_period == 0 ? "manual" : "auto"
-      var palette_size = self._get_palette_size()
-      return f"ColorCycleColorProvider(palette_size={palette_size}, cycle_period={self.cycle_period}, mode={mode}, current_index={self.current_index})"
-    except ..
-      return "ColorCycleColorProvider(uninitialized)"
-    end
+    return f"ColorCycleColorProvider(palette_size={self._get_palette_size()}, cycle_period={self.cycle_period}, mode={self.cycle_period ? 'manual' :: 'auto'}, current_index={self.current_index})"
   end
 end
-
-
 
 return {'color_cycle': ColorCycleColorProvider}

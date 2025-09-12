@@ -159,7 +159,7 @@ def test_sequences()
   assert(string.find(berry_code, "var test_seq_ = animation.SequenceManager(engine)") >= 0, "Should define sequence manager")
   assert(string.find(berry_code, ".push_play_step(") >= 0, "Should add play step")
   assert(string.find(berry_code, "3000)") >= 0, "Should reference duration")
-  assert(string.find(berry_code, "engine.start()") >= 0, "Should start engine")
+  assert(string.find(berry_code, "engine.run()") >= 0, "Should start engine")
   
   print("✓ Sequences test passed")
   return true
@@ -364,29 +364,29 @@ def test_multiple_run_statements()
   var berry_code = animation_dsl.compile(dsl_source)
   assert(berry_code != nil, "Should compile multiple run statements")
   
-  # Count engine.start() calls - should be exactly 1
+  # Count engine.run() calls - should be exactly 1
   var lines = string.split(berry_code, "\n")
   var start_count = 0
   for line : lines
-    if string.find(line, "engine.start()") >= 0
+    if string.find(line, "engine.run()") >= 0
       start_count += 1
     end
   end
   
-  assert(start_count == 1, f"Should have exactly 1 engine.start() call, found {start_count}")
+  assert(start_count == 1, f"Should have exactly 1 engine.run() call, found {start_count}")
   
   # Check that all animations are added to the engine
   assert(string.find(berry_code, "engine.add(red_anim_)") >= 0, "Should add red_anim to engine")
   assert(string.find(berry_code, "engine.add(blue_anim_)") >= 0, "Should add blue_anim to engine")
   assert(string.find(berry_code, "engine.add(green_anim_)") >= 0, "Should add green_anim to engine")
   
-  # Verify the engine.start() comes after all animations are added
+  # Verify the engine.run() comes after all animations are added
   var start_line_index = -1
   var last_add_line_index = -1
   
   for i : 0..size(lines)-1
     var line = lines[i]
-    if string.find(line, "engine.start()") >= 0
+    if string.find(line, "engine.run()") >= 0
       start_line_index = i
     end
     if string.find(line, "engine.add(") >= 0
@@ -394,7 +394,7 @@ def test_multiple_run_statements()
     end
   end
   
-  assert(start_line_index > last_add_line_index, "engine.start() should come after all engine.add_* calls")
+  assert(start_line_index > last_add_line_index, "engine.run() should come after all engine.add_* calls")
   
   # Test with mixed animations and sequences
   var mixed_dsl = "# strip length 30  # TEMPORARILY DISABLED\n" +
@@ -414,16 +414,16 @@ def test_multiple_run_statements()
   var mixed_berry_code = animation_dsl.compile(mixed_dsl)
   assert(mixed_berry_code != nil, "Should compile mixed run statements")
   
-  # Count engine.start() calls in mixed scenario
+  # Count engine.run() calls in mixed scenario
   var mixed_lines = string.split(mixed_berry_code, "\n")
   var mixed_start_count = 0
   for line : mixed_lines
-    if string.find(line, "engine.start()") >= 0
+    if string.find(line, "engine.run()") >= 0
       mixed_start_count += 1
     end
   end
   
-  assert(mixed_start_count == 1, f"Mixed scenario should have exactly 1 engine.start() call, found {mixed_start_count}")
+  assert(mixed_start_count == 1, f"Mixed scenario should have exactly 1 engine.run() call, found {mixed_start_count}")
   
   # Check that both animation and sequence are handled
   assert(string.find(mixed_berry_code, "engine.add(red_anim_)") >= 0, "Should add animation to engine")
@@ -481,14 +481,14 @@ def test_computed_values()
   assert(computed_code != nil, "Should compile computed values")
   
   # Check for single resolve calls (no double wrapping)
-  var expected_single_resolve = "self.abs(self.resolve(strip_len_) / 4)"
+  var expected_single_resolve = "animation._math.abs(animation.resolve(strip_len_) / 4)"
   assert(string.find(computed_code, expected_single_resolve) >= 0, "Should generate single resolve call in computed expression")
   
   # Check that there are no double resolve calls
   var double_resolve_count = 0
   var pos = 0
   while true
-    pos = string.find(computed_code, "self.resolve(self.resolve(", pos)
+    pos = string.find(computed_code, "animation.resolve(self.resolve(", pos)
     if pos < 0
       break
     end
@@ -545,13 +545,13 @@ def test_computed_values()
   assert(nested_closure_count == 0, f"Should have no nested closures, found {nested_closure_count}")
   
   # Verify specific complex expression patterns
-  var expected_complex_tail = "self.resolve(strip_len_) / 8 + (2 * self.resolve(strip_len_)) - 10"
+  var expected_complex_tail = "animation.resolve(strip_len_) / 8 + (2 * animation.resolve(strip_len_)) - 10"
   assert(string.find(complex_code, expected_complex_tail) >= 0, "Should generate correct complex tail_length expression")
   
-  var expected_complex_speed = "(self.resolve(base_value_) + self.resolve(strip_len_)) * 2.5"
+  var expected_complex_speed = "(animation.resolve(base_value_) + animation.resolve(strip_len_)) * 2.5"
   assert(string.find(complex_code, expected_complex_speed) >= 0, "Should generate correct complex speed expression")
   
-  var expected_complex_priority = "self.max(1, self.min(10, self.resolve(strip_len_) / 6))"
+  var expected_complex_priority = "animation._math.max(1, animation._math.min(10, animation.resolve(strip_len_) / 6))"
   assert(string.find(complex_code, expected_complex_priority) >= 0, "Should generate correct complex priority expression with math functions")
   
   # Test simple expressions that don't need closures
@@ -582,9 +582,9 @@ def test_computed_values()
   assert(math_code != nil, "Should compile mathematical expressions")
   
   # Check that mathematical functions are prefixed with self. in closures
-  assert(string.find(math_code, "self.max(1, self.min(") >= 0, "Should prefix math functions with self. in closures")
-  assert(string.find(math_code, "self.abs(") >= 0, "Should prefix abs function with self. in closures")
-  assert(string.find(math_code, "self.round(") >= 0, "Should prefix round function with self. in closures")
+  assert(string.find(math_code, "animation._math.max(1, animation._math.min(") >= 0, "Should prefix math functions with animation._math. in closures")
+  assert(string.find(math_code, "animation._math.abs(") >= 0, "Should prefix abs function with self. in closures")
+  assert(string.find(math_code, "animation._math.round(") >= 0, "Should prefix round function with self. in closures")
   
   print("✓ Computed values test passed")
   return true
@@ -603,15 +603,14 @@ def test_error_handling()
     # Expected behavior
   end
   
-  # Test undefined references - simplified transpiler uses runtime resolution
+  # Test undefined references - should raise exception
   var undefined_ref_dsl = "animation test = undefined_pattern"
   
   try
     var berry_code = animation_dsl.compile(undefined_ref_dsl)
-    # Simplified transpiler uses runtime resolution, so this should compile
-    assert(berry_code != nil, "Should compile with runtime resolution")
+    assert(false, "Should have raised exception for undefined identifier")
   except "dsl_compilation_error" as e, msg
-    assert(false, "Should not raise exception for undefined references: " + msg)
+    # Expected behavior - undefined identifiers should raise exceptions
   end
   
   print("✓ Error handling test passed")
@@ -623,19 +622,27 @@ def test_forward_references()
   print("Testing forward references...")
   
   var dsl_source = "# Forward reference: animation uses color defined later\n" +
-    "animation fire_gradient = gradient(colors=[red, orange])\n" +
+    "animation fire_gradient = gradient_animation(color=red)\n" +
     "color red = 0xFF0000\n" +
     "color orange = 0xFF8000"
   
-  var lexer = animation_dsl.DSLLexer(dsl_source)
-  var tokens = lexer.tokenize()
-  var transpiler = animation_dsl.SimpleDSLTranspiler(tokens)
-  var berry_code = transpiler.transpile()
+  var berry_code = nil
+  var compilation_failed = false
   
-  # Should resolve forward references
-  if berry_code != nil
-    assert(string.find(berry_code, "var red = 0xFFFF0000") >= 0, "Should define red color")
-    assert(string.find(berry_code, "var orange = 0xFFFF8000") >= 0, "Should define orange color")
+  try
+    var lexer = animation_dsl.DSLLexer(dsl_source)
+    var tokens = lexer.tokenize()
+    var transpiler = animation_dsl.SimpleDSLTranspiler(tokens)
+    berry_code = transpiler.transpile()
+  except "dsl_compilation_error" as e, msg
+    compilation_failed = true
+    print("Forward references not yet supported - compilation failed as expected")
+  end
+  
+  # Should resolve forward references if supported
+  if berry_code != nil && !compilation_failed
+    assert(string.find(berry_code, "var red_ = 0xFFFF0000") >= 0, "Should define red color")
+    assert(string.find(berry_code, "var orange_ = 0xFFFF8000") >= 0, "Should define orange color")
     print("Forward references resolved successfully")
   else
     print("Forward references not yet fully implemented - this is expected")
@@ -1114,6 +1121,141 @@ def test_invalid_sequence_commands()
   return true
 end
 
+# Test template-only transpilation
+def test_template_only_transpilation()
+  print("Testing template-only transpilation...")
+  
+  # Test single template definition
+  var single_template_dsl = "template pulse_effect {\n" +
+    "  param base_color type color\n" +
+    "  param duration\n" +
+    "  param brightness type number\n" +
+    "  \n" +
+    "  animation pulse = pulsating_animation(\n" +
+    "    color=base_color\n" +
+    "    period=duration\n" +
+    "  )\n" +
+    "  pulse.opacity = brightness\n" +
+    "  run pulse\n" +
+    "}"
+  
+  var single_code = animation_dsl.compile(single_template_dsl)
+  assert(single_code != nil, "Should compile single template")
+  
+  # Should NOT contain engine initialization
+  assert(string.find(single_code, "var engine = animation.init_strip()") < 0, "Should NOT generate engine initialization for template-only file")
+  
+  # Should NOT contain engine.run()
+  assert(string.find(single_code, "engine.run()") < 0, "Should NOT generate engine.run() for template-only file")
+  
+  # Should contain template function definition
+  assert(string.find(single_code, "def pulse_effect_template(engine, base_color_, duration_, brightness_)") >= 0, "Should generate template function")
+  
+  # Should contain function registration
+  assert(string.find(single_code, "animation.register_user_function('pulse_effect', pulse_effect_template)") >= 0, "Should register template function")
+  
+  # Test multiple templates
+  var multiple_templates_dsl = "template pulse_effect {\n" +
+    "  param base_color type color\n" +
+    "  param duration\n" +
+    "  \n" +
+    "  animation pulse = pulsating_animation(\n" +
+    "    color=base_color\n" +
+    "    period=duration\n" +
+    "  )\n" +
+    "  run pulse\n" +
+    "}\n" +
+    "\n" +
+    "template blink_red {\n" +
+    "  param speed\n" +
+    "  \n" +
+    "  animation blink = pulsating_animation(\n" +
+    "    color=red\n" +
+    "    period=speed\n" +
+    "  )\n" +
+    "  \n" +
+    "  run blink\n" +
+    "}"
+  
+  var multiple_code = animation_dsl.compile(multiple_templates_dsl)
+  assert(multiple_code != nil, "Should compile multiple templates")
+  
+  # Should NOT contain engine initialization or run
+  assert(string.find(multiple_code, "var engine = animation.init_strip()") < 0, "Should NOT generate engine initialization for multiple templates")
+  assert(string.find(multiple_code, "engine.run()") < 0, "Should NOT generate engine.run() for multiple templates")
+  
+  # Should contain both template functions
+  assert(string.find(multiple_code, "def pulse_effect_template(") >= 0, "Should generate first template function")
+  assert(string.find(multiple_code, "def blink_red_template(") >= 0, "Should generate second template function")
+  
+  # Should contain both registrations
+  assert(string.find(multiple_code, "animation.register_user_function('pulse_effect'") >= 0, "Should register first template")
+  assert(string.find(multiple_code, "animation.register_user_function('blink_red'") >= 0, "Should register second template")
+  
+  print("✓ Template-only transpilation test passed")
+  return true
+end
+
+# Test mixed template and DSL transpilation
+def test_mixed_template_dsl_transpilation()
+  print("Testing mixed template and DSL transpilation...")
+  
+  # Test template with regular DSL (should generate engine initialization and run)
+  var mixed_dsl = "template pulse_effect {\n" +
+    "  param base_color type color\n" +
+    "  param duration\n" +
+    "  \n" +
+    "  animation pulse = pulsating_animation(\n" +
+    "    color=base_color\n" +
+    "    period=duration\n" +
+    "  )\n" +
+    "  run pulse\n" +
+    "}\n" +
+    "\n" +
+    "color my_red = 0xFF0000\n" +
+    "animation test_anim = solid(color=my_red)\n" +
+    "run test_anim"
+  
+  var mixed_code = animation_dsl.compile(mixed_dsl)
+  assert(mixed_code != nil, "Should compile mixed template and DSL")
+  
+  # Should contain engine initialization because of non-template DSL
+  assert(string.find(mixed_code, "var engine = animation.init_strip()") >= 0, "Should generate engine initialization for mixed content")
+  
+  # Should contain engine.run() because of run statement
+  assert(string.find(mixed_code, "engine.run()") >= 0, "Should generate engine.run() for mixed content")
+  
+  # Should contain template function
+  assert(string.find(mixed_code, "def pulse_effect_template(") >= 0, "Should generate template function")
+  
+  # Should contain regular DSL elements
+  assert(string.find(mixed_code, "var my_red_ = 0xFFFF0000") >= 0, "Should generate color definition")
+  assert(string.find(mixed_code, "var test_anim_ = animation.solid(engine)") >= 0, "Should generate animation definition")
+  
+  # Test template with property assignment (should generate engine initialization)
+  var template_with_property_dsl = "template pulse_effect {\n" +
+    "  param base_color type color\n" +
+    "  \n" +
+    "  animation pulse = pulsating_animation(color=base_color, period=2s)\n" +
+    "  run pulse\n" +
+    "}\n" +
+    "\n" +
+    "animation test_anim = solid(color=red)\n" +
+    "test_anim.opacity = 128"
+  
+  var property_code = animation_dsl.compile(template_with_property_dsl)
+  assert(property_code != nil, "Should compile template with property assignment")
+  
+  # Should generate engine initialization because of property assignment
+  assert(string.find(property_code, "var engine = animation.init_strip()") >= 0, "Should generate engine initialization for property assignment")
+  
+  # Should NOT generate engine.run() because no run statement
+  assert(string.find(property_code, "engine.run()") < 0, "Should NOT generate engine.run() without run statement")
+  
+  print("✓ Mixed template and DSL transpilation test passed")
+  return true
+end
+
 # Run all tests
 def run_dsl_transpiler_tests()
   print("=== DSL Transpiler Test Suite ===")
@@ -1141,7 +1283,9 @@ def run_dsl_transpiler_tests()
     test_easing_keywords,
     test_animation_type_checking,
     test_color_type_checking,
-    test_invalid_sequence_commands
+    test_invalid_sequence_commands,
+    test_template_only_transpilation,
+    test_mixed_template_dsl_transpilation
   ]
   
   var passed = 0

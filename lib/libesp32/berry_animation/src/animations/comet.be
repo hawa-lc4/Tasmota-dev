@@ -13,7 +13,7 @@ class CometAnimation : animation.animation
   
   # Parameter definitions following parameterized class specification
   static var PARAMS = {
-    "color": {"default": 0xFFFFFFFF},                    # Color for the comet head (32-bit ARGB value)
+    # 'color' for the comet head (32-bit ARGB value), inherited from animation class
     "tail_length": {"min": 1, "max": 50, "default": 5}, # Length of the comet tail in pixels
     "speed": {"min": 1, "max": 25600, "default": 2560}, # Movement speed in 1/256th pixels per second
     "direction": {"enum": [-1, 1], "default": 1},       # Direction of movement (1 = forward, -1 = backward)
@@ -36,6 +36,7 @@ class CometAnimation : animation.animation
   
   # Handle parameter changes - reset position when direction changes
   def on_param_changed(name, value)
+    super(self).on_param_changed(name, value)
     if name == "direction"
       # Reset position when direction changes
       var strip_length = self.engine.get_strip_length()
@@ -57,6 +58,9 @@ class CometAnimation : animation.animation
       return false
     end
     
+    # Auto-fix time_ms and start_time
+    time_ms = self._fix_time_ms(time_ms)
+
     # Cache parameter values for performance (read once, use multiple times)
     var current_speed = self.speed
     var current_direction = self.direction
@@ -177,8 +181,6 @@ class CometAnimation : animation.animation
     
     return true
   end
-  
-
   
   # String representation of the animation
   def tostring()

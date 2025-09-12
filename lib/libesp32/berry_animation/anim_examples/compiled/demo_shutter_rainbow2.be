@@ -38,13 +38,13 @@ shutter_animation_.priority = 5
 log(f"foobar", 3)
 var shutter_run_ = animation.SequenceManager(engine, -1)
   .push_closure_step(def (engine) log(f"before", 3) end)
-  .push_play_step(shutter_animation_, duration_)
+  .push_play_step(shutter_animation_, animation.resolve(duration_))
   .push_closure_step(def (engine) log(f"after", 3) end)
   .push_closure_step(def (engine) col1_.next = 1 end)
   .push_closure_step(def (engine) col2_.next = 1 end)
   .push_closure_step(def (engine) log(f"next", 3) end)
 engine.add(shutter_run_)
-engine.start()
+engine.run()
 
 
 #- Original DSL source:

@@ -114,7 +114,7 @@ The latter links can be used for OTA upgrades too like ``OtaUrl https://ota.tasm
 
 [Complete list](BUILDS.md) of available feature and sensors.
 
-## Changelog v15.0.1.3
+## Changelog v15.0.1.4
 ### Added
 - Commands `LoRaWanDecoder "` and `LoRaWanName "` to clear name [#23394](https://github.com/arendst/Tasmota/issues/23394)
 - Command `I2sPause` [#23646](https://github.com/arendst/Tasmota/issues/23646)
@@ -139,19 +139,23 @@ The latter links can be used for OTA upgrades too like ``OtaUrl https://ota.tasm
 
 ### Changed
 - ESP8266 platform update from 2025.05.00 to 2025.09.00 [#23864](https://github.com/arendst/Tasmota/issues/23864)
-- ESP32 Platform from 2025.05.30 to 2025.08.30, Framework (Arduino Core) from v3.1.3.250504 to v3.1.3.250808 and IDF from v5.3.3.250501 to v5.3.3.250801 [#23778](https://github.com/arendst/Tasmota/issues/23778)
+- ESP32 Platform from 2025.05.30 to 2025.09.30, Framework (Arduino Core) from v3.1.3.250504 to v3.1.4 and IDF from v5.3.3.250501 to v5.3.4.250826 [#23888](https://github.com/arendst/Tasmota/issues/23888)
 - Epdiy library from v1.0.0 to v2.0.0
 - OpenTherm library from v0.9.0 to v1.1.5 [#23704](https://github.com/arendst/Tasmota/issues/23704)
+- JPEGDEC library from v1.5.0 to v1.8.3 [#23883](https://github.com/arendst/Tasmota/issues/23883)
 - Library names [#23560](https://github.com/arendst/Tasmota/issues/23560)
+- Web UI styles and HTML syntax [#23847](https://github.com/arendst/Tasmota/issues/23847)
 - CSS uses named colors variables [#23597](https://github.com/arendst/Tasmota/issues/23597)
 - VEML6070 and AHT2x device detection [#23581](https://github.com/arendst/Tasmota/issues/23581)
 - Domoticz supports persistent settings for all relays, keys and switches when filesystem `#define USE_UFILESYS` is enabled
 - ESP32 LoRaWan decoding won't duplicate non-decoded message if `SO147 0`
+- Use HAL instead of ROM for SHA HW acceleration as used by TLS [#23902](https://github.com/arendst/Tasmota/issues/23902)
 - BLE updates for esp-nimble-cpp v2.x [#23553](https://github.com/arendst/Tasmota/issues/23553)
 - Berry raise webserver hooks from 16 to 32 [#23748](https://github.com/arendst/Tasmota/issues/23748)
 
 ### Fixed
 - Syslog RFC5424 compliance [#23509](https://github.com/arendst/Tasmota/issues/23509)
+- Unable to use default serial GPIOs by TasmotaSerial regression from v14.5.0 with IDF 5.3.2.250120 [#23775](https://github.com/arendst/Tasmota/issues/23775)
 - AHT30 sensor start with null values after deep sleep [#23624](https://github.com/arendst/Tasmota/issues/23624)
 - NeoPool reset to default settings [#23734](https://github.com/arendst/Tasmota/issues/23734)
 - Berry vulnerability in JSON parsing for unicode [#23603](https://github.com/arendst/Tasmota/issues/23603)

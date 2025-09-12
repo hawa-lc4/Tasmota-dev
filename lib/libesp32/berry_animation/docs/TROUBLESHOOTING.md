@@ -78,6 +78,12 @@ except .. as e, msg
 end
 ```
 
+**Timing Behavior Note:**
+The framework has updated timing behavior where:
+- The `start()` method only resets the time origin if the animation/value provider was already started previously
+- The first actual rendering tick occurs in `update()`, `render()`, or `produce_value()` methods
+- This ensures proper timing initialization and prevents premature time reference setting
+
 **Common Solutions:**
 
 1. **Missing Strip Declaration:**
@@ -761,7 +767,7 @@ var engine = animation.create_engine(strip)
 var red_anim = animation.solid(engine)
 red_anim.color = 0xFFFF0000
 engine.add(red_anim)
-engine.start()
+engine.run()
 
 # If basic strip works but animation doesn't, check framework setup
 ```
@@ -831,7 +837,7 @@ var engine = animation.create_engine(strip, true)  # debug=true
 var anim = animation.solid(engine)
 anim.color = 0xFFFF0000
 engine.add(anim)
-engine.start()
+engine.run()
 ```
 
 ### Step-by-Step Testing
@@ -856,7 +862,7 @@ engine.add(anim)
 print("Animation count:", engine.size())
 
 print("5. Starting engine...")
-engine.start()
+engine.run()
 print("Engine active:", engine.is_active())
 ```
 
@@ -993,16 +999,41 @@ run red_solid
 ```berry
 # Define reusable template
 template pulse_effect {
-  param color type color
-  param speed
+  param base_color type color    # Use descriptive names
+  param speed type time          # Add type annotations for clarity
   
-  animation pulse = pulsating_animation(color=color, period=speed)
+  animation pulse = pulsating_animation(color=base_color, period=speed)
   run pulse
 }
 
 # Use template multiple times
 pulse_effect(red, 2s)
 pulse_effect(blue, 1s)
+```
+
+**Common Template Parameter Issues:**
+
+```berry
+# ❌ AVOID: Parameter name conflicts
+template bad_example {
+  param color type color      # Error: conflicts with built-in color name
+  param animation type number # Error: conflicts with reserved keyword
+}
+
+# ✅ CORRECT: Use descriptive, non-conflicting names
+template good_example {
+  param base_color type color    # Clear, non-conflicting name
+  param anim_speed type time     # Descriptive parameter name
+}
+
+# ⚠️ WARNING: Unused parameters generate warnings
+template unused_param_example {
+  param used_color type color
+  param unused_value type number  # Warning: never used in template body
+  
+  animation test = solid(color=used_color)
+  run test
+}
 ```
 
 ### Animation with Parameters

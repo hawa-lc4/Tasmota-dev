@@ -94,10 +94,10 @@ class BreatheColorProvider : animation.oscillator_value
     var green = (current_base_color >> 8) & 0xFF
     var blue = current_base_color & 0xFF
     
-    # Apply brightness scaling
-    red = (red * brightness) / 255
-    green = (green * brightness) / 255
-    blue = (blue * brightness) / 255
+    # Apply brightness scaling using tasmota.scale_uint
+    red = tasmota.scale_uint(red, 0, 255, 0, brightness)
+    green = tasmota.scale_uint(green, 0, 255, 0, brightness)
+    blue = tasmota.scale_uint(blue, 0, 255, 0, brightness)
     
     # Reconstruct color
     return (alpha << 24) | (red << 16) | (green << 8) | blue

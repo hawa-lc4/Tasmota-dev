@@ -20,14 +20,14 @@ eye_color_.cycle_period = 0
 var cosine_val_ = (def (engine)
   var provider = animation.cosine_osc(engine)
   provider.min_value = 0
-  provider.max_value = animation.create_closure_value(engine, def (self) return self.resolve(strip_len_) - 2 end)
+  provider.max_value = animation.create_closure_value(engine, def (engine) return animation.resolve(strip_len_) - 2 end)
   provider.duration = eye_duration_
   return provider
 end)(engine)
 var triangle_val_ = (def (engine)
   var provider = animation.triangle(engine)
   provider.min_value = 0
-  provider.max_value = animation.create_closure_value(engine, def (self) return self.resolve(strip_len_) - 2 end)
+  provider.max_value = animation.create_closure_value(engine, def (engine) return animation.resolve(strip_len_) - 2 end)
   provider.duration = eye_duration_
   return provider
 end)(engine)
@@ -37,13 +37,15 @@ red_eye_.pos = cosine_val_  # oscillator for position
 red_eye_.beacon_size = 3  # small 3 pixels eye
 red_eye_.slew_size = 2  # with 2 pixel shading around
 var cylon_eye_ = animation.SequenceManager(engine, -1)
-  .push_play_step(red_eye_, eye_duration_)  # use COSINE movement
+  .push_closure_step(def (engine) cosine_val_.start(engine.time_ms) end)
+  .push_play_step(red_eye_, animation.resolve(eye_duration_))  # use COSINE movement
   .push_closure_step(def (engine) red_eye_.pos = triangle_val_ end)  # switch to TRIANGLE
-  .push_play_step(red_eye_, eye_duration_)
+  .push_closure_step(def (engine) triangle_val_.start(engine.time_ms) end)
+  .push_play_step(red_eye_, animation.resolve(eye_duration_))
   .push_closure_step(def (engine) red_eye_.pos = cosine_val_ end)  # switch back to COSINE for next iteration
   .push_closure_step(def (engine) eye_color_.next = 1 end)  # advance to next color
 engine.add(cylon_eye_)
-engine.start()
+engine.run()
 
 
 #- Original DSL source:
@@ -69,8 +71,10 @@ animation red_eye = beacon_animation(
 )
 
 sequence cylon_eye forever {
+  restart cosine_val
   play red_eye for eye_duration # use COSINE movement
   red_eye.pos = triangle_val    # switch to TRIANGLE
+  restart triangle_val
   play red_eye for eye_duration
   red_eye.pos = cosine_val      # switch back to COSINE for next iteration
   eye_color.next = 1            # advance to next color

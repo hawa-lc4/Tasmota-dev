@@ -90,6 +90,11 @@ class SequenceManager
     self.current_iteration = 0
     self.is_running = true
     
+    # Push iteration context to engine stack if this is a repeat sequence
+    if self.is_repeat_sequence
+      self.engine.push_iteration_context(self.current_iteration)
+    end
+    
     # Start executing if we have steps
     if size(self.steps) > 0
       # Execute all consecutive closure steps at the beginning atomically
@@ -119,6 +124,11 @@ class SequenceManager
   def stop()
     if self.is_running
       self.is_running = false
+      
+      # Pop iteration context from engine stack if this is a repeat sequence
+      if self.is_repeat_sequence
+        self.engine.pop_iteration_context()
+      end
       
       # Stop any currently playing animations
       if self.step_index < size(self.steps)
@@ -197,7 +207,21 @@ class SequenceManager
     
     if step["type"] == "play"
       var anim = step["animation"]
-      self.engine.add(anim)
+      # Check if animation is already in the engine (avoid duplicate adds)
+      var animations = self.engine.get_animations()
+      var already_added = false
+      for existing_anim : animations
+        if existing_anim == anim
+          already_added = true
+          break
+        end
+      end
+      
+      if !already_added
+        self.engine.add(anim)
+      end
+      
+      # Always restart the animation to ensure proper timing
       anim.start(current_time)
       
     elif step["type"] == "wait"
@@ -292,14 +316,34 @@ class SequenceManager
       end
     end
     
-    # Start the next animation BEFORE removing the previous one
+    # CRITICAL FIX: Handle the case where the next step is the SAME animation
+    # This prevents removing and re-adding the same animation, which causes black frames
+    var next_step = nil
+    var is_same_animation = false
+    
     if self.step_index < size(self.steps)
-      self.execute_current_step(current_time)
+      next_step = self.steps[self.step_index]
+      if next_step["type"] == "play" && previous_anim != nil
+        is_same_animation = (next_step["animation"] == previous_anim)
+      end
     end
     
-    # NOW it's safe to remove the previous animation (no gap)
-    if previous_anim != nil
-      self.engine.remove(previous_anim)
+    if is_same_animation
+      # Same animation continuing - don't remove/re-add, but DO restart for timing sync
+      self.step_start_time = current_time
+      # CRITICAL: Still need to restart the animation to sync with sequence timing
+      previous_anim.start(current_time)
+    else
+      # Different animation or no next animation
+      # Start the next animation BEFORE removing the previous one
+      if self.step_index < size(self.steps)
+        self.execute_current_step(current_time)
+      end
+      
+      # NOW it's safe to remove the previous animation (no gap)
+      if previous_anim != nil
+        self.engine.remove(previous_anim)
+      end
     end
     
     # Handle completion
@@ -312,6 +356,11 @@ class SequenceManager
   # FIXED: Ensure atomic transitions during repeat iterations
   def complete_iteration(current_time)
     self.current_iteration += 1
+    
+    # Update iteration context in engine stack if this is a repeat sequence
+    if self.is_repeat_sequence
+      self.engine.update_current_iteration(self.current_iteration)
+    end
     
     # Resolve repeat count (may be a function)
     var resolved_repeat_count = self.get_resolved_repeat_count()
@@ -342,6 +391,11 @@ class SequenceManager
     else
       # All iterations complete
       self.is_running = false
+      
+      # Pop iteration context from engine stack if this is a repeat sequence
+      if self.is_repeat_sequence
+        self.engine.pop_iteration_context()
+      end
     end
   end
   
