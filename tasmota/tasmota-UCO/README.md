@@ -62,8 +62,9 @@ A very brief description (UCO = User Config Override):
                         state of the flow sensor, state of the power relay and the actual power consumption.
                         Based on the env:tasmota32-berry and operated by Berry-script only.
 
--UCO_Silvercrest_berry: A Shelly Plus Plug-S moved to Tasmota firmware and fully controlled by Berry-script similar to UCO_Heizstab_berry.
-                        (This single device was flashed succeffully by OTA; unfortunately no documentation of the steps performed.
+- UCO_Shelly+_PlugS_berry: A Shelly Plus Plug-S moved to Tasmota firmware and fully controlled by Berry-script similar to UCO_Heizstab_berry.
+                        Similar configuration used for other smart plugs of same type, only project name changed.
+                        (This single device Silvercrest was flashed succeffully by OTA; unfortunately no documentation of the steps performed.
                         Further attempts to convert absolutely similar devices by OTA failed, the devices had to be opened and flashed by serial interface.
                         Affected configurations/devices: Heizstab, Honeywell and Tasmota-Plug)
 
