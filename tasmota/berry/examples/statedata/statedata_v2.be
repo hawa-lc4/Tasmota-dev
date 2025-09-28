@@ -1,5 +1,5 @@
 #-
-  Show topic/hostname and IP address with uptime from MQTT STATE messages in GUI
+  Show devicename, topic/hostname and IP address with uptime from MQTT discovery and STATE messages in GUI
 
   Enable either
    self.line_option = 1  : Scroll 'line_cnt' lines
@@ -20,6 +20,7 @@ class mqttdata_cls
   var line_duration                                 # Duration option
   var line_topic_is_hostname                        # Treat topic as hostname
   var list_buffer                                   # Buffer storing lines
+  var list_config                                   # Buffer storing retained config
 
   def init()
 #    self.line_option = 1                            # Scroll line_cnt lines
@@ -33,6 +34,7 @@ class mqttdata_cls
     self.line_topic_is_hostname = 0                 # Treat topic as hostname (1)
 
     self.list_buffer = []                           # Init line buffer list
+    self.list_config = []                           # Init retained config buffer list
 
     if global.mqttdata_driver
       global.mqttdata_driver.stop()                 # Let previous instance bail out cleanly
@@ -41,36 +43,83 @@ class mqttdata_cls
 
     # Assume default Fulltopic (%prefix%/%topic%/) and Prefix3 (tele)
     mqtt.subscribe("tele/#", /topic, idx, data, databytes -> self.handle_state_data(topic, idx, data, databytes))
+    mqtt.subscribe("tasmota/discovery/+/config", /topic, idx, data, databytes -> self.handle_discovery_data(topic, idx, data, databytes))
   end
 
   def stop()
+    mqtt.unsubscribe("tasmota/discovery/+/config")
     mqtt.unsubscribe("tele/#")                      # Assume default Fulltopic (%prefix%/%topic%/) and Prefix3 (tele)
     tasmota.remove_driver(self)
+  end
+
+  def handle_discovery_data(full_topic, idx, data, databytes)
+    import json
+
+    var config = json.load(data)
+    if config
+      # tasmota/discovery/142B2F9FAF38/config = {"ip":"192.168.2.208","dn":"AtomLite2","fn":["Tasmota",null,null,null,null,null,null,null],"hn":"atomlite2","mac":"142B2F9FAF38","md":"M5Stack Atom Lite","ty":0,"if":0,"cam":0,"ofln":"Offline","onln":"Online","state":["OFF","ON","TOGGLE","HOLD"],"sw":"15.0.1.4","t":"atomlite2","ft":"%prefix%/%topic%/","tp":["cmnd","stat","tele"],"rl":[2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"swc":[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],"swn":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"btn":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"so":{"4":0,"11":0,"13":0,"17":0,"20":0,"30":0,"68":0,"73":0,"82":0,"114":0,"117":0},"lk":1,"lt_st":3,"bat":0,"dslp":0,"sho":[],"sht":[],"ver":1} (retained)
+      var topic = config['t']
+      var hostname = config['hn']
+      var ipaddress = config['ip']
+      var devicename = config['dn']
+      var line = format("%s\001%s\001%s\001%s", topic, hostname, ipaddress, devicename)
+#      tasmota.log(format("STD: 111 Size %03d, Topic '%s', Line '%s'", self.list_config.size(), topic, line), 3)
+      if self.list_config.size()
+        var list_index = 0
+        var list_size = size(self.list_config)
+        var topic_delim = format("%s\001", topic)   # Add find delimiter
+        while list_index < list_size                # Use while loop as counter is decremented
+          if 0 == string.find(self.list_config[list_index], topic_delim)
+            self.list_config.remove(list_index)     # Remove current config
+            list_size -= 1                          # Continue for duplicates
+          end
+          list_index += 1
+        end
+      end
+      self.list_config.push(line)                   # Add (re-discovered) config as last entry
+#      tasmota.log(format("STD: 222 Size %03d, Topic '%s', Line '%s'", self.list_config.size(), topic, line), 3)
+    end
   end
 
   def handle_state_data(full_topic, idx, data, databytes)
     import json
 
     var subtopic = string.split(full_topic, "/")    # Assume default Fulltopic (%prefix%/%topic%/)
-    if subtopic[-1] == "STATE"                      # tele/wemos7/STATE
-      var topic = subtopic[1]                       # wemos7
+    if subtopic[-1] == "STATE"                      # tele/atomlite2/STATE
+      var topic = subtopic[1]                       # atomlite2
+
+      var topic_index = -1
+      for i: self.list_config.keys()
+        if 0 == string.find(self.list_config[i], topic)
+          topic_index = i
+          break
+        end
+      end
+#      tasmota.log(format("STD: Topic '%s', Index %d, Size %d, Line '%s'", topic, topic_index, self.list_config.size(), self.list_config[topic_index]), 3)
+      if topic_index == -1 return true end          # Assume topic is in retained discovery list
 
       var state = json.load(data)
       if state                                      # Valid JSON state message
-        var ipaddress = ""                          # Not used
-        var uptime = state['Uptime']                # 129T10:52:41
+        var config_splits = string.split(self.list_config[topic_index], ",")
+        topic = config_splits[1]                    # Hostname
+        var ipaddress = config_splits[2]
+        var devicename = config_splits[3]
+
+        # tele/atomlite2/STATE = {"Time":"2025-09-24T14:13:00","Uptime":"0T00:15:09","UptimeSec":909,"Heap":142,"SleepMode":"Dynamic","Sleep":50,"LoadAvg":19,"MqttCount":1,"Berry":{"HeapUsed":12,"Objects":167},"POWER":"OFF","Dimmer":10,"Color":"1A0000","HSBColor":"0,100,10","Channel":[10,0,0],"Scheme":0,"Width":1,"Fade":"OFF","Speed":1,"LedTable":"ON","Wifi":{"AP":1,"SSId":"indebuurt_IoT","BSSId":"18:E8:29:CA:17:C1","Channel":11,"Mode":"HT40","RSSI":100,"Signal":-28,"LinkCount":1,"Downtime":"0T00:00:04"},"Hostname":"atomlite2","IPAddress":"192.168.2.208"}
+        var uptime = state['Uptime']                # 0T00:15:09
         if state.find('Hostname')
-          topic = state['Hostname']                 # wemos7
-          ipaddress = state['IPAddress']            # 192.168.2.123
+          topic = state['Hostname']                 # atomlite2
+          ipaddress = state['IPAddress']            # 192.168.2.208
         end
         var last_seen = tasmota.rtc('local')
-        var line = format("%s,%s,%s,%d", topic, ipaddress, uptime, last_seen)
+        var line = format("%s\001%s\001%s\001%d\001%s", topic, ipaddress, uptime, last_seen, devicename)
 
         if self.list_buffer.size()
           var list_index = 0
           var list_size = size(self.list_buffer)
+          var topic_delim = format("%s\001", topic) # Add find delimiter
           while list_index < list_size              # Use while loop as counter is decremented
-            if 0 == string.find(self.list_buffer[list_index], topic)
+            if 0 == string.find(self.list_buffer[list_index], topic_delim)
               self.list_buffer.remove(list_index)   # Remove current state
               list_size -= 1                        # Continue for duplicates
             end
@@ -120,7 +169,7 @@ class mqttdata_cls
       var list_index = 0
       var list_size = size(self.list_buffer)
       while list_index < list_size
-        var splits = string.split(self.list_buffer[list_index], ",")
+        var splits = string.split(self.list_buffer[list_index], "\001")
         var last_seen = int(splits[3])
         if time_window > last_seen                  # Remove offline devices
           self.list_buffer.remove(list_index)
@@ -142,22 +191,24 @@ class mqttdata_cls
       end
       var msg = "</table><table style='width:100%;font-size:80%'>" # Terminate two column table and open new table
       while list_index < list_size
-        var splits = string.split(self.list_buffer[list_index], ",")
+        var splits = string.split(self.list_buffer[list_index], "\001")
         var topic = splits[0]                       # topic or hostname
         var ipaddress = splits[1]
         var uptime = splits[2]
         var last_seen = int(splits[3])
+        var devicename = splits[4]
 
         msg += "<tr>"
+        msg += format("<td>%s&nbsp</td>", devicename)
         if ipaddress
-          msg += format("<td><a target=_blank href='http://%s.'>%s</a></td><td><a target=_blank href='http://%s'>%s</a></td>",
+          msg += format("<td><a target=_blank href='http://%s.'>%s&nbsp</a></td><td><a target=_blank href='http://%s'>%s&nbsp</a></td>",
                         topic, topic, ipaddress, ipaddress)
         else
           if self.line_topic_is_hostname
-            msg += format("<td><a target=_blank href='http://%s.'>%s</a></td><td>&nbsp</td>",
+            msg += format("<td><a target=_blank href='http://%s.'>%s&nbsp</a></td><td>&nbsp</td>",
                           topic, topic)
           else
-            msg += format("<td>%s</td><td>&nbsp</td>", topic)
+            msg += format("<td>%s&nbsp</td><td>&nbsp</td>", topic)
           end
         end
 
