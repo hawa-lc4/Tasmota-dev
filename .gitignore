@@ -26,7 +26,6 @@ unpacked_fs
 unpacked_boards
 tasmota/user/*
 tasmota/user_config_override.h
-tasmota/user_private_data*.h
 tasmota/include/local_ca_data.h
 tasmota/include/local_ca_descriptor.h
 variants
