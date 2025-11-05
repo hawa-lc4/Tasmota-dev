@@ -805,7 +805,7 @@ const char HTTP_TIMER_SCRIPT6[] PROGMEM =
 const char HTTP_TIMER_STYLE[] PROGMEM =
   ".tl{float:left;border-radius:0;border:1px solid var(--c_frm);padding:1px;width:12.5%%;}";  // COLOR_FORM, Border color needs to be the same as Fieldset background color from HTTP_HEAD_STYLE1 (transparent won't work)
 const char HTTP_FORM_TIMER1[] PROGMEM =
-  "<fieldset style=text-align:center;'>"
+  "<fieldset style='text-align:center;'>"
   "<legend style='text-align:left;'><b>&nbsp;" D_TIMER_PARAMETERS "&nbsp;</b></legend>"
   "<form method='post' action='" WEB_HANDLE_TIMER "' onsubmit='return st();'>"
   "<br><label><input id='e0' type='checkbox'%s><b>" D_TIMER_ENABLE "</b></label><br><br><hr>"
@@ -821,7 +821,7 @@ const char HTTP_FORM_TIMER2[] PROGMEM =
 #ifdef USE_SUNRISE
 const char HTTP_FORM_TIMER3[] PROGMEM =
   "<fieldset style='width:%dpx;margin:auto;text-align:left;border:0;'>"
-  "<label><input id='b0' name='rd' type='radio' value='0' onclick='gt();'><b>" D_TIMER_TIME "</b></label><br>"
+  "<label><input id='b0' name='rd' type='radio' value='0' onclick='gt();'><b>" D_TIME_OF_DAY "</b></label><br>"
   "<label><input id='b1' name='rd' type='radio' value='1' onclick='gt();'><b>" D_SUNRISE "</b>%s (%s)</label><br>"
   "<label><input id='b2' name='rd' type='radio' value='2' onclick='gt();'><b>" D_SUNSET "</b>%s (%s)</label><br>"
   "</fieldset>"
@@ -830,7 +830,7 @@ const char HTTP_FORM_TIMER3[] PROGMEM =
   "&nbsp;";
 #else
 const char HTTP_FORM_TIMER3[] PROGMEM =
-  "<b>" D_TIMER_TIME "</b>&nbsp;";
+  "<b>" D_TIME_OF_DAY "</b>&nbsp;";
 #endif  // USE_SUNRISE
 
 #ifdef USE_UNISHOX_COMPRESSION

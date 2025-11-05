@@ -6,16 +6,18 @@
 # This version supports both RichPaletteAnimation and ColorProvider instances as color sources,
 # allowing for more flexible usage of color providers.
 
+import "./core/param_encoder" as encode_constraints
+
 #@ solidify:PalettePatternAnimation,weak
 class PalettePatternAnimation : animation.animation
   var value_buffer     # Buffer to store values for each pixel (bytes object)
   
   # Static definitions of parameters with constraints
-  static var PARAMS = {
+  static var PARAMS = animation.enc_params({
     # Palette pattern-specific parameters
     "color_source": {"default": nil, "type": "instance"},
     "pattern_func": {"default": nil, "type": "function"}
-  }
+  })
   
   # Initialize a new PalettePattern animation
   #
@@ -33,7 +35,7 @@ class PalettePatternAnimation : animation.animation
   
   # Initialize the value buffer based on current strip length
   def _initialize_value_buffer()
-    var strip_length = self.engine.get_strip_length()
+    var strip_length = self.engine.strip_length
     self.value_buffer.resize(strip_length)
     
     # Initialize with zeros
@@ -47,17 +49,10 @@ class PalettePatternAnimation : animation.animation
   # Update the value buffer based on the current time
   #
   # @param time_ms: int - Current time in milliseconds
-  def _update_value_buffer(time_ms)
+  def _update_value_buffer(time_ms, strip_length)
     var pattern_func = self.pattern_func
     if pattern_func == nil
       return
-    end
-    
-    var strip_length = self.engine.get_strip_length()
-    
-    # Resize buffer if strip length changed
-    if size(self.value_buffer) != strip_length
-      self.value_buffer.resize(strip_length)
     end
     
     # Calculate values for each pixel
@@ -89,8 +84,15 @@ class PalettePatternAnimation : animation.animation
     # Calculate elapsed time since animation started
     var elapsed = time_ms - self.start_time
     
+    var strip_length = self.engine.strip_length
+
+    # Resize buffer if strip length changed
+    if size(self.value_buffer) != strip_length
+      self.value_buffer.resize(strip_length)
+    end
+    
     # Update the value buffer
-    self._update_value_buffer(elapsed)
+    self._update_value_buffer(elapsed, strip_length)
     
     return true
   end
@@ -101,10 +103,6 @@ class PalettePatternAnimation : animation.animation
   # @param time_ms: int - Optional current time in milliseconds (defaults to engine time)
   # @return bool - True if frame was modified, false otherwise
   def render(frame, time_ms)
-    if !self.is_running || frame == nil
-      return false
-    end
-    
     # Auto-fix time_ms and start_time
     time_ms = self._fix_time_ms(time_ms)
     
@@ -114,18 +112,13 @@ class PalettePatternAnimation : animation.animation
       return false
     end
     
-    # Check if color_source has the required method (more flexible than isinstance check)
-    if color_source.get_color_for_value == nil
-      return false
-    end
-    
     # Calculate elapsed time since animation started
     var elapsed = time_ms - self.start_time
     
     # Apply colors from the color source to each pixel based on its value
-    var strip_length = self.engine.get_strip_length()
+    var strip_length = self.engine.strip_length
     var i = 0
-    while i < strip_length && i < frame.width
+    while (i < strip_length)
       var byte_value = self.value_buffer[i]
       
       # Use the color_source to get color for the byte value (0-255)
@@ -149,8 +142,8 @@ class PalettePatternAnimation : animation.animation
 
   # String representation of the animation
   def tostring()
-    var strip_length = self.engine.get_strip_length()
-    return f"PalettePatternAnimation(strip_length={strip_length}, priority={self.priority}, running={self.is_running})"
+    var strip_length = self.engine.strip_length
+    return f"{classname(self)}(strip_length={strip_length}, priority={self.priority}, running={self.is_running})"
   end
 end
 
@@ -158,11 +151,11 @@ end
 #@ solidify:PaletteWaveAnimation,weak
 class PaletteWaveAnimation : PalettePatternAnimation
   # Static definitions of parameters with constraints
-  static var PARAMS = {
+  static var PARAMS = animation.enc_params({
     # Wave-specific parameters only
     "wave_period": {"min": 1, "default": 5000},
     "wave_length": {"min": 1, "default": 10}
-  }
+  })
   
   # Initialize a new wave pattern animation
   #
@@ -176,20 +169,15 @@ class PaletteWaveAnimation : PalettePatternAnimation
   end
   
   # Override _update_value_buffer to generate wave pattern directly
-  def _update_value_buffer(time_ms)
+  def _update_value_buffer(time_ms, strip_length)
     # Cache parameter values for performance
     var wave_period = self.wave_period
     var wave_length = self.wave_length
-    var strip_length = self.engine.get_strip_length()
-    
-    # Resize buffer if strip length changed
-    if size(self.value_buffer) != strip_length
-      self.value_buffer.resize(strip_length)
-    end
     
     # Calculate the wave position using scale_uint for better precision
-    var position = tasmota.scale_uint(time_ms % wave_period, 0, wave_period, 0, 1000) / 1000.0
-    var offset = int(position * wave_length)
+    # var position = tasmota.scale_uint(time_ms % wave_period, 0, wave_period, 0, 1000) / 1000.0
+    # var offset = int(position * wave_length)
+    var offset = tasmota.scale_uint(time_ms % wave_period, 0, wave_period, 0, wave_length)
     
     # Calculate values for each pixel
     var i = 0
@@ -211,12 +199,12 @@ end
 #@ solidify:PaletteGradientAnimation,weak
 class PaletteGradientAnimation : PalettePatternAnimation
   # Static definitions of parameters with constraints
-  static var PARAMS = {
+  static var PARAMS = animation.enc_params({
     # Gradient-specific parameters only
     "shift_period": {"min": 0, "default": 0},           # Time for one complete shift cycle in ms (0 = static)
     "spatial_period": {"min": 0, "default": 0},         # Spatial period in pixels (0 = full strip)
     "phase_shift": {"min": 0, "max": 100, "default": 0} # Phase shift as percentage (0-100)
-  }
+  })
   
   # Initialize a new gradient pattern animation
   #
@@ -230,17 +218,11 @@ class PaletteGradientAnimation : PalettePatternAnimation
   end
   
   # Override _update_value_buffer to generate gradient pattern directly
-  def _update_value_buffer(time_ms)
+  def _update_value_buffer(time_ms, strip_length)
     # Cache parameter values for performance
     var shift_period = self.shift_period
     var spatial_period = self.spatial_period
     var phase_shift = self.phase_shift
-    var strip_length = self.engine.get_strip_length()
-    
-    # Resize buffer if strip length changed
-    if size(self.value_buffer) != strip_length
-      self.value_buffer.resize(strip_length)
-    end
     
     # Determine effective spatial period (0 means full strip)
     var effective_spatial_period = spatial_period > 0 ? spatial_period : strip_length
@@ -248,8 +230,7 @@ class PaletteGradientAnimation : PalettePatternAnimation
     # Calculate the temporal shift position (how much the pattern has moved over time)
     var temporal_offset = 0
     if shift_period > 0
-      var temporal_position = tasmota.scale_uint(time_ms % shift_period, 0, shift_period, 0, 1000) / 1000.0
-      temporal_offset = temporal_position * effective_spatial_period
+      temporal_offset = tasmota.scale_uint(time_ms % shift_period, 0, shift_period, 0, effective_spatial_period)
     end
     
     # Calculate the phase shift offset in pixels
@@ -273,10 +254,10 @@ end
 #@ solidify:PaletteMeterAnimation,weak
 class PaletteMeterAnimation : PalettePatternAnimation
   # Static definitions of parameters with constraints
-  static var PARAMS = {
+  static var PARAMS = animation.enc_params({
     # Meter-specific parameters only
     "value_func": {"default": nil, "type": "function"}
-  }
+  })
   
   # Initialize a new meter pattern animation
   #
@@ -290,18 +271,11 @@ class PaletteMeterAnimation : PalettePatternAnimation
   end
   
   # Override _update_value_buffer to generate meter pattern directly
-  def _update_value_buffer(time_ms)
+  def _update_value_buffer(time_ms, strip_length)
     # Cache parameter values for performance
     var value_func = self.value_func
     if value_func == nil
       return
-    end
-    
-    var strip_length = self.engine.get_strip_length()
-    
-    # Resize buffer if strip length changed
-    if size(self.value_buffer) != strip_length
-      self.value_buffer.resize(strip_length)
     end
     
     # Get the current value

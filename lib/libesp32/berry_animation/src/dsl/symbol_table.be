@@ -301,13 +301,19 @@ end
 # Mock engine class for parameter validation during transpilation
 class MockEngine
   var time_ms
+  var strip_length
   
   def init()
     self.time_ms = 0
+    self.strip_length = 30    # Default strip length for validation
   end
   
   def get_strip_length()
-    return 30  # Default strip length for validation
+    return self.strip_length
+  end
+
+  def add(obj)
+    return true
   end
 end
 
@@ -467,7 +473,9 @@ class SymbolTable
     if entry != nil
       # For builtin color entries, return the actual color value directly
       if entry.is_builtin && entry.type == 11 #-animation_dsl._symbol_entry.TYPE_COLOR-#
-        return animation_dsl.named_colors[name]
+        var color_value = animation_dsl.named_colors[name]
+        # Convert integer to hex string format for transpiler
+        return f"0x{color_value:08X}"
       end
       return entry.get_reference()
     end
@@ -590,7 +598,9 @@ class SymbolTable
     import animation_dsl
     var entry = self.get(color_name)  # This will trigger _detect_and_cache_symbol if needed
     if entry != nil && entry.is_builtin && entry.type == 11 #-animation_dsl._symbol_entry.TYPE_COLOR-#
-      return animation_dsl.named_colors[color_name]
+      var color_value = animation_dsl.named_colors[color_name]
+      # Convert integer to hex string format for transpiler
+      return f"0x{color_value:08X}"
     end
     return "0xFFFFFFFF"  # Default fallback
   end

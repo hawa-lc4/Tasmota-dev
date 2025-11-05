@@ -10,6 +10,7 @@ class Extension_manager
   static var EXT_REPO = "https://ota.tasmota.com/extensions/"
   static var EXT_REPO_MANIFEST = "extensions.jsonl"
   static var EXT_REPO_FOLDER = "tapp/"
+  var ext_repo
 
   #####################################################################################################
   # init - constructor
@@ -17,6 +18,7 @@ class Extension_manager
   # Register as driver
   #
   def init()
+    self.ext_repo = ""
     tasmota.add_driver(self)
   end
 
@@ -294,13 +296,13 @@ class Extension_manager
     # sanitize
     tapp_fname = self.tapp_name(tapp_fname) + ".tapp"
     # full url
-    var ext_url = f"{self.EXT_REPO}{self.EXT_REPO_FOLDER}{tapp_fname}"
+    var ext_url = f"{self.ext_repo}{self.EXT_REPO_FOLDER}{tapp_fname}"
     log(f"EXT: installing from '{ext_url}'", 3)
     # load from web
     try
       # check if directory exists
       self.check_or_create_dir(self.EXT_FOLDER)   # raises an exception if failed
-      
+
       var local_file = f"{self.EXT_FOLDER}{tapp_fname}"
       var cl = webclient()
       cl.begin(ext_url)
@@ -428,17 +430,17 @@ class Extension_manager
                            # for store
                           # /* Extension Store specific styles */
                           ".store-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}"
-                          ".store-stats{font-size:0.9em;color:var(--c_in);}"
+                          ".store-stats{font-size:0.9em;}"
                           ".ext-store-item{background:var(--c_bg);border-radius:0.3em;margin-bottom:5px;padding:4px;}"
                           ".ext-header{display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none;padding:5px;}"
                           ".ext-title{display:flex;align-items:center;gap:6px;flex:1;padding:0;}"
                           ".ext-name{font-weight:bold;}"
                           ".ext-version{font-size:0.8em;}"
-                          ".ext-arrow{color:var(--c_in);font-size:0.8em;}"
+                          ".ext-arrow{font-size:0.8em;}"
                           ".ext-badges{padding:0;}"
                           # ".ext-badges{margin-left:auto;gap:8px;align-items:center;}"
                           ".ext-details{width:min-content;min-width:100%;padding:0;display:none;}"
-                          ".ext-desc{color:var(--c_in);font-size:0.8em;line-height:1.4;display:block;word-wrap:break-word;overflow-wrap:break-word;white-space:normal;padding:0 5px;}"
+                          ".ext-desc{font-size:0.8em;line-height:1.4;display:block;word-wrap:break-word;overflow-wrap:break-word;white-space:normal;padding:0 5px;}"
 
                           ".ext-actions{display:flex;gap:8px;padding:5px;}"
                           ".btn-action{padding:0 12px;line-height:1.8em;font-size:0.9em;flex:1;}"
@@ -464,6 +466,7 @@ class Extension_manager
         var tapp_name = self.tapp_name(ext_path)
         var tapp_name_html = webserver.html_escape(tapp_name)
         var details = tasmota.read_extension_manifest(ext_path)
+        var installed_version = int(details.find('version', 0))
         var running = tasmota._ext ? tasmota._ext.contains(ext_path) : false
         var running_indicator = running ? " <span class='running-indicator' title='Running'></span>" : ""
         var autorun = details.find("autorun", false)
@@ -472,6 +475,9 @@ class Extension_manager
         webserver.content_send("<div class='ext-item'>")
         webserver.content_send(f"<span title='path: {tapp_name_html}'><b>{webserver.html_escape(details['name'])}</b>{running_indicator}</span><br>")
         webserver.content_send(f"<small>{webserver.html_escape(details['description'])}</small>")
+        if (installed_version > 0)
+          webserver.content_send(f"<small>{self.version_string(installed_version)}</small>")
+        end
 
         webserver.content_send("<div class='ext-controls' style='padding-top:0px;padding-bottom:0px;'>")
         webserver.content_send("<form action='/ext' method='post' class='ext-controls'>")
@@ -620,7 +626,14 @@ class Extension_manager
 
       json_pos = lf_pos + 1
     end
-            
+
+    webserver.content_send("<p></p>"
+                           "<hr style='margin:2px 0 0 0;'>"
+                           "<p></p>")
+    webserver.content_send(f"<form action='/ext' method='post'>"
+                            "<input type='text' id='x' name='x' placeholder='0 = User, 1 = Global' value='{self.ext_repo}'>"
+                            "</form>")
+
     webserver.content_send("<p></p></fieldset><p></p>")
     webserver.content_close()
   end
@@ -630,21 +643,48 @@ class Extension_manager
   #####################################################################################################
   def load_manifest()
     try 
+      import string
+
       var arch = tasmota.arch()         # architecture, ex: "esp32" - not used currently but might be useful
       var version = f"0x{tasmota.version():08X}"
 
-      var url = f"{self.EXT_REPO}{self.EXT_REPO_MANIFEST}?a={arch}&v={version}"
+      if !self.ext_repo
+        self.ext_repo = self.EXT_REPO   # Default
+        var ota_url = tasmota.cmd("OtaUrl", true)['OtaUrl']
+        if size(ota_url) > 0
+          var url_parts = string.split(ota_url, "/")
+          if url_parts.size() > 2
+            self.ext_repo = f"{url_parts[0]}//{url_parts[2]}/extensions/" # http://otaserver/extensions/
+          end
+        end
+      end
+      var url = f"{self.ext_repo}{self.EXT_REPO_MANIFEST}?a={arch}&v={version}"
       log(f"EXT: fetching extensions manifest '{url}'", 3)
       # Add architeture and version information
       # They are not used for now but may be interesting in the future to serve
       # different content based on architecture (Ex: ESP32) and version (ex: 0x0E060001 for 14.6.0.1)
-      # load the template
+      # load extensions manifest
       var cl = webclient()
       cl.begin(url)
       var r = cl.GET()
       if r != 200
-        log(f"EXT: error fetching manifest {r}", 2)
-        raise "webclient_error", f"Error fetching manifest code={r}"
+        if self.EXT_REPO != self.ext_repo
+          if cl.get_size() < 0  # Happens on https://github.com/extensions/extensions.jsonl where 404 page is a lot of data
+            cl.deinit()
+            cl = webclient()
+          else  
+            cl.close()          # Fails to close if cl.get_size() < 0
+          end
+          self.ext_repo = self.EXT_REPO
+          url = f"{self.ext_repo}{self.EXT_REPO_MANIFEST}?a={arch}&v={version}"
+          log(f"EXT: fetching extensions manifest '{url}'", 3)
+          cl.begin(url)
+          r = cl.GET()
+        end
+        if r != 200
+          log(f"EXT: error fetching manifest {r}", 2)
+          raise "webclient_error", f"Error fetching manifest code={r}"
+        end
       end
       var s = cl.get_string()
       cl.close()
@@ -695,6 +735,31 @@ class Extension_manager
             self.enable_disable_ext(action_path, false)
           end
         end
+
+      # And finally try the provided repository website
+      elif (action == 'x')              # User input repository website
+        var url = webserver.arg(0)
+        self.ext_repo = ""              # Use OtaUrl or default
+        if size(url) > 0                # Input validation
+          if url == "0"                 # Reset to use OtaUrl or default
+          elif url == "1"               # Default repository
+            self.ext_repo = self.EXT_REPO
+          else                          # Process user input
+            var url_parts = string.split(url, "/")
+            if url_parts.size() > 2     # http: / / server / extensions
+              var is_httpx = url_parts[0] == "http:" || url_parts[0] == "https:"
+              var is_delim = url[-1] == '/'
+              var is_extensions = url_parts[(is_delim)?-2:-1] == "extensions"
+              if is_httpx && url_parts[1] == "" && is_extensions
+                self.ext_repo = url
+                if !is_delim
+                  self.ext_repo += '/'
+                end
+              end
+            end
+          end
+        end
+
       else
         log(f"EXT: wrong action '{btn_name}'", 3)
       end
@@ -703,7 +768,7 @@ class Extension_manager
     except .. as e, m
       log(f"EXT: Exception> '{e}' - {m}", 2)
       #- display error page -#
-      webserver.content_start("Parameter error")           #- title of the web page -#
+      webserver.content_start("Parameter error")      #- title of the web page -#
       webserver.content_send_style()                  #- send standard Tasmota styles -#
 
       webserver.content_send(f"<p style='width:340px;'><b>Exception:</b><br>'{webserver.html_escape(e)}'<br>{webserver.html_escape(m)}</p>")

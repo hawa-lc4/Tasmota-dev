@@ -49,14 +49,15 @@ import "dsl/transpiler.be" as dsl_transpiler
 register_to_dsl(dsl_transpiler)
 import "dsl/symbol_table.be" as dsl_symbol_table
 register_to_dsl(dsl_symbol_table)
-import "dsl/runtime.be" as dsl_runtime
-register_to_dsl(dsl_runtime)
 import "dsl/named_colors.be" as dsl_named_colors
 register_to_dsl(dsl_named_colors)
 
 # Import Web UI components
 import "webui/animation_web_ui.be" as animation_web_ui
 register_to_dsl(animation_web_ui)
+
+import "dsl/all_wled_palettes" as all_wled_palettes
+register_to_dsl(all_wled_palettes)
 
 # Main DSL compilation function
 # Compiles DSL source code to Berry code
@@ -99,16 +100,6 @@ def load_file(filename)
   return animation_dsl.execute(source)
 end
 animation_dsl.load_file = load_file
-
-# Create a DSL runtime instance
-#
-# @return DSLRuntime - New runtime instance
-def create_runtime(strip, debug_mode)
-  import animation_dsl
-  var engine = animation.create_engine(strip)
-  return animation_dsl.DSLRuntime(engine, debug_mode)
-end
-animation_dsl.create_runtime = create_runtime
 
 # Compile .anim file to .be file
 # Takes a filename with .anim suffix and compiles to same prefix with .be suffix
