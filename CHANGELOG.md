@@ -3,7 +3,21 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased] - Development
 
-## [15.1.0.1]
+## [15.1.0.2]
+### Added
+
+### Breaking Changed
+
+### Changed
+- ESP32 Platform from 2025.10.30 to 2025.11.30, Framework (Arduino Core) from v3.1.4 to v3.1.5 and IDF from v5.3.4.250826 to v5.3.4.251110 (#24118)
+- JPEGDEC library from v1.8.3 to v1.8.4 (#24120)
+
+### Fixed
+
+### Removed
+
+
+## [15.1.0.1] 20251115
 ### Added
 - TLS enabled ECDSA by default for ESP8266 (#24009)
 - Berry `cb.free_cb` for extension manager (#24014)
@@ -14,8 +28,7 @@ All notable changes to this project will be documented in this file.
 - ESP8266 GPIOViewer memory map if enabled with `#define GV_USE_ESPINFO`
 - Berry `tcp.write()` add `offset` and `len` (#24076)
 - NeoPool command `NPReadLSB`, `NPReadMSB`, `NPWriteLSB`, `NWriteMSB` for directly read/write LSB/MSB of 16-bit register (#24083)
-
-### Breaking Changed
+- Commands `DaliSend` and `DaliQuery` allow extended commands with prefix for DeviceType defaulting to DT6
 
 ### Changed
 - Refactored library UDisplay (#24007)
@@ -31,10 +44,7 @@ All notable changes to this project will be documented in this file.
 - InfluxDb receives IPAddress as a value regression from v15.0.1.3 (#24031)
 - Scripter UDP and switch case (#24060)
 - TuyaMCU v1 soft lock when WIFI_SELECT / WIFI_RESET is initiated (#24063)
-- HASPmota `scale` and `angle` for images
-
-### Removed
-
+- HASPmota `scale` and `angle` for images (#24089)
 
 ## [Released]
 
