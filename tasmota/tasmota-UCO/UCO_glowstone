@@ -39,14 +39,14 @@
 
 /*
  ******************************************************************************************************
- *  env:tasmota
+ *  env:tasmota32s3-zero
  ******************************************************************************************************
 */
 
 #ifdef PROJECT
 #undef PROJECT
 #endif
-#define PROJECT               "tasmotix"
+#define PROJECT               "glowstone"
 
 #ifdef MY_RULE
   // #warning **** Build: RULES ****
@@ -110,7 +110,8 @@
 
   #define PRECONFIGURED_SCRIPT \
   ">D\n\n" \
-  ">R\n=>Hostname tasmotix\n\n"
+  ">B\nSetOption37 128\nFade on\n\n" \
+  ">R\n\n"
   
 /*    32 Zeichen Skript; 8160 Zeichen übrig von 8192
       https://tasmota.github.io/docs/Commands/#setoptions
@@ -139,7 +140,7 @@
   #ifdef USER_BACKLOG
   #undef USER_BACKLOG
   #endif
-  #define USER_BACKLOG "Module 0; Scheme 15; SetOption32 30; SwitchMode 5; SetOption73 1"     // Siehe https://tasmota.github.io/docs/Compile-your-build/#user_backlog
+  #define USER_BACKLOG ""     // Siehe https://tasmota.github.io/docs/Commands/#the-power-of-backlog
 #endif  // MY_BERRY
 
 #ifdef USER_TEMPLATE
@@ -187,20 +188,20 @@
 #endif    // ESP8266
 
 #ifdef ESP32
-
+  #ifdef MY_BERRY
   #define USE_BERRY_DEBUG             // Compile Berry bytecode with line number information, makes exceptions easier to debug. Adds +8% of memory consumption for compiled code
-  #ifndef MY_BERRY
+  #ifndef USE_BERRY
+  #define USE_BERRY
+  #endif
+  #else
   #ifdef USE_BERRY
   #undef USE_BERRY
   #endif
-  #ifdef USE_BERRY_DEBUG
-  #undef USE_BERRY_DEBUG
-  #endif
-  #endif    // !MY_BERRY
+  #endif    // MY_BERRY
 
 #ifdef LUATOS_ESP32C3     // Luatos-ESP32C3 board mit AIR101-LCD Modul
+/*      https://wiki.luatos.org/chips/esp32c3/board.html & https://wiki.luatos.org/peripherals/lcd_air10x/index.html         */
 /*      https://tasmota.github.io/docs/Displays/#descriptor-file & https://github.com/arendst/Tasmota/discussions/18350      */
-
 #ifdef DSP_ROM_DESC
 #undef DSP_ROM_DESC
 #endif
@@ -288,7 +289,101 @@ Ausrichtung AIR101-LCD mit Display quer und Eingabe-Stick rechts; die Button-Bez
 
 #endif    // LUATOS_ESP32C3
 
-#ifndef LUATOS_ESP32C3
+#ifdef MY_ESP32S2
+/*       https://www.wemos.cc/en/latest/s2/s2_mini.html   https://templates.blakadder.com/s2_mini.html       */
+#define USER_TEMPLATE "{\"NAME\":\"ESP32-S2-Mini\",\"GPIO\":[0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0],\"FLAG\":0,\"BASE\":1,\"CMND\":\"Module 0\"}"
+/*  User Template ScratchPad:                               [-,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,--,--,21,33,34,35,36,37,38,39,40,--,--,--,--,45,--,--,--]
+  GPIO00 Taster gegen GND (kann auch zum FlashBoot benutzt werden)       -- 0      // GPIO ist nur am Taster verfügbar
+  GPIO01                                                                 -- 1      // 
+  GPIO02                                                                 -- 1      // 
+  GPIO03                                                                 -- 1      // 
+  GPIO04                                                                 -- 1      // 
+  GPIO05                                                                 -- 1      // 
+  GPIO06                                                                 -- 1      // 
+  GPIO07                                                                 -- 1      // 
+  GPIO08                                                                 -- 1      // 
+  GPIO09                                                                 -- 1      // 
+  GPIO10                                                                 -- 1      // 
+  GPIO11                                                                 -- 1      // 
+  GPIO12                                                                 -- 1      // 
+  GPIO13                                                                 -- 1      // 
+  GPIO14                                                                 -- 1      // 
+  GPIO15 hat die blaue LED gegen GND                                     -- 1      // 
+  GPIO16                                                                 -- 1      // 
+  GPIO17 UART1 TX                                                        -- 1      // 
+  GPIO18 UART1 RX                                                        -- 1      // 
+  GPIO19 Auf Mini Board nicht verfügbar; USB_D-                          -- 0      // USB_D-
+  GPIO20 Auf Mini Board nicht verfügbar; USB_D+                          -- 0      // USB_D+
+  GPIO21                                                                 -- 1      // 
+  GPIO33                                                                 -- 1      // 
+  GPIO34                                                                 -- 1      // 
+  GPIO35                                                                 -- 1      // 
+  GPIO36                                                                 -- 1      // 
+  GPIO37                                                                 -- 1      // 
+  GPIO38                                                                 -- 1      // 
+  GPIO39                                                                 -- 1      // 
+  GPIO40                                                                 -- 1      // 
+  GPIO41 Auf Mini Board nicht verfügbar                                  -- 0      // 
+  GPIO42 Auf Mini Board nicht verfügbar                                  -- 0      // 
+  GPIO43 UART0 TX; Auf Mini Board nicht verfügbar                        -- 0      // 
+  GPIO44 UART0 RX; Auf Mini Board nicht verfügbar                        -- 0      // 
+  GPIO45 Auf Mini Board nicht verfügbar                                  -- 0      // 
+  GPIO46 Auf Mini Board nicht verfügbar                                  -- 0      //   
+*/
+// hawa-lc4: xsns_02_analog.ino Zeile 482 (12.5.0.2) bzw. 504 (13.2.0.2) aktivieren des logging der ADC Werte
+// #define ADC_LOG
+
+#endif    // MY_ESP32S2
+
+#ifdef MY_ESP32S3
+/*       https://www.waveshare.com/wiki/ESP32-S3-Zero   https://templates.blakadder.com/espressif_ESP32-S3-DevKitM-1.html       */
+#define USER_TEMPLATE "{\"NAME\":\"ESP32-S3-Zero\",\"GPIO\":[0,1,1,1,1,448,449,450,451,1,1,1,1,1,1,1,1,1,1,0,0,1376,0,0,0,0,0,1,1,1,1,1,0,0,1,0,0,0],\"FLAG\":0,\"BASE\":1,\"CMND\":\"Module 0\"}"
+/*  User Template ScratchPad:                               [-,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,--,--,--,--,--,38,39,40,41,42,--,--,45,--,--,--]
+  GPIO00 Taster gegen GND (kann auch zum FlashBoot benutzt werden)       -- 0      // GPIO ist nur am Taster verfügbar
+  GPIO01                                                                 -- 1      // 
+  GPIO02                                                                 -- 1      // 
+  GPIO03                                                                 -- 1      // 
+  GPIO04                                                                 -- 1      // 
+  GPIO05                                                                 -- 448    // PWM_i 1; externe LED rot
+  GPIO06                                                                 -- 449    // PWM_i 2; externe LED grün
+  GPIO07                                                                 -- 450    // PWM_i 3; externe LED blau
+  GPIO08                                                                 -- 451    // PWM_i 4; externe LED warm-weiß
+  GPIO09                                                                 -- 1      // 
+  GPIO10                                                                 -- 1      // 
+  GPIO11                                                                 -- 1      // 
+  GPIO12                                                                 -- 1      // 
+  GPIO13                                                                 -- 1      // 
+  GPIO14                                                                 -- 1      // 
+  GPIO15                                                                 -- 1      // 
+  GPIO16                                                                 -- 1      // 
+  GPIO17                                                                 -- 1      // 
+  GPIO18                                                                 -- 1      // 
+  GPIO19 Auf Zero Board nicht verfügbar; USB_D-                          -- 0      // USB_D-
+  GPIO20 Auf Zero Board nicht verfügbar; USB_D+                          -- 0      // USB_D+
+  GPIO21 Auf Zero Board nicht offen verfügbar; onboard WS2812 RGB-LED    -- 1376   // WS2812 und PWM zusammen funktionieren nur mit Berry Skript
+  GPIO33 Auf Zero Board nicht verfügbar                                  -- 0      // Auf Zero Board nicht verfügbar  
+  GPIO34 Auf Zero Board nicht verfügbar                                  -- 0      // Auf Zero Board nicht verfügbar  
+  GPIO35 Auf Zero Board nicht verfügbar                                  -- 0      // Auf Zero Board nicht verfügbar  
+  GPIO36 Auf Zero Board nicht verfügbar                                  -- 0      // Auf Zero Board nicht verfügbar  
+  GPIO37 Auf Zero Board nicht verfügbar                                  -- 0      // Auf Zero Board nicht verfügbar  
+  GPIO38                                                                 -- 1      // 
+  GPIO39                                                                 -- 1      // 
+  GPIO40                                                                 -- 1      // 
+  GPIO41                                                                 -- 1      // 
+  GPIO42                                                                 -- 1      // 
+  GPIO43 TX UART0                                                        -- 0      // 
+  GPIO44 RX UART0                                                        -- 0      // 
+  GPIO45                                                                 -- 1      // 
+  GPIO46 Auf Zero Board nicht verfügbar                                  -- 0      // Auf Zero Board nicht verfügbar  
+  GPIO47 Auf Zero Board nicht verfügbar                                  -- 0      // Auf Zero Board nicht verfügbar  
+  GPIO48 Auf Zero Board nicht verfügbar                                  -- 0      // 
+*/
+// hawa-lc4: xsns_02_analog.ino Zeile 482 (12.5.0.2) bzw. 504 (13.2.0.2) aktivieren des logging der ADC Werte
+// #define ADC_LOG
+
+#endif    // MY_ESP32S3
+
+#if !defined LUATOS_ESP32C3 && !defined MY_ESP32S2 && !defined MY_ESP32S3   // CORE-ESP32 boards
 #define USER_TEMPLATE "{\"NAME\":\"CORE-ESP32\",\"GPIO\":[0,1,2,3,4,5,0,0,12,13,14,15,16,17,18,19,0,21,22,23,0,25,26,27,0,0,0,0,32,33,34,35,36,0,0,39],\"FLAG\":0,\"BASE\":1,\"CMND\":\"Module 0\"}"
 /*  User Template ScratchPad:                            [0,1,2,3,4,5,-,-,12,13,14,15,16,17,18,19,-,21,22,23,-,25,26,27,-,-,-,-,32,33,34,35,36,-,-,39]
   ESP32 template GPIO pin mapping:  https://github.com/arendst/Tasmota/discussions/19000
@@ -345,6 +440,9 @@ Strapping Pins:   The ESP32 chip has the following strapping pins:
 // #define ADC_LOG
 
 #ifdef MY_ETH01
+// https://templates.blakadder.com/wireless_tag_WT32-ETH01.html
+// {"NAME":"WT32_ETH01","GPIO":[1,1,1,1,1,1,0,0,1,0,1,1,3840,576,5600,0,0,0,0,5568,0,0,0,0,0,0,0,0,1,1,0,1,1,0,0,1],"FLAG":0,"BASE":1}
+// my template needs rework!
   #define USE_ETHERNET                             // Add support for ethernet (+20k code)
   #define USE_WT32_ETH01                           // Add support for Wireless-Tag WT32-ETH01
 
@@ -363,7 +461,7 @@ Strapping Pins:   The ESP32 chip has the following strapping pins:
   #endif
   #define ETH_ADDRESS       1                      // [EthAddress] 0 = PHY0 .. 31 = PHY31
 #endif    // MY_ETH01
-#endif    // !LUATOS_ESP32C3
+#endif    // !LUATOS_ESP32C3 && !MY_ESP32S2 && !MY_ESP32S3
 #endif    // ESP32
 
 #define GUI_EDIT_FILE
@@ -402,7 +500,7 @@ Strapping Pins:   The ESP32 chip has the following strapping pins:
 #ifdef GUI_SHOW_HOSTNAME
 #undef GUI_SHOW_HOSTNAME
 #endif
-#define GUI_SHOW_HOSTNAME      true
+#define GUI_SHOW_HOSTNAME      false
 
 #ifdef WIFI_DEFAULT_HOSTNAME
 #undef WIFI_DEFAULT_HOSTNAME
@@ -487,13 +585,13 @@ Strapping Pins:   The ESP32 chip has the following strapping pins:
 #undef USE_EXS_DIMMER
 #endif
 
-#ifdef USE_DEVICE_GROUPS
-#undef USE_DEVICE_GROUPS
-#endif
+// #ifdef USE_DEVICE_GROUPS
+// #undef USE_DEVICE_GROUPS
+// #endif
 
-#ifdef USE_PWM_DIMMER
-#undef USE_PWM_DIMMER
-#endif
+// #ifdef USE_PWM_DIMMER
+// #undef USE_PWM_DIMMER
+// #endif
 
 #ifdef USE_SONOFF_D1
 #undef USE_SONOFF_D1
@@ -503,13 +601,13 @@ Strapping Pins:   The ESP32 chip has the following strapping pins:
 #undef USE_SHELLY_DIMMER
 #endif
 
-#ifdef USE_LIGHT
-#undef USE_LIGHT
-#endif
+// #ifdef USE_LIGHT
+// #undef USE_LIGHT
+// #endif
 
-#ifdef USE_WS2812
-#undef USE_WS2812
-#endif
+// #ifdef USE_WS2812
+// #undef USE_WS2812
+// #endif
 
 #ifdef USE_MY92X1
 #undef USE_MY92X1

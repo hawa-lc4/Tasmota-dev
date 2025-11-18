@@ -37,10 +37,11 @@
 #include "user_private_data.h"               // not sharing sensible data with the global community; hawa-lc4 (M1)
 // don't forget to check and modify the file above!
 
-// #ifdef %identifier%
-// #undef %identifier%
-// #endif
-// #define %identifier%   %the_new_value%
+/*
+ ******************************************************************************************************
+ *  env:tasmota4M-script  oder  tasmota4M-rule
+ ******************************************************************************************************
+*/
 
 #ifdef PROJECT
 #undef PROJECT
