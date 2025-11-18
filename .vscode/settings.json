@@ -71,5 +71,13 @@
         "commands": "platformio-ide.rebuildProjectIndex"
       }
     ],
-    "C_Cpp.dimInactiveRegions": true
+    "C_Cpp.dimInactiveRegions": true,
+    "files.associations": {
+      "uco_tasmotix-base": "cpp",
+      "uco_badfbhz": "cpp",
+      "uco_heizstab_berry": "cpp",
+      "uco_kuehlfix": "cpp",
+      "uco_onioff": "cpp",
+      "zuco_taupunkt-lüfter": "cpp"
+    }
   }
