@@ -1,15 +1,13 @@
 /*
-  xdrv_75_dali.h - DALI support for Tasmota
+  Dali.h - DALI support for Tasmota
 
   SPDX-FileCopyrightText: 2025 Theo Arends
 
   SPDX-License-Identifier: GPL-3.0-only
 */
 
-#ifdef USE_DALI
-
-#ifndef _XDRV75_DALI_H_
-#define _XDRV75_DALI_H_
+#ifndef _DALI_H_
+#define _DALI_H_
 
 /*-------------------------------------------------------------------------------------------*\
  * DALI Address types - Send as first byte
@@ -25,6 +23,9 @@
                                                          // ...
 #define DALI_GROUP_ADDRESS15                       0x9E  // 0b10011110  15 - Last group address
 #define DALI_BROADCAST_DP                          0xFE  // 0b11111110 254 - Broadcast address
+
+// Address selector bit - Send with first byte
+#define DALI_SELECTOR_BIT                          0x01  // Mark second byte as standard/extended command
 
 /*-------------------------------------------------------------------------------------------*\
  * DALI Commands for IEC62386 part 102 = Control gears - Send as first byte
@@ -121,7 +122,7 @@
                                                          //       If the lamp is off it shall be ignited with this command.
 #define DALI_102_STEP_DOWN_AND_OFF                 0x07  //   7 - Decrements the lighting control level and turns off lighting if the level is at the minimum (without fade).
 #define DALI_102_ON_AND_STEP_UP                    0x08  //   8 - Increments the lighting control level and turns on lighting if lighting is off (with fade). 
-#define DALI_102_DIRECT_ARC_POWER_CONTROL          0x09  //   9 - Enable DAPC Sequence
+#define DALI_102_DIRECT_ARC_POWER_CONTROL          0x09  //   9 Deprecated - Enable DAPC Sequence
                                                          //       Indicates the start of a command iteration of DAPC(level) commands.
                                                          //       The control gear shall temporarily use a fade time of 200ms while the command iteration is active independent of the actual fade/extended fade time.
                                                          //       The DAPC sequence shall end if 200ms elapse without the control gear receiving a DAPC(level) command.
@@ -385,6 +386,8 @@
  * Standard device like fluorescent lamps
 \*-------------------------------------------------------------------------------------------*/
 
+#define DALI_201_DEVICE_TYPE                       0
+
 // Application extended query commands - Send as second byte
 #define DALI_201_QUERY_EXTENDED_VERSION_NUMBER     0xFF  // 255 - The version number of the extended support.
                                                          //       This command must be preceded by an appropriate DALI_102_ENABLE_DEVICE_TYPE_X command; if it is not then it will be ignored.
@@ -395,6 +398,8 @@
  * DALI Application extended commands for IEC62386 part 202 = DT1 - Send as second byte
  * Device for emergency lighting
 \*-------------------------------------------------------------------------------------------*/
+
+#define DALI_202_DEVICE_TYPE                       1
 
 // Application extended query commands - Send as second byte
 #define DALI_202_QUERY_EXTENDED_VERSION_NUMBER     0xFF  // 255 - The version number of the extended support.
@@ -407,6 +412,8 @@
  * Device for discharge lamps excluding fluorescent lamps
 \*-------------------------------------------------------------------------------------------*/
 
+#define DALI_203_DEVICE_TYPE                       2
+
 // Application extended query commands - Send as second byte
 #define DALI_203_QUERY_EXTENDED_VERSION_NUMBER     0xFF  // 255 - The version number of the extended support.
                                                          //       This command must be preceded by an appropriate DALI_102_ENABLE_DEVICE_TYPE_X command; if it is not then it will be ignored.
@@ -418,6 +425,8 @@
  * Device for low-voltage halogen lamps
 \*-------------------------------------------------------------------------------------------*/
 
+#define DALI_204_DEVICE_TYPE                       3
+
 // Application extended query commands - Send as second byte
 #define DALI_204_QUERY_EXTENDED_VERSION_NUMBER     0xFF  // 255 - The version number of the extended support.
                                                          //       This command must be preceded by an appropriate DALI_102_ENABLE_DEVICE_TYPE_X command; if it is not then it will be ignored.
@@ -428,6 +437,8 @@
  * DALI Application extended commands for IEC62386 part 205 = DT4 - Send as second byte
  * Device for dimming incandescent lamps
 \*-------------------------------------------------------------------------------------------*/
+
+#define DALI_205_DEVICE_TYPE                       4
 
 // Application extended configuration commands - Send as second byte with repeat
 #define DALI_205_REFERENCE_SYSTEM_POWER            0xE0  // 224 - Reference System Power
@@ -548,6 +559,8 @@
  * Device for converting digital signales into DC signals
 \*-------------------------------------------------------------------------------------------*/
 
+#define DALI_206_DEVICE_TYPE                       5
+
 // Application extended query commands - Send as second byte
 #define DALI_206_QUERY_EXTENDED_VERSION_NUMBER     0xFF  // 255 - The version number of the extended support.
                                                          //       This command must be preceded by an appropriate DALI_102_ENABLE_DEVICE_TYPE_X command; if it is not then it will be ignored.
@@ -572,6 +585,8 @@
  * dimmingCurve     E_DALIDimmingCurve.Standard  E_DALIDimmingCurve.Standard,                 1 byte
  *                                               E_DALIDimmingCurve.Linear
 \*-------------------------------------------------------------------------------------------*/
+
+#define DALI_207_DEVICE_TYPE                       6
 
 // Application extended configuration commands - Send as second byte with repeat
 #define DALI_207_REFERENCE_SYSTEM_POWER            0xE0  // 224 - The DALI control gear measures and stores the performance level of the system, in order to detect load increase and decrease.
@@ -661,6 +676,8 @@
  * Device for switching functions
 \*-------------------------------------------------------------------------------------------*/
 
+#define DALI_208_DEVICE_TYPE                       7
+
 // Application extended query commands - Send as second byte
 #define DALI_208_QUERY_EXTENDED_VERSION_NUMBER     0xFF  // 255 - The version number of the extended support.
                                                          //       This command must be preceded by an appropriate DALI_102_ENABLE_DEVICE_TYPE_X command; if it is not then it will be ignored.
@@ -673,6 +690,8 @@
  * Tc is expressed in MIREK and can vary from 1 Mirek (1000000 Kelvin) to 65534 Mirek (15.26 Kelvin)
  * RGBWAF - Red, Green, Blue, White, Amber, Freely selectable color
 \*-------------------------------------------------------------------------------------------*/
+
+#define DALI_209_DEVICE_TYPE                       8
 
 // Application extended control commands - Send as second byte with repeat
 #define DALI_209_SET_TEMPORARY_X_COORDINATE        0xE0  // 224 - Set temporary x-COORDINATE (Uses DTR0 (LSB) and DTR1 (MSB))
@@ -711,7 +730,7 @@
                                                          //       No change shall occur if ‘COLOUR TEMPERATURE TC’ is already at ‘COLOUR TEMPERATURE TC WARMEST’.
                                                          //       If the new colour value does not correspond to a colour temperature attainable by the control gear, this shall be indicated by 
                                                          //        the ‘Colour temperature TC out of range’ bit, bit 1 of the ‘COLOUR STATUS’.
-#define DALI_209_SET_TEMPORARY_PRIMARY_N_DIMLEVEL  0xEA  // 234 - Set temporary primary N dimlevel (Uses DTR0 (LSB), DTR1 (MSB) and DTR2 (N))
+#define DALI_209_SET_TEMPORARY_PRIMARY_N_DIMLEVEL  0xEA  // 234 Deprecated - Set temporary primary N dimlevel (Uses DTR0 (LSB), DTR1 (MSB) and DTR2 (N))
                                                          //       The value is expressed in units of 1/65536.
                                                          //       The maximum ‘PRIMARY N DIMLEVEL’ value is 0,99997 and shall be interpreted on a linear scale.
                                                          //       N depends on DTR2 and shall be in the range from 0 to 5 depending upon the available number of primaries.
@@ -745,13 +764,13 @@
 
 // Application extended configuration commands - Send as second byte with repeat
 #define DALI_209_RESERVED239                       0xEF  // 239 - [Reserved]
-#define DALI_209_STORE_TY_PRIMARY_N                0xF0  // 240 - Store TY Primary N via DTR0/1/2
+#define DALI_209_STORE_TY_PRIMARY_N                0xF0  // 240 Deprecated - Store TY Primary N via DTR0/1/2
                                                          //       The value is expressed in units of 0,5 lumen resulting in a possible range of TYmin = 0 lumen, to TYmax = 32767 lumen.
                                                          //       A value of 65535 (“MASK”) means unknown.
                                                          //       N depends on DTR2 and shall be in the range from 0 to 5 depending upon the available number of primaries.
                                                          //       For any other value of DTR2 the command shall be ignored.
                                                          //       A value of “MASK” means that this primary is undefined and calibration is needed.
-#define DALI_209_STORE_XY_COORDINATE_PRIMARY_N     0xF1  // 241 - Store XY coord primary channel N via DTR2
+#define DALI_209_STORE_XY_COORDINATE_PRIMARY_N     0xF1  // 241 Deprecated - Store XY coord primary channel N via DTR2
                                                          //       The ‘TEMPORARY x-COORDINATE’ and the ‘TEMPORARY y-COORDINATE’, given by command 224 and command 225 shall be stored as ‘x-COORDINATE PRIMARY N’ 
                                                          //        respectively ‘y-COORDINATE PRIMARY N’ of primary N given by the value of DTR2, and shall be in the range from 0 to 5 depending upon the available number of primaries.
                                                          //       For any other value of DTR2 the command shall be ignored.
@@ -944,11 +963,12 @@
  * Sequencer
 \*-------------------------------------------------------------------------------------------*/
 
+#define DALI_210_DEVICE_TYPE                       9
+
 // Application extended query commands - Send as second byte
 #define DALI_210_QUERY_EXTENDED_VERSION_NUMBER     0xFF  // 255 - The version number of the extended support.
                                                          //       This command must be preceded by an appropriate DALI_102_ENABLE_DEVICE_TYPE_X command; if it is not then it will be ignored.
                                                          //       Returns the version number of Part 2xx of IEC 62386 for the corresponding device type as an 8-bit number.
                                                          //       Device type implementations must provide their own implementation of QueryExtendedVersionNumber using this mixin.
 
-#endif  // _XDRV75_DALI_H_
-#endif  // USE_DALI
+#endif  // _DALI_H_
