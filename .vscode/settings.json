@@ -71,5 +71,5 @@
         "commands": "platformio-ide.rebuildProjectIndex"
       }
     ],
-    "C_Cpp.dimInactiveRegions": false
+    "C_Cpp.dimInactiveRegions": true
   }
