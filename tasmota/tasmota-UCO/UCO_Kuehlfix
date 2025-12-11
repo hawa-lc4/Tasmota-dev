@@ -220,7 +220,7 @@ SetOption32 	Number of 0.1 seconds to hold button before sending HOLD action mes
 #undef DSP_ROM_DESC
 #endif
 #define DSP_ROM_DESC \
- ":H,SSD1306,128,64,1,I2C,3c,*,*,*" \
+ ":H,SSD1306,128,64,1,I2C,3c,*,*,*\n" \
   ":S,0,2,1,0,30,20\n" \
   ":I\n" \
   "AE\n" \
