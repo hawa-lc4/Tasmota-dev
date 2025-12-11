@@ -53,7 +53,11 @@
   #define BMP_MAX_SENSORS    2
 #endif
 
-const char kBmpTypes[] PROGMEM = "BMP180|BMP280|BME280|BME680";
+#if defined(PROJECT_SPEC)
+  const char kBmpTypes[] PROGMEM = "BMP180|BMP280|Sens|BME680";   //hawa: BME280 ==> Sens
+#else
+  const char kBmpTypes[] PROGMEM = "BMP180|BMP280|BME280|BME680";
+#endif    // PROJECT_SPEC
 
 typedef struct {
   uint8_t bmp_address;    // I2C address
@@ -563,7 +567,18 @@ void BmpShow(bool json) {
           for (uint32_t i = 1; i < bmp_count; i++) {
             if (bus != bmp_sensors[i].bmp_bus) {     // Different busses
               // BMP280-77-1
+#if defined(PROJECT_SPEC)
+              // hawa: sensName
+              if (bmp_sensors[bmp_idx].bmp_address == 0x76) {
+                snprintf_P(name, sizeof(name), PSTR("%s%c%s"), name, IndexSeparator(), "A");
+              }
+              if (bmp_sensors[bmp_idx].bmp_address == 0x77) {
+                snprintf_P(name, sizeof(name), PSTR("%s%c%s"), name, IndexSeparator(), "I");
+              }
+#else
               snprintf_P(name, sizeof(name), PSTR("%s%c%d"), name, IndexSeparator(), bmp_sensors[bmp_idx].bmp_bus +1);
+#endif    // PROJECT_SPEC
+
               break;
             }
           }
