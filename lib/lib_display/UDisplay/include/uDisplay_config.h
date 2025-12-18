@@ -19,10 +19,10 @@ extern float CharToFloat(const char *str);
 extern SPIClass *SpiBegin(uint32_t bus);
 #endif  // _TASMOTA_H_
 
-// Enable universal touch support
-#ifndef USE_UNIVERSAL_TOUCH
-#define USE_UNIVERSAL_TOUCH
-#endif
+// Enable universal touch support       // bullshit! not every uDisplay has touch (e.g. OLED)
+// #ifndef USE_UNIVERSAL_TOUCH
+// #define USE_UNIVERSAL_TOUCH          // define this in user_config_override.h if needed
+// #endif
 
 enum uColorType { uCOLOR_BW, uCOLOR_COLOR };
 
