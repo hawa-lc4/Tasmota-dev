@@ -56,7 +56,9 @@
 #ifdef MY_SCRIPT
   // #warning **** Build: SCRIPT ****
   #undef CODE_IMAGE_STR
-  #define CODE_IMAGE_STR "T4M_SCRIPT_il-vento"
+  #define CODE_IMAGE_STR "T4M_SCRIPT_il-vento_v12"
+/*  v12: mit legacy Display Treiber; nur Sensor BME eingebunden.
+*/
 
   #undef USE_RULES
   #undef USE_TIMERS
