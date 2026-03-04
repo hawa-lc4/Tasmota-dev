@@ -48,6 +48,7 @@ def upload_factory(*args, **kwargs):
                 "--port", upload_port,
                 "--baud", env.subst("$UPLOAD_SPEED"),
                 "write-flash",
+                "--no-progress",
                 "0x0",
                 target_firm
         ]

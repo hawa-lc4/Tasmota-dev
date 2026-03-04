@@ -348,6 +348,7 @@ def esp32_create_combined_bin(source, target, env):
                 "--before", before_reset,
                 "--after", after_reset,
                 "write-flash", "-z",
+                "--no-progress",
                 "--flash-mode", "${__get_board_flash_mode(__env__)}",
                 "--flash-freq", "${__get_board_f_flash(__env__)}",
                 "--flash-size", flash_size
