@@ -8,11 +8,11 @@ The following table lists the supported I2C devices
 
 Index | Define              | Driver   | Device   | Address(es) | Bus2 | Description
 ------|---------------------|----------|----------|-------------|------|-----------------------------------------------
-   1  | USE_PCA9685         | xdrv_15  | PCA9685  | 0x40 - 0x47 |      | 16-channel 12-bit pwm driver
-   1  | USE_PCA9685_V2      | xdrv_15  | PCA9685  | 0x40 - 0x47 |      | 16-channel 12-bit pwm driver
+   1  | USE_PCA9685         | xdrv_15  | PCA9685  | 0x40 - 0x47 | Yes  | 16-channel 12-bit pwm driver
+   1  | USE_PCA9685_V2      | xdrv_15  | PCA9685  | 0x40 - 0x47 | Yes  | 16-channel 12-bit pwm driver
    2  | USE_PCF8574         | xdrv_28  | PCF8574  | 0x20 - 0x26 |      | 8-bit I/O expander (address range overridable)
    2  | USE_PCF8574         | xdrv_28  | PCF8574A | 0x39 - 0x3F |      | 8-bit I/O expander (address range overridable)
-   3  | USE_DISPLAY_LCD     | xdsp_01  |          | 0x27, 0x3F  |      | LCD display
+   3  | USE_DISPLAY_LCD     | xdsp_01  |          | 0x27, 0x3F  | Yes  | LCD display
    4  | REMOVED             |          |          |             |      | USE_DISPLAY_SSD1306 - REMOVED
    5  | USE_DISPLAY_MATRIX  | xdsp_03  | HT16K33  | 0x70 - 0x77 |      | 8x8 led matrix
    6  | REMOVED             |          | SH1106   | 0x3C - 0x3D |      | USE_DISPLAY_SH1106 - REMOVED
@@ -45,14 +45,14 @@ Index | Define              | Driver   | Device   | Address(es) | Bus2 | Descrip
   22  | USE_MCP230xx        | xsns_29  | MCP23008 | 0x20 - 0x26 | Yes  |  8-bit I/O expander
   22  | USE_MCP230xx        | xsns_29  | MCP23017 | 0x20 - 0x26 | Yes  | 16-bit I/O expander
   23  | USE_MPR121          | xsns_30  | MPR121   | 0x5A - 0x5D |      | Proximity capacitive touch sensor
-  24  | USE_CCS811          | xsns_31  | CCS811   | 0x5A        |      | Gas (TVOC) and air quality sensor
+  24  | USE_CCS811          | xsns_31  | CCS811   | 0x5A        | Yes  | Gas (TVOC) and air quality sensor
   24' | USE_CCS811_V2       | xsns_31  | CCS811   | 0x5A - 0x5B |      | Gas (TVOC) and air quality sensor
   25  | USE_MPU6050         | xsns_32  | MPU6050  | 0x68 - 0x69 |      | 3-axis gyroscope and temperature sensor
-  26  | USE_DS3231          | xsns_33  | DS1307   | 0x68        |      | Real time clock
-  26  | USE_DS3231          | xsns_33  | DS3231   | 0x68        |      | Real time clock
+  26  | USE_DS3231          | xsns_33  | DS1307   | 0x68        | Yes  | Real time clock
+  26  | USE_DS3231          | xsns_33  | DS3231   | 0x68        | Yes  | Real time clock
   27  | USE_MGC3130         | xsns_36  | MGC3130  | 0x42        |      | Electric field sensor
   28  | USE_MAX44009        | xsns_41  | MAX44009 | 0x4A - 0x4B |      | Ambient light intensity sensor
-  29  | USE_SCD30           | xsns_42  | SCD30    | 0x61        |      | CO2 sensor
+  29  | USE_SCD30           | xsns_42  | SCD30    | 0x61        | Yes  | CO2 sensor
   30  | USE_SPS30           | xsns_44  | SPS30    | 0x69        |      | Particle sensor
   31  | USE_VL53L0X         | xsns_45  | VL53L0X  | 0x29        |      | Time-of-flight (ToF) distance sensor
   32  | USE_MLX90614        | xsns_46  | MLX90614 | 0x5A        |      | Infra red temperature sensor
@@ -104,10 +104,10 @@ Index | Define              | Driver   | Device   | Address(es) | Bus2 | Descrip
   63  | USE_HM330X          | xsns_93  | HM330X   | 0x40        |      | Particule sensor
   64  | USE_HDC2010         | xsns_94  | HDC2010  | 0x40        |      | Temperature and Humidity sensor
   65  | USE_ADE7880         | xnrg_23  | ADE7880  | 0x38        |      | Energy monitor
-  66  | USE_PCF85363        | xsns_99  | PCF85363 | 0x51        |      | Real time clock
+  66  | USE_PCF85363        | xsns_99  | PCF85363 | 0x51        | Yes  | Real time clock
   67  | USE_DS3502          | xdrv_61  | DS3502   | 0x28 - 0x2B |      | Digital potentiometer
   68  | USE_HYT             | xsns_97  | HYTxxx   | 0x28        | Yes  | Temperature and Humidity sensor
-  69  | USE_SGP40           | xsns_98  | SGP40    | 0x59        |      | Gas (TVOC) and air quality
+  69  | USE_SGP40           | xsns_98  | SGP40    | 0x59        | Yes  | Gas (TVOC) and air quality
   70  | USE_LUXV30B         | xsns_99  | LUXV30B  | 0x4A        |      | DFRobot SEN0390 V30B lux sensor
   71  | USE_QMC5883L        | xsns_33  | QMC5883L | 0x0D        |      | Magnetic Field Sensor
   72  | USE_INA3221         | xsns_100 | INA3221  | 0x40-0x43   |      | 3-channels Voltage and Current sensor
@@ -117,7 +117,7 @@ Index | Define              | Driver   | Device   | Address(es) | Bus2 | Descrip
   76  | USE_SEN5X           | xsns_103 | SEN5X    | 0x69        | Yes  | Gas (VOC/NOx index) and air quality (PPM <1,<2.5,<4,<10)
   77  | USE_MCP23XXX_DRV    | xdrv_67  | MCP23x17 | 0x20 - 0x26 |      | 16-bit I/O expander as virtual button/switch/relay
   78  | USE_PMSA003I        | xsns_104 | PMSA003I | 0x12        |      | PM2.5 Air Quality Sensor with I2C Interface
-  79  | USE_GDK101          | xsns_106 | GDK101   | 0x18 - 0x1B |      | Gamma Radiation Sensor
+  79  | USE_GDK101          | xsns_106 | GDK101   | 0x18 - 0x1B | Yes  | Gamma Radiation Sensor
   80  | USE_TC74            | xsns_108 | TC74     | 0x48 - 0x4F |      | Temperature sensor
   81  | USE_PCA9557         | xdrv_69  | PCA95xx  | 0x18 - 0x1F |      | 8-bit I/O expander as virtual button/switch/relay
   81  | USE_TCA9554         | xdrv_69  | TCA95xx  | 0x20 - 0x27 |      | 8-bit I/O expander as virtual button/switch/relay
@@ -132,7 +132,7 @@ Index | Define              | Driver   | Device   | Address(es) | Bus2 | Descrip
   90  | USE_RX8010          | xdrv_56  | RX8010    | 0x32       | Yes  | RX8010 RTC from IOTTIMER
   90  | USE_RX8030          | xdrv_56  | RX8030    | 0x32       | Yes  | RX8030 RTC from #23855
   91  | USE_MS5837          | xsns_116 | MS5837    | 0x76       |      | Pressure and temperature sensor
-  92  | USE_PCF85063        | xdrv_56  | PCF85063  | 0x51       |      | PCF85063 Real time clock
+  92  | USE_PCF85063        | xdrv_56  | PCF85063  | 0x51       | Yes  | PCF85063 Real time clock
   93  | USE_AS33772S        | xdrv_119 | AS33772S  | 0x52       | Yes  | AS33772S USB PD Sink Controller
   94  | USE_RV3028          | xdrv_56  | RV3028    | 0x52       | Yes  | RV-3028-C7 RTC Controller
   95  | USE_AGS02MA         | xsns_118 | AGS02MA   | 0x1A       |      | TVOC Gas sensor
@@ -141,4 +141,4 @@ Index | Define              | Driver   | Device   | Address(es) | Bus2 | Descrip
   98  | USE_FM24CXX         | xdrv_93  | FM24CXX   | 0x50 - 0x57| Yes  | FM24CXX - External FRAM with console / berry R/W operations
   99  | USE_STCC4           | xsns_120 | STCC4     | 0x64, 0x65 | Yes  | CO2 and optional temperature and humidity sensor
 
-  NOTE: Bus2 supported on ESP32 only.
+  NOTE: Bus2 is supported on ESP8266, ESP32, ESP32-C6, ESP32-H2, ESP32-P4, ESP32-S2 and ESP32-S3

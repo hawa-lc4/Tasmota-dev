@@ -3,18 +3,48 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased] - Development
 
-## [15.3.0.2]
+## [15.3.0.3]
 ### Added
+- Environment sensor SCD30 second I2C bus support
+- PWM driver PCA9685 multi I2C bus support
 
 ### Breaking Changed
 
 ### Changed
+- ESP8266 platform update from 2026.02.00 to 2026.03.00 (#24547)
+- ESP8266 use wrapped symbols for sntp_init and sntp_stop (#24566)
+- ESP32 Platform from 2025.02.30 to 2026.03.30, Framework (Arduino Core) from v3.1.9 to v3.1.10 and IDF from v5.3.4.251226 to v5.3.4.260127 (#24547)
+- Matter don't advertize IPv6 global address, only link-local (#24563)
+- ESP32-C5/C6/P4 Platform from 2025.03.30 to 2026.03.50, Framework (Arduino Core) from v3.1.10 to v3.3.7 and IDF from v5.3.4.260127 to v5.5.3+ (#24567)
+- NeoPool always output valid sensitive data (#24573)
+- SML suppress MQTT publish until valid meter data received (#24587)
+
+### Fixed
+- Athom esp32 2-3-4 gang change led behaviour after firmware update (#24509)
+- ESP8266 heap drain and exception 29 when DHCP provides NTP server (#24515, #24566)
+- NeoPool possible IntegerDivideByZero (#24578)
+
+### Removed
+
+## [15.3.0.2] 20260315
+### Added
 - ESP8266 redesigned I2C Wire driver to support second I2C bus
+- Environment sensors CCS811, SGP30 and SGP40 second I2C bus support
+- Real Time Clocks BM8563, PCF85063 and PCF85363 second I2C bus support
+- LCD second I2C bus support
+- Berry add `loglevel` to `mqtt.publish()` (#24551)
+
+### Changed
+- Adafruit_BusIO library from v1.11.0 to v1.17.4
+- Adafruit_CCS811 library from v1.0.0.14 to v1.1.3
+- Adafruit SGP30 library from v1.2.0 to v2.0.3
+- Adafruit SGP40 library from v1.1.0 to v1.1.4
 
 ### Fixed
 - Crash when shutting down Wifi with `Wifi 0` (#24536)
 
 ### Removed
+- Berry remove `mdns.stop()` (#24549)
 
 ## [15.3.0.1] 20260308
 ### Added
@@ -136,7 +166,6 @@ All notable changes to this project will be documented in this file.
 - Berry `tasmota.micros()` to get time in microseconds (#24192)
 - Support for AGS02MA TVOC sensor (#24109)
 
-## [15.0.1.5] 20251011
 ### Changed
 - ESP32 Platform from 2025.11.30 to 2025.11.31, Framework (Arduino Core) from v3.1.5 to v3.1.6 and IDF from v5.3.4.251110 to v5.3.4.251110 (#24146)
 - Refactored DALI using TasmotaDali library v1.0.0 adding frame receive buffer
