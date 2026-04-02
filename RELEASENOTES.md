@@ -118,7 +118,7 @@ The latter links can be used for OTA upgrades too like ``OtaUrl https://ota.tasm
 - Support for Sensirion SCD42 and SCD43 CO2 sensor
 - Support for Sensirion STCC4 CO2 sensor
 - ESP8266 redesigned I2C Wire driver to support second I2C bus
-- PWM driver PCA9685 multi I2C bus support
+- Drivers PCA9685 and PCF8574 multi I2C bus support
 - Environment sensors CCS811, SCD30, SGP30 and SGP40 multi I2C bus support
 - Real Time Clocks BM8563, PCF85063 and PCF85363 multi I2C bus support
 - LCD multi I2C bus support
@@ -148,6 +148,7 @@ The latter links can be used for OTA upgrades too like ``OtaUrl https://ota.tasm
 - ESP8266 heap drain and exception 29 when DHCP provides NTP server [#24515](https://github.com/arendst/Tasmota/issues/24515), [#24566](https://github.com/arendst/Tasmota/issues/24566)
 - Crash when shutting down Wifi with `Wifi 0` [#24536](https://github.com/arendst/Tasmota/issues/24536)
 - Don't send extraneous `0\r\n\r\n` with non-chunked HTTP/1.0 [#24518](https://github.com/arendst/Tasmota/issues/24518)
+- Shelly Dimmer 2 serial timeout regression from v15.2.0.1 [#24560](https://github.com/arendst/Tasmota/issues/24560)
 - NeoPool possible IntegerDivideByZero [#24578](https://github.com/arendst/Tasmota/issues/24578)
 - Do not free BT memory when in use [#24480](https://github.com/arendst/Tasmota/issues/24480)
 - Berry avoid `tasmota.wifi()` returning bad values when wifi is turned off [#24505](https://github.com/arendst/Tasmota/issues/24505)

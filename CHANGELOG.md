@@ -6,7 +6,7 @@ All notable changes to this project will be documented in this file.
 ## [15.3.0.3]
 ### Added
 - Environment sensor SCD30 second I2C bus support
-- PWM driver PCA9685 multi I2C bus support
+- Drivers PCA9685 and PCF8574 multi I2C bus support
 
 ### Breaking Changed
 
@@ -23,6 +23,7 @@ All notable changes to this project will be documented in this file.
 - Athom esp32 2-3-4 gang change led behaviour after firmware update (#24509)
 - ESP8266 heap drain and exception 29 when DHCP provides NTP server (#24515, #24566)
 - NeoPool possible IntegerDivideByZero (#24578)
+- Shelly Dimmer 2 serial timeout regression from v15.2.0.1 (#24560)
 
 ### Removed
 
