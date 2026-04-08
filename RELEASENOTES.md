@@ -117,6 +117,7 @@ The latter links can be used for OTA upgrades too like ``OtaUrl https://ota.tasm
 - Support for JSON value pair `"ARCH"` in template being either ESP8266, ESP32, ESP32C2, ESP32C3, ESP32C5, ESP32C6, ESP32H2, ESP32H4, ESP32P4, ESP32S2 or ESP32S3
 - Support for Sensirion SCD42 and SCD43 CO2 sensor
 - Support for Sensirion STCC4 CO2 sensor
+- Shelly Pro EM-50 template {"NAME":"Shelly Pro EM-50","ARCH":"ESP32","GPIO":[0,0,224,0,3457,0,0,0,0,608,544,640,9472,0,5600,0,0,0,0,5568,0,0,0,0,0,0,0,0,5536,0,0,32,4736,0,0,0],"FLAG":0,"BASE":1,"CMND":"AdcGpio36 10000,10000,3350"} [#24604](https://github.com/arendst/Tasmota/issues/24604)
 - ESP8266 redesigned I2C Wire driver to support second I2C bus
 - Drivers PCA9685 and PCF8574 multi I2C bus support
 - Environment sensors CCS811, SCD30, SGP30 and SGP40 multi I2C bus support
@@ -150,9 +151,10 @@ The latter links can be used for OTA upgrades too like ``OtaUrl https://ota.tasm
 - Don't send extraneous `0\r\n\r\n` with non-chunked HTTP/1.0 [#24518](https://github.com/arendst/Tasmota/issues/24518)
 - Shelly Dimmer 2 serial timeout regression from v15.2.0.1 [#24560](https://github.com/arendst/Tasmota/issues/24560)
 - NeoPool possible IntegerDivideByZero [#24578](https://github.com/arendst/Tasmota/issues/24578)
+- File upload improvements: `/ufsu` api mode, no interrupts disabling, cleaner confirmation page [#24521](https://github.com/arendst/Tasmota/issues/24521)
 - Do not free BT memory when in use [#24480](https://github.com/arendst/Tasmota/issues/24480)
 - Berry avoid `tasmota.wifi()` returning bad values when wifi is turned off [#24505](https://github.com/arendst/Tasmota/issues/24505)
-- File upload improvements: `/ufsu` api mode, no interrupts disabling, cleaner confirmation page [#24521](https://github.com/arendst/Tasmota/issues/24521)
+- Berry crash when comparing for equality float literals on ESP32 [#24610](https://github.com/arendst/Tasmota/issues/24610)
 
 ### Removed
 - ESP8266 I2C Slave support which was never used by Tasmota anyway
