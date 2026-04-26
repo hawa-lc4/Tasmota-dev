@@ -1,19 +1,12 @@
->D 48
+>D
 fr=0
 res=0
 cnt=0
 str=""
-M:msmP=0 60
-smP=0
-smI=0
-smO=0
-i:tim1=0
-i:tim2=0
+t:tim2=42
 
 >B
-=>SerialConfig 8N1
 =>Power ON
-=>sensor53 r
 ; list all files in root directory
 fr=fo("/" 0)
 for cnt 1 20 1
@@ -31,4 +24,11 @@ fc(fr)
 =>Hostname tasmotix-sml
 
 >S
-->dt [zs2]script[l2c1]waehlen!
+if tim2<=0
+then
+->Power OFF
+tim2=-1
+else
+->Power ON
+dt [zs2]script[l2c1]waehlen!
+endif

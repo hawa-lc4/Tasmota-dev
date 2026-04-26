@@ -1,4 +1,10 @@
->D 48
+>D 120
+; die Netzwerkadresse der DTU muss in der folgenden Zeile eingetragen werden!
+; wenn keine DTU vorhanden Wert leer lassen!
+oDTU=""
+cpwr=0
+cyd=0
+cyt=0
 fr=0
 res=0
 cnt=0
@@ -7,8 +13,7 @@ M:msmP=0 60
 smP=0
 smI=0
 smO=0
-i:tim1=0
-i:tim2=0
+t:tim2=42
 
 >B
 =>SerialConfig 8N1
@@ -36,42 +41,56 @@ fc(fr)
 =>FriendlyName1 EMH_ED300L_SML
 
 >M 1
-+1,3,s,0,9600,Haus,-1
++1,3,s,0,9600,Haus,1
 1,77070100010800FF@1000,Energie Import,kWh,E_In,2
 1,77070100020800FF@1000,Energie Export,kWh,E_Out,2
 1,77070100100700FF@1,Leistung ges.,W,P_Cur,0
 #
 
 >b
-tim2=0
+tim2=42
 
 >T
 smP=Haus#P_Cur
 smI=Haus#E_In
 smO=Haus#E_Out
 
+>E
+;print Event occurred
+cpwr=gwr( "\"v\":" 2)
+cyd=gwr( "\"v\":" 3)
+cyt=gwr( "\"v\":" 4)
+
 >S
 msmP=smP
 ; write average to sensor log every minute
-if upsecs%60==0
+if upsecs%600==0
 then
 ; open file for write (note that in the guide, the file open command has a 1 instead of 2. 
 ; I want to append sensor values instead of overwriting each time)
 fr=fo("smlog.txt" 2)
 ; compose string for tab delimited file entry
+if oDTU==""
+then
 str=tstamp+"\t"+s(msmP)+"\t"+s(smI)+"\t"+s(smO)+"\n"
+else
+->WebSend [%oDTU%] /api/livedata/status
+str=tstamp+"\t"+s(msmP)+"\t"+s(smI)+"\t"+s(smO)+"\t"+s(cpwr)+"\t"+s(cyd)+"\t"+s(cyt)+"\n"
+endif
 ; write string to log file
 res=fw(str fr)
 ; close file
 fc(fr)
 endif
-if tim2>=42
+
+if tim2<=0
 then
 ->Power OFF
 tim2=-1
-endif
-if tim1>=3
+else
+->Power ON
+if upsecs%5==0
 then
-->dt [zs2]%0smP%[l2c14s1]Watt[l4c1s1]%1smI% kWh Imp[l5c1s1]%1smO% kWh Exp
-tim1=0
+dt [zs2]%0smP%[l2c14s1]Watt[l4c1s1]%1smI% kWh Imp[l5c1s1]%1smO% kWh Exp
+endif
 endif
