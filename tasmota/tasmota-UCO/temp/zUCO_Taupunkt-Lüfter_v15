@@ -56,7 +56,11 @@
 #ifdef MY_SCRIPT
   // #warning **** Build: SCRIPT ****
   #undef CODE_IMAGE_STR
-  #define CODE_IMAGE_STR "T4M_SCRIPT_il-vento"
+  #define CODE_IMAGE_STR "T4M_SCRIPT_il-vento_v15"
+/*  v15:  mit uDisplay Treiber; Sensoren BME, SHT3 und HYT eingebunden.
+          2x BME280 (0x76 ist Außen, 0x77 ist Innen)
+          2x SHT3x (0x44 ist Außen, 0x45 ist Innen)
+*/
 
   #undef USE_RULES
   #undef USE_TIMERS
@@ -91,10 +95,10 @@
   ">R\n=>Hostname %Hname%\n\n" \
   ">E\nipA=StatusNET#IPAddress\n\n" \
   ">b\ndpON=600\n\n" \
-  ">T\nteI=Sens_I#Temperature\nteA=Sens_A#Temperature\n" \
-    "huI=Sens_I#Humidity\nhuA=Sens_A#Humidity\n" \
-    "tpI=Sens_I#DewPoint\ntpA=Sens_A#DewPoint\n" \
-    "prI=Sens_I#Pressure\nprA=Sens_A#Pressure\n" \
+  ">T\nteI=BME280_77#Temperature\nteA=BME280_76#Temperature\n" \
+    "huI=BME280_77#Humidity\nhuA=BME280_76#Humidity\n" \
+    "tpI=BME280_77#DewPoint\ntpA=BME280_76#DewPoint\n" \
+    "prI=BME280_77#Pressure\nprA=BME280_76#Pressure\n" \
     "adcR=ANALOG#A0\n\n" \
   ">S\nbeM=int((adcR+200)/138)\nadjH=((beM-3)*TPmulti)+TPdelta\n" \
     "if dpON<=0\nthen\ndpON=-1\n->DisplayDimmer 0\nelse\n->DisplayDimmer 10\nendif\n" \
@@ -197,17 +201,17 @@ Berechnung für Lüftung: https://www.taupunkt-lueftung.de/ bzw. Abhandlung in d
 
 #ifndef USE_DISPLAY
 #define USE_DISPLAY
-#undef USE_DISPLAY_MODES1TO5                    // Enable display mode 1 to 5 in addition to mode 0
+#undef USE_DISPLAY_MODES1TO5                 // Enable display mode 1 to 5 in addition to mode 0
 #undef USE_DISPLAY_LCD
 #undef USE_DISPLAY_MATRIX
 #undef USE_DISPLAY_SEVENSEG
 /*    https://tasmota.github.io/docs/Displays/#universal-display-driver   */
-#define USE_UNIVERSAL_DISPLAY                   // New universal display driver for both I2C and SPI
-#ifdef USE_UNIVERSAL_TOUCH
+#define USE_UNIVERSAL_DISPLAY                // New universal display driver for both I2C and SPI
+#ifdef USE_UNIVERSAL_TOUCH                   // ACHTUNG: diese Variable wird in "lib/lib_display/uDisplay_config.h" gesetzt (so'n MIST)
 #undef USE_UNIVERSAL_TOUCH
 #endif
 
-#ifdef DSP_ROM_DESC
+#ifdef DSP_ROM_DESC                          // Display I2C addr. 0x3C
 #undef DSP_ROM_DESC
 #endif
 #define DSP_ROM_DESC \
@@ -242,7 +246,7 @@ Berechnung für Lüftung: https://www.taupunkt-lueftung.de/ bzw. Abhandlung in d
 #undef USE_ADE7953                           // [I2cDriver7] Enable ADE7953 Energy monitor as used on Shelly 2.5 (I2C address 0x38) (+1k5)
 
 #define USE_RTC_CHIPS                        // Enable RTC chip support and NTP server - Select only one
-#define USE_DS3231                           // [I2cDriver26] Enable DS3231 RTC (I2C address 0x68) (+1k2 code)
+#define USE_DS3231                           // [I2cDriver26] Enable DS3231 RTC (I2C address 0x68) (+1k2 code) (plus I2C address 0x57 für den AT24CS32 EEPROM)
 // #define USE_RTC_ADDR  0x68                   // optional und geht nicht, siehe dazu CHANGELOG.md und Zeile 43 in xdrv_56_rtc_chips.ino
 // #define RTC_NTP_SERVER                       // https://tasmota.github.io/docs/DS3231/ >> Fehler: findet eine Bibliothek NTPServer.h nicht >> geht jetzt mit 14.3
 
