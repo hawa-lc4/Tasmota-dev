@@ -205,9 +205,9 @@
   [0,1,2,3,4,5,9,10,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,6,7,8,11,32,33,34,35,36,37,38,39]
   https://tasmota.github.io/docs/Components/  &  https://randomnerdtutorials.com/esp32-pinout-reference-gpios/
   GPIO00 Taster gegen GND (kann damit auch zum FlashBoot benutzt werden) -- 1      // 
-  GPIO01 TX UART0                                                        -- 0      // belegt durch USB
+  GPIO01 TX UART0                                                        -- 0      // meist belegt durch USB
   GPIO02                                                                 -- 1      // 
-  GPIO03 RX UART0                                                        -- 0      // belegt durch USB
+  GPIO03 RX UART0                                                        -- 0      // meist belegt durch USB
   GPIO04                                                                 -- 1      // 
   GPIO05 VSPI CS0                                                        -- 1      // 
   GPIO09 DO NOT USE!!   (SDData2)                                        -- 0      // DO NOT USE!!
