@@ -125,6 +125,7 @@
   #undef CODE_IMAGE_STR
   #define CODE_IMAGE_STR "MY_BERRY_" PROJECT
   
+  #define USE_BERRY_DEBUG             // Compile Berry bytecode with line number information, makes exceptions easier to debug. Adds +8% of memory consumption for compiled code
   #ifdef USE_SCRIPT
   #undef USE_SCRIPT
   #endif
@@ -143,13 +144,14 @@
 #endif  // MY_BERRY
 
 #ifdef USER_TEMPLATE
-#undef USER_TEMPLATE
-#endif // USER_TEMPLATE
+  #undef USER_TEMPLATE
+#endif
 
 /*  Espressif ESP Modules:  https://www.espressif.com/en/products/modules  */
 #ifdef ESP8266
-#define USER_TEMPLATE "{\"NAME\":\"tasmotix\",\"GPIO\":[32,0,544,0,0,0,0,0,0,0,0,0,0,0],\"FLAG\":0,\"BASE\":18,\"CMND\":\"Module 0\"}"  // [Template] Set JSON template
-/* https://tasmota.github.io/docs/Components/  &  https://tasmota.github.io/docs/Supported-Peripherals/  &  https://randomnerdtutorials.com/esp8266-pinout-reference-gpios
+// TEST: EEP_SCRIPT_SIZE & USE_24C256 für ESP8266 siehe xdrv_10_scripter.ino
+#define USER_TEMPLATE "{\"NAME\":\"ESP8266\",\"GPIO\":[32,0,544,0,0,0,0,0,0,0,0,0,0,0],\"FLAG\":0,\"BASE\":18,\"CMND\":\"Module 0\"}"  // [Template] Set JSON template
+/* https://tasmota.github.io/docs/Components/  &  https://randomnerdtutorials.com/esp8266-pinout-reference-gpios
   GPIO0  (D3) Taster gegen GND (kann damit auch zum FlashBoot benutzt werden) -- 32     // Taster 
   GPIO1  (TX) TX UART0                                                        -- 0      // 
   GPIO2  (D4) hat die interne LED gegen VCC; Funktion LedLink (544; _i: 576)  -- 544    // LedLink
@@ -184,115 +186,23 @@
 // #define ADC_LOG
 #define USE_UFILESYS
 #define UFSYS_SIZE 8192
+
+#ifdef USE_SPI
+#undef USE_SPI
+#endif
 #endif    // ESP8266
+//  #################################################################################################
+
 
 #ifdef ESP32
-
-  #define USE_BERRY_DEBUG             // Compile Berry bytecode with line number information, makes exceptions easier to debug. Adds +8% of memory consumption for compiled code
-  #ifndef MY_BERRY
-  #ifdef USE_BERRY
-  #undef USE_BERRY
-  #endif
-  #ifdef USE_BERRY_DEBUG
-  #undef USE_BERRY_DEBUG
-  #endif
-  #endif    // !MY_BERRY
-
-#ifdef LUATOS_ESP32C3     // Luatos-ESP32C3 board mit AIR101-LCD Modul
-/*      https://tasmota.github.io/docs/Displays/#descriptor-file & https://github.com/arendst/Tasmota/discussions/18350      */
-
-#ifdef DSP_ROM_DESC
-#undef DSP_ROM_DESC
-#endif
-#define DSP_ROM_DESC \
-  ":H,ST7735S,160,80,16,SPI,1,7,2,3,6,11,10,*,16\n" \
-  ":S,2,1,1,0,30,30\n" \
-  ":I\n" \
-  "01,80\n" \
-  "11,80\n" \
-  "B1,3,01,2C,2D\n" \
-  "B2,3,01,2C,2D\n" \
-  "B3,6,01,2C,2D,01,2C,2D\n" \
-  "B4,1,07\n" \
-  "C0,3,A2,04,84\n" \
-  "C1,1,C5\n" \
-  "C2,2,0A,00\n" \
-  "C3,2,8A,2A\n" \
-  "C4,2,8A,EE\n" \
-  "C5,1,0E\n" \
-  "20,0\n" \
-  "36,1,C8\n" \
-  "3A,1,05\n" \
-  "2A,4,00,02,00,7F\n" \
-  "2B,4,00,01,00,7F\n" \
-  "E0,10,02,1C,07,12,37,32,29,2D,29,25,2B,39,00,01,03,10\n" \
-  "E1,10,03,1D,07,06,2E,2C,29,2D,2E,2E,37,3F,00,00,02,10\n" \
-  "13,80\n" \
-  "29,80\n" \
-  ":o,28\n" \
-  ":O,29\n" \
-  ":A,2A,2B,2C,16\n" \
-  ":R,36\n" \
-  ":0,60,00,18,00\n" \
-  ":i,20,21\n" \
-  ":B,60,0\n" \
-  "#\n"
-
-// #define USER_TEMPLATE "{"NAME":"Luatos CORE-ESP32C3","GPIO":[1,1,1,1,1,1,1,1,1,1,1,0,544,416,0,0,0,0,1,1,1,1],"FLAG":0,"BASE":1,\"CMND\":\"Module 0\"}"
-/*  https://templates.blakadder.com/luatos_CORE-ESP32.html
-  verwendbare GPIO: GPIO00, GPIO01, GPIO02, GPIO03, GPIO04, GPIO05, GPIO06, GPIO07, GPIO08, GPIO09, GPIO10, GPIO12, GPIO13, GPIO18, GPIO19, GPIO20, GPIO21
-  nicht verwendbar; daher im template mit "0" angegeben: GPIO11, GPIO14, GPIO15, GPIO16, GPIO17
-  Die Beschreibung bei Tasmota kann nicht so recht stimmen denn mein Board hat GPIO11 verfügbar und verwendet den für den BL des Display!
-*/
-
-#define USER_TEMPLATE "{\"NAME\":\"Luatos 32C3\",\"GPIO\":[0,6210,736,704,1,1,800,768,1,1,8736,992,544,1,0,0,0,0,1,1,1,1],\"FLAG\":0,\"BASE\":1,\"CMND\":\"Module 0\"}"
-/*  https://pcbartists.com/design/embedded/esp32-c3-gpio-notes-strapping-pins/
-    https://tasmota.github.io/docs/Components/  &  https://www.studiopieters.nl/esp32-c3-pinout/
-  GPIO0 ADC0 U1TXD                                                       -- 0      // 
-  GPIO1 ADC1 U1RXD                                                       -- 6210   // OptionA3 	Specific device options to be served in code
-  GPIO2 ADC2                                             AIR101-LCD SCK  -- 736    // SPI CLK1 	Hardware SPI
-  GPIO3 ADC3                                             AIR101-LCD SDA  -- 704    // SPI MOSI1 Hardware SPI
-  GPIO4 ADC4 I2C_SDA                                     AIR101-Btn Ent. -- 1      // USER
-  GPIO5 ADC5 I2C_SCL                                     AIR101-Btn L    -- 1      // USER
-  GPIO6                                                  AIR101-LCD DC   -- 800    // SPI DC1 	Hardware SPI
-  GPIO7                                                  AIR101-LCD CS   -- 768    // SPI CS1 	Hardware SPI
-  GPIO8                                                  AIR101-Btn R    -- 1      // USER
-  GPIO9                                                  AIR101-Btn U    -- 1      // USER
-  GPIO10                                                 AIR101-LCD RES  -- 8736   // Reset 	  Generic reset
-  GPIO11                                                 AIR101-LCD BL   -- 992 	 // Backlight Display backlight control
-  GPIO12 LED-D4 LedLink (544; _i: 576)                                   -- 544    // 
-  GPIO13 LED-D5 PWM_1 (416)                              AIR101-Btn D    -- 1      // USER
-  GPIO14 NOT AVAILABLE on this board                                     -- 0      // n/a
-  GPIO15 NOT AVAILABLE on this board                                     -- 0      // n/a
-  GPIO16 NOT AVAILABLE on this board                                     -- 0      // n/a
-  GPIO17 NOT AVAILABLE on this board                                     -- 0      // n/a
-  GPIO18                                                                 -- 1      // USER
-  GPIO19                                                                 -- 1      // USER
-  GPIO20 U0RXD                                                           -- 1      // USER
-  GPIO21 U0TXD                                                           -- 1      // USER
-Ausrichtung AIR101-LCD mit Display quer und Eingabe-Stick rechts; die Button-Bezeichnung ist oben angepaßt!
-*/
-
-#ifndef USE_SPI
-#define USE_SPI
+#ifdef FIRMWARE_TASMOTA32 // needed in certain projects to avoid linker error due to too many drivers being enabled by this
+#undef FIRMWARE_TASMOTA32
 #endif
 
-#ifndef USE_DISPLAY
-#define USE_DISPLAY
-/*    https://tasmota.github.io/docs/Displays/#universal-display-driver   */
-#define USE_UNIVERSAL_DISPLAY                   // New universal display driver for both I2C and SPI
-#endif
-
-// hawa-lc4: xsns_02_analog.ino Zeile 482 (12.5.0.2) bzw. 504 (13.2.0.2) aktivieren des logging der ADC Werte
-// #define ADC_LOG
-
-#endif    // LUATOS_ESP32C3
-
-#ifndef LUATOS_ESP32C3
-#define USER_TEMPLATE "{\"NAME\":\"CORE-ESP32\",\"GPIO\":[0,1,2,3,4,5,0,0,12,13,14,15,16,17,18,19,0,21,22,23,0,25,26,27,0,0,0,0,32,33,34,35,36,0,0,39],\"FLAG\":0,\"BASE\":1,\"CMND\":\"Module 0\"}"
+#define USER_TEMPLATE "{\"NAME\":\"CORE-ESP32\",\"GPIO\":[1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,0,1,1,1,0,1,1,1,0,0,0,0,1,1,1,1,1,0,0,1],\"FLAG\":0,\"BASE\":1,\"CMND\":\"Module 0\"}"
 /*  User Template ScratchPad:                            [0,1,2,3,4,5,-,-,12,13,14,15,16,17,18,19,-,21,22,23,-,25,26,27,-,-,-,-,32,33,34,35,36,-,-,39]
   ESP32 template GPIO pin mapping:  https://github.com/arendst/Tasmota/discussions/19000
-        [0,1,2,3,4,5,9,10,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,6,7,8,11,32,33,34,35,36,37,38,39]
+  [0,1,2,3,4,5,9,10,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,6,7,8,11,32,33,34,35,36,37,38,39]
   https://tasmota.github.io/docs/Components/  &  https://randomnerdtutorials.com/esp32-pinout-reference-gpios/
   GPIO00 Taster gegen GND (kann damit auch zum FlashBoot benutzt werden) -- 1      // 
   GPIO01 TX UART0                                                        -- 0      // belegt durch USB
@@ -330,21 +240,166 @@ Ausrichtung AIR101-LCD mit Display quer und Eingabe-Stick rechts; die Button-Bez
   GPIO37 Nicht verfügbar auf den meisten Boards                          -- 0      // Nicht verfügbar auf den meisten Boards
   GPIO38 Nicht verfügbar auf den meisten Boards                          -- 0      // Nicht verfügbar auf den meisten Boards
   GPIO39 (input only)                                                    -- 1      // 
-Nicht jedes Board hat alle GPIOs verfügbar!
+  Nicht jedes Board hat alle GPIOs verfügbar!
   GPIO00 fehlt auf dem DEVKIT V1 – DOIT 30-Pin Board und ist nur durch den boot-Taster am Board bedienbar.
   Das DEVKIT V1 – DOIT 30-Pin Board verwendest Standardmäßig den VSPI.
-Aufpassen bei VSPI und HSPI; die sind nicht immmer auf allen Boards gleich definiert! VSPI ist üblicherweise der Standard SPI Bus.
-Strapping Pins:   The ESP32 chip has the following strapping pins:
+  Aufpassen bei VSPI und HSPI; die sind nicht immmer auf allen Boards gleich definiert! VSPI ist üblicherweise der Standard SPI Bus.
+  Strapping Pins:   The ESP32 chip has the following strapping pins:
     GPIO 0 (must be HIGH to enter normal boot or LOW to enter flash boot)
     GPIO 2 (must be floating or LOW during boot)
     GPIO 5 (must be HIGH during boot)
     GPIO 12 (must be LOW during boot)
     GPIO 15 (must be HIGH during boot)
 */
-// hawa-lc4: xsns_02_analog.ino Zeile 482 (12.5.0.2) bzw. 504 (13.2.0.2) aktivieren des logging der ADC Werte
-// #define ADC_LOG
+
+
+#ifdef MY_ESP32C3
+#undef USER_TEMPLATE
+/*  https://templates.blakadder.com/SuperMini-ESP32-C3.html    https://www.waveshare.com/wiki/ESP32-C3-Zero  */
+#define USER_TEMPLATE "{\"NAME\":\"SuperMini ESP32-C3\",\"GPIO\":[608,640,1,1,736,672,704,6240,544,32,224,0,0,0,0,0,0,0,0,0,1,1],\"FLAG\":0,\"BASE\":1,\"CMND\":\"Module 0\"}"
+/*  User Template ScratchPad:      SuperMini ESP32-C3            [0  ,1  ,2,3,4  ,5  ,6  ,7   ,8  ,9 ,10,-,-,-,-,-,-,-,18,19,20,21]
+  https://tasmota.github.io/docs/Components/  &  https://www.wemos.cc/en/latest/s2/s2_mini.html
+  GPIO00                                                                 -- 608    // I2C SCL1
+  GPIO01                                                                 -- 640    // I2C SDA1
+  GPIO02                                                                 -- 1      // 
+  GPIO03                                                                 -- 1      // 
+  GPIO04 SPI2 SCK                                                        -- 736    // SPI CLK1 	Hardware SPI
+  GPIO05 SPI2 MISO                                                       -- 672    // SPI MISO1 	Hardware SPI
+  GPIO06 SPI2 MOSI                                                       -- 704    // SPI MOSI1 	Hardware SPI
+  GPIO07 SPI2 SS                                                         -- 6240   // SDCard CS
+  GPIO08 (blaue und RGB LED)           I2C SDA                           -- 544    // LedLink
+  GPIO09 Taster gegen GND (FlashBoot)  I2C SCL                           -- 32     // Button1
+  GPIO10                                                                 -- 224    // Relay1
+  GPIO11 Nicht verfügbar am SuperMini Board                              -- 0      // Nicht verfügbar am SuperMini Board (belegt durch VDD_SPI weil interner Flash)
+  GPIO12                                                                 -- 0      // 
+  GPIO13                                                                 -- 0      // 
+  GPIO14                                                                 -- 0      // 
+  GPIO15                                                                 -- 0      // 
+  GPIO16                                                                 -- 0      //
+  GPIO17                                                                 -- 0      // 
+  GPIO18 USB D-                                                          -- 0      // USB D-
+  GPIO19 USB D+                                                          -- 0      // USB D+
+  GPIO20 U0RXD                                                           -- 1      // 
+  GPIO21 U0TXD                                                           -- 1      // 
+  
+  Strapping Pins:
+  GPIO02	Must be held high during boot (if low on reset, normal flash boot may fail)
+  JTAG:   GPIO04-07  Used during boot; JTAG for debugging;
+  SPI0/1: GPIO11-17 are usually used for SPI flash and PSRAM and not recommended for other uses.
+  GPIO08	Must be held high during reset (if low, UART flashing/boot may not work)
+  GPIO09  Controls boot mode on reset (HIGH for normal flash boot, LOW enters serial download mode)
+*/
+#endif    // MY_ESP32C3
+//  #################################################################################################
+
+
+#ifdef MY_ESP32S2
+#undef USER_TEMPLATE
+// {"NAME":"S2 Mini v1.0.0","GPIO":[32,1,1,1,1,1,1,1,1,1,1,1,1,1,1,576,1,1,0,0,0,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0],"FLAG":0,"BASE":1}  https://templates.blakadder.com/s2_mini.html
+#define USER_TEMPLATE "{\"NAME\":\"ESP32-S2 Mini\",\"GPIO\":[32,1,1,1,1,641,1,1,1,1,1,1,609,1,1,544,1,1,1,0,0,1,640,1,608,1,1,1,1,1,0,0,0,0,0,0],\"FLAG\":0,\"BASE\":1,\"CMND\":\"Module 0\"}"
+/*  User Template ScratchPad:                               [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,-,-,21,33,34,35,36,37,38,39,40,-,-,-,-,-,-]
+  https://tasmota.github.io/docs/Components/  &  https://www.wemos.cc/en/latest/s2/s2_mini.html
+  GPIO00 Taster gegen GND (kann damit auch zum FlashBoot benutzt werden) -- 32     // nur am Taster auf dem Board verfügbar
+  GPIO01                                                                 -- 1      // 
+  GPIO02                                                                 -- 1      // 
+  GPIO03                                                                 -- 1      // 
+  GPIO04                                                                 -- 1      // 
+  GPIO05                                                                 -- 641    // I2C SDA2
+  GPIO06                                                                 -- 1      // 
+  GPIO07 SPI CLK                                                         -- 1      // 
+  GPIO08                                                                 -- 1      // 
+  GPIO09 SPI MISO                                                        -- 1      // 
+  GPIO10                                                                 -- 1      // 
+  GPIO11 SPI MOSI                                                        -- 1      // 
+  GPIO12                                                                 -- 609    // I2C SCL2
+  GPIO13                                                                 -- 1      // 
+  GPIO14                                                                 -- 1      // 
+  GPIO15 hat die interne blaue LED gegen GND; (LedLink: 544; _i: 576)    -- 544    // 
+  GPIO16                                                                 -- 1      //
+  GPIO17                                                                 -- 1      // 
+  GPIO18                                                                 -- 1      // 
+  GPIO19 USB D-                                                          -- 0      // 
+  GPIO20 USB D+                                                          -- 0      // 
+  GPIO21                                                                 -- 1      // 
+  GPIO26 bis GPIO32 belegt durch SPI0/1; nicht verfügbar.
+  GPIO33 I2C SDA (640)                                                   -- 640    // I2C SDA1
+  GPIO34                                                                 -- 1      // 
+  GPIO35 I2C SCL (608)                                                   -- 608    // I2C SCL1
+  GPIO36                                                                 -- 1      // 
+  GPIO37                                                                 -- 1      // 
+  GPIO38                                                                 -- 1      // 
+  GPIO39                                                                 -- 1      // 
+  GPIO40                                                                 -- 1      // 
+  GPIO41 Nicht verfügbar auf diesem Board                                -- 0      // Nicht verfügbar auf diesem Board
+  GPIO42 Nicht verfügbar auf diesem Board                                -- 0      // Nicht verfügbar auf diesem Board
+  GPIO43 Nicht verfügbar auf diesem Board                                -- 0      // Nicht verfügbar auf diesem Board
+  GPIO44 Nicht verfügbar auf diesem Board                                -- 0      // Nicht verfügbar auf diesem Board
+  GPIO45 Nicht verfügbar auf diesem Board                                -- 0      // Nicht verfügbar auf diesem Board
+  GPIO46 Nicht verfügbar auf diesem Board                                -- 0      // Nicht verfügbar auf diesem Board
+Strapping Pins:
+    GPIO 0 (must be HIGH to enter normal boot or LOW to enter flash boot)
+    GPIO 45 (must be HIGH during boot)
+    GPIO 46 (must be LOW during boot; is pulled to low and input only)
+SPI0/1: GPIO26-32 are usually used for SPI flash and PSRAM and not recommended for other uses.
+JTAG: GPIO39-42 are usually used for inline debug.
+*/
+#endif    // MY_ESP32S2
+//  #################################################################################################
+
+
+#ifdef MY_ESP32S3
+#undef USER_TEMPLATE
+/*       https://www.waveshare.com/wiki/ESP32-S3-Zero   https://templates.blakadder.com/espressif_ESP32-S3-DevKitM-1.html       */
+#define USER_TEMPLATE "{\"NAME\":\"ESP32-S3-Zero\",\"GPIO\":[0,1,1,1,1,448,449,450,451,1,1,1,1,1,1,1,1,1,1,0,0,1376,0,0,0,0,0,1,1,1,1,1,0,0,1,0,0,0],\"FLAG\":0,\"BASE\":1,\"CMND\":\"Module 0\"}"
+/*  User Template ScratchPad:      ESP32-S3-Zero            [-,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,--,--,--,--,--,38,39,40,41,42,--,--,45,--,--,--]
+  GPIO00 Taster gegen GND (kann auch zum FlashBoot benutzt werden)       -- 0      // GPIO ist nur am Taster verfügbar
+  GPIO01                                                                 -- 1      // 
+  GPIO02                                                                 -- 1      // 
+  GPIO03                                                                 -- 1      // 
+  GPIO04                                                                 -- 1      // 
+  GPIO05                                                                 -- 448    // PWM_i 1; externe LED rot
+  GPIO06                                                                 -- 449    // PWM_i 2; externe LED grün
+  GPIO07                                                                 -- 450    // PWM_i 3; externe LED blau
+  GPIO08                                                                 -- 451    // PWM_i 4; externe LED warm-weiß
+  GPIO09                                                                 -- 1      // 
+  GPIO10                                                                 -- 1      // 
+  GPIO11                                                                 -- 1      // 
+  GPIO12                                                                 -- 1      // 
+  GPIO13                                                                 -- 1      // 
+  GPIO14                                                                 -- 1      // 
+  GPIO15                                                                 -- 1      // 
+  GPIO16                                                                 -- 1      // 
+  GPIO17                                                                 -- 1      // 
+  GPIO18                                                                 -- 1      // 
+  GPIO19 Auf Zero Board nicht verfügbar; USB_D-                          -- 0      // USB_D-
+  GPIO20 Auf Zero Board nicht verfügbar; USB_D+                          -- 0      // USB_D+
+  GPIO21 Auf Zero Board nicht offen verfügbar; onboard WS2812 RGB-LED    -- 1376   // WS2812 und PWM zusammen funktionieren nur mit Berry Skript
+  GPIO33 Auf Zero Board nicht verfügbar                                  -- 0      // Auf Zero Board nicht verfügbar  
+  GPIO34 Auf Zero Board nicht verfügbar                                  -- 0      // Auf Zero Board nicht verfügbar  
+  GPIO35 Auf Zero Board nicht verfügbar                                  -- 0      // Auf Zero Board nicht verfügbar  
+  GPIO36 Auf Zero Board nicht verfügbar                                  -- 0      // Auf Zero Board nicht verfügbar  
+  GPIO37 Auf Zero Board nicht verfügbar                                  -- 0      // Auf Zero Board nicht verfügbar  
+  GPIO38                                                                 -- 1      // 
+  GPIO39                                                                 -- 1      // 
+  GPIO40                                                                 -- 1      // 
+  GPIO41                                                                 -- 1      // 
+  GPIO42                                                                 -- 1      // 
+  GPIO43 TX UART0                                                        -- 0      // 
+  GPIO44 RX UART0                                                        -- 0      // 
+  GPIO45                                                                 -- 1      // 
+  GPIO46 Auf Zero Board nicht verfügbar                                  -- 0      // Auf Zero Board nicht verfügbar  
+  GPIO47 Auf Zero Board nicht verfügbar                                  -- 0      // Auf Zero Board nicht verfügbar  
+  GPIO48 Auf Zero Board nicht verfügbar                                  -- 0      // 
+*/
+#endif    // MY_ESP32S3
+//  #################################################################################################
+
 
 #ifdef MY_ETH01
+#undef USER_TEMPLATE
+// https://templates.blakadder.com/wireless_tag_WT32-ETH01.html
+// {"NAME":"WT32_ETH01","GPIO":[1,1,1,1,1,1,0,0,1,0,1,1,3840,576,5600,0,0,0,0,5568,0,0,0,0,0,0,0,0,1,1,0,1,1,0,0,1],"FLAG":0,"BASE":1}
+// my template needs rework!
   #define USE_ETHERNET                             // Add support for ethernet (+20k code)
   #define USE_WT32_ETH01                           // Add support for Wireless-Tag WT32-ETH01
 
@@ -363,8 +418,11 @@ Strapping Pins:   The ESP32 chip has the following strapping pins:
   #endif
   #define ETH_ADDRESS       1                      // [EthAddress] 0 = PHY0 .. 31 = PHY31
 #endif    // MY_ETH01
-#endif    // !LUATOS_ESP32C3
+//  #################################################################################################
 #endif    // ESP32
+
+// hawa-lc4: xsns_02_analog.ino Zeile 482 (12.5.0.2) bzw. 504 (13.2.0.2) aktivieren des logging der ADC Werte
+// #define ADC_LOG
 
 #define GUI_EDIT_FILE
 #define GUI_TRASH_FILE
@@ -378,6 +436,12 @@ Strapping Pins:   The ESP32 chip has the following strapping pins:
 #undef MODULE
 #endif
 #define MODULE                 USER_MODULE
+
+#ifdef WIFI_CONFIG_TOOL
+#undef WIFI_CONFIG_TOOL
+#endif
+// #define WIFI_CONFIG_TOOL      WIFI_MANAGER
+#define WIFI_CONFIG_TOOL      WIFI_RETRY      // default
 
 #ifdef MQTT_USE
 #undef MQTT_USE
@@ -419,6 +483,7 @@ Strapping Pins:   The ESP32 chip has the following strapping pins:
 #endif
 #define MY_LANGUAGE            de_DE
 
+/*   ab hier jede Menge #undef   */
 #ifdef USE_DEEPSLEEP
 #undef USE_DEEPSLEEP                              
 #endif 
@@ -515,6 +580,14 @@ Strapping Pins:   The ESP32 chip has the following strapping pins:
 #undef USE_MY92X1
 #endif
 
+#ifdef USE_MIBLE
+#undef USE_MIBLE
+#endif
+
+#ifdef USE_DISPLAY_ILI9341
+#undef USE_DISPLAY_ILI9341
+#endif
+
 #ifdef USE_SM16716
 #undef USE_SM16716
 #endif
@@ -562,16 +635,6 @@ Strapping Pins:   The ESP32 chip has the following strapping pins:
 #ifdef USE_DS18x20
 #undef USE_DS18x20
 #endif
-
-#ifdef USE_I2C
-#undef USE_I2C
-#endif
-
-#ifndef LUATOS_ESP32C3
-#ifdef USE_SPI
-#undef USE_SPI
-#endif
-#endif    // LUATOS_ESP32C3
 
 #ifdef USE_SERIAL_BRIDGE
 #undef USE_SERIAL_BRIDGE
