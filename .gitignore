@@ -45,6 +45,7 @@ platformio_tasmota_core3_env.ini
 lib/libesp32/berry/generate/*
 lib/libesp32/berry/berry
 tempFiles
+**/solidify/*.h
 
 ## Visual Studio Code specific ######
 .vscode
