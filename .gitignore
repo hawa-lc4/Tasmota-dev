@@ -63,3 +63,6 @@ tempFiles
 ## Python virtual environments for Platformio ##
 venv
 .venv
+
+## Qemu test folder
+tasmota-qemu

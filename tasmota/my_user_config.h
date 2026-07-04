@@ -78,11 +78,17 @@
 #ifndef STA_PASS1
 #define STA_PASS1              ""                // [Password1] Wi-Fi password
 #endif
+#ifndef AP_BSSID1
+#define AP_BSSID1              ""                // [BSsid1] Wi-Fi desired AP BSSID to connect to
+#endif
 #ifndef STA_SSID2
 #define STA_SSID2              ""                // [Ssid2] Optional alternate AP Wi-Fi SSID
 #endif
 #ifndef STA_PASS2
 #define STA_PASS2              ""                // [Password2] Optional alternate AP Wi-Fi password
+#endif
+#ifndef AP_BSSID2
+#define AP_BSSID2              ""                // [BSsid2] Wi-Fi desired AP BSSID to connect to
 #endif
 #ifndef WIFI_AP_PASSPHRASE
 #define WIFI_AP_PASSPHRASE     ""                // AccessPoint passphrase. For WPA2 min 8 char, for open use "" (max 63 char).
@@ -411,6 +417,9 @@
 // -- Wifi Config tools ---------------------------
 #define WIFI_SOFT_AP_CHANNEL   1                 // Soft Access Point Channel number between 1 and 13 as used by Wi-Fi Manager web GUI
 #define USE_IMPROV                               // Add support for IMPROV serial protocol as used by esp-web-tools (+2k code)
+
+// -- Serial input --------------------------------
+//#define USE_SERIAL_BACKSPACE                     // Add support for backspace (0x08) in serial console input, removing the last typed character
 
 // -- IPv6 support -------------------------------
 // #define USE_IPV6                                 // Enable IPv6 support (if the underlying esp-idf is also configured to support it)
