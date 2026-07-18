@@ -3116,18 +3116,24 @@ class HASPmota
     end
 
     # set the theme for HASPmota
-    var primary_color = self.lvh_root.parse_color(tasmota.webcolor(10 #-COL_BUTTON-#))
-    var secondary_color = self.lvh_root.parse_color(tasmota.webcolor(11 #-COL_BUTTON_HOVER-#))
-    var color_scr = self.lvh_root.parse_color(tasmota.webcolor(1 #-COL_BACKGROUND-#))
+    # var primary_color = self.lvh_root.parse_color(tasmota.webcolor(10 #-COL_BUTTON-#))
+    # var secondary_color = self.lvh_root.parse_color(tasmota.webcolor(11 #-COL_BUTTON_HOVER-#))
+    var primary_color = lv.color(0x1FA3EC)
+    var secondary_color = lv.color(0x0E70A4)
+    # var color_scr = self.lvh_root.parse_color(tasmota.webcolor(1 #-COL_BACKGROUND-#))
+    var color_scr = lv.color(0x000088)
     var color_text = self.lvh_root.parse_color(tasmota.webcolor(9 #-COL_BUTTON_TEXT-#))
-    var color_card = self.lvh_root.parse_color(tasmota.webcolor(2 #-COL_FORM-#))
-    var color_grey = self.lvh_root.parse_color(tasmota.webcolor(2 #-COL_FORM-#))
-    var color_reset = self.lvh_root.parse_color(tasmota.webcolor(12 #-COL_BUTTON_RESET-#))
-    var color_reset_hover = self.lvh_root.parse_color(tasmota.webcolor(13 #-COL_BUTTON_RESET_HOVER-#))
-    var color_save = self.lvh_root.parse_color(tasmota.webcolor(14 #-COL_BUTTON_SAVE-#))
-    var color_save_hover = self.lvh_root.parse_color(tasmota.webcolor(15 #-COL_BUTTON_SAVE_HOVER-#))
-    var colors = lv.color_arr([primary_color, secondary_color, color_scr, color_text, color_card, color_grey,
-                               color_reset, color_reset_hover, color_save, color_save_hover])
+    # var color_card = self.lvh_root.parse_color(tasmota.webcolor(2 #-COL_FORM-#))
+    # var color_grey = self.lvh_root.parse_color(tasmota.webcolor(2 #-COL_FORM-#))
+    var color_card = lv.color(0x000044)
+    var color_grey = lv.color(0x4F4F4F)
+    # var color_reset = self.lvh_root.parse_color(tasmota.webcolor(12 #-COL_BUTTON_RESET-#))
+    # var color_reset_hover = self.lvh_root.parse_color(tasmota.webcolor(13 #-COL_BUTTON_RESET_HOVER-#))
+    # var color_save = self.lvh_root.parse_color(tasmota.webcolor(14 #-COL_BUTTON_SAVE-#))
+    # var color_save_hover = self.lvh_root.parse_color(tasmota.webcolor(15 #-COL_BUTTON_SAVE_HOVER-#))
+    var colors = lv.color_arr([primary_color, secondary_color, color_scr, color_text, color_card, color_grey])
+                               # ,color_reset, color_reset_hover, color_save, color_save_hover
+                              
     
     var th2 = lv.theme_haspmota_init(0, colors,
                                      self.r12, self.r16, self.r24)
@@ -3642,7 +3648,17 @@ class HASPmota
         end
       end
 
-      # Step 3.d. if not found, try to load a module with the name of the class
+      # Step 3.d. if not found, try `lv.<name>` as direct mapping of LVGL class
+      if obj_class == nil
+        # if not found, check if a LVGL class with name `lv.<name>` exists
+        var lv_cl = introspect.get(lv, obj_type)
+        if (lv_cl != nil) && (type(lv_cl) == 'class')
+          lv_instance = lv_cl(parent_lvgl)
+          obj_class = self.lvh_obj           # use the basic lvh_obj component to encapsulate
+        end
+      end
+
+      # Step 3.e. if not found, try to load a module with the name of the class
       if obj_class == nil
         var lv_cl = introspect.module(obj_type)
         if lv_cl != nil && type(lv_cl) == 'class'
